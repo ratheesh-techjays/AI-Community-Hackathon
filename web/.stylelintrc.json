@@ -1,0 +1,40 @@
+{
+  "plugins": [
+    "stylelint-declaration-strict-value"
+  ],
+  "rules": {
+    "scale-unlimited/declaration-strict-value": [
+      [
+        "/color/",
+        "background",
+        "background-color",
+        "border",
+        "border-color",
+        "box-shadow",
+        "z-index",
+        "font-size",
+        "font-family",
+        "font-weight",
+        "line-height",
+        "/^margin/",
+        "/^padding/",
+        "gap",
+        "/^border-radius/",
+        "transition-duration",
+        "animation-duration"
+      ],
+      {
+        "ignoreValues": [
+          "inherit",
+          "currentColor",
+          "transparent",
+          "none",
+          "0",
+          "auto",
+          "100%"
+        ],
+        "disableFix": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,46 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# --- Node ---
+node_modules/
+dist/
+.vite/
+*.tsbuildinfo
+
+# --- Secrets ---
+.env
+.env.local
+*-service-account*.json
+gee-key*.json
+
+# --- Large / regenerable data -------------------------------------------------
+# IBTrACS is 27.9 MB and fetchable by URL. Get it with `make data`.
+data/raw/ibtracs_NI.csv
+data/raw/*.osm.pbf
+data/raw/*.tif
+data/golden/*.tif
+
+# NOTE: data/raw/osdma_shelters.{csv,geojson} IS committed on purpose.
+# It was extracted from an embedded JS array on the OSDMA site and is not
+# re-fetchable by a plain URL request. Losing it means redoing the scrape.
+
+# --- Internal planning (kept local, not in the public repo) -----------------
+# Research notes and competition strategy. The engineering docs under
+# docs/design/ (architecture, data, AI, evals, API, frontend) are public.
+docs/research/
+docs/design/00-track-decision.md
+docs/design/01-PRD.md
+
+# --- Artefacts ---
+out/
+*.log
+.DS_Store
