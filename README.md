@@ -77,23 +77,23 @@ A six-stage pipeline from storm track to actionable decision.
  └──────────────┘   └──────────────┘   └──────────────┘
 ```
 
-**1. Ingest** — IBTrACS best-track for historical replay, GDACS for live storms, and **Gemini multimodal reading IMD's actual bulletin PDF** into structured track parameters. IMD publishes real bulletins with no JSON API; nobody parses them programmatically.
+**1. Ingest** — IBTrACS best-track for historical replay (built). GDACS live storms and **Gemini multimodal reading IMD's bulletin PDF** are the next ingestion step: the API rejects those track kinds today (HTTP 400) rather than faking them.
 
 **2. Hazard** — Holland (1980) parametric wind field, an explicitly-labelled surge index, then **connectivity-constrained bathtub inundation**: we flood-fill from the ocean rather than thresholding elevation, because naive thresholding floods hydraulically disconnected inland basins and invents lakes.
 
-**3. Exposure** — intersect the hazard footprint with individual building footprints (Google Open Buildings), 100 m population rasters, hospitals, roads, power assets, and **877 real geocoded OSDMA cyclone shelters**.
+**3. Exposure** — intersect the hazard footprint with individual building footprints (Google Open Buildings), 100 m population rasters, and **877 real geocoded OSDMA cyclone shelters**. Hospitals, roads and power assets are the next layers; they are not ingested yet.
 
-**4. Decide** — OR-Tools min-cost-flow assigns at-risk population to shelters by capacity and road access, and generates role-addressed action packets aligned to IMD's four warning stages (**72h / 48h / 24h / 12h**, verified verbatim from IMD's July 2024 SOP).
+**4. Decide** — OR-Tools min-cost-flow assigns at-risk population to shelters by imputed capacity and road distance (straight line × 1.3; no road network yet), and generates role-addressed action packets aligned to IMD's four warning stages (**72h / 48h / 24h / 12h**, verified verbatim from IMD's July 2024 SOP).
 
 **5. Trigger** — a PCRIC-style dual parametric trigger (wind-in-zone vs. impacted-population index, paying the larger), so liquidity can be released pre-landfall instead of months after.
 
-**6. Validate** — replay Fani, compare our predicted inundation against **observed Sentinel-1 SAR flood extent**, and report Critical Success Index honestly.
+**6. Validate** — replay Fani, compare our predicted inundation against **observed Sentinel-1 SAR flood extent** (same relative orbit pre and post), and report Critical Success Index honestly. **Measured for Fani: CSI 0.001**, below the 0.25 floor, so the extent stays heuristic everywhere in the app. The truth mask was checked: it matches JRC permanent water (IoU 0.73, best at zero shift). The masks are aligned; they disagree. See `DEFENSE.md` §4.
 
 ### The three things nobody else is doing
 
 **⭐ Building-level exposure, not district choropleths.** Everyone shades a district polygon red. We intersect the hazard with individual building footprints and a population raster.
 
-**⭐ A backtest against real satellite truth.** We replay Cyclone Fani and score predicted flood extent against what Sentinel-1 actually observed — cross-checked against **`EMSR357`, the only official Copernicus EMS activation for any Indian cyclone that exists.** (Verified by enumerating every India/Bangladesh activation; Yaas, Michaung, Remal and Biparjoy have none.)
+**⭐ A backtest against real satellite truth.** We replay Cyclone Fani and score predicted flood extent against what Sentinel-1 actually observed — with **`EMSR357`, the only official Copernicus EMS activation for any Indian cyclone that exists,** as the independent reference to ingest next (not yet ingested). (Verified by enumerating every India/Bangladesh activation; Yaas, Michaung, Remal and Biparjoy have none.)
 
 **⭐ Decisions and payout triggers as the output artefact.** Not a map. A time-stamped, role-addressed order set, plus a computed payout figure.
 
@@ -111,10 +111,10 @@ Derived from NDMA's own guidelines, where the District Collector as DDMA chair i
 
 | User | Their real decision | What PRAHARI gives them |
 |---|---|---|
-| **District Collector** (primary) | Which zones to evacuate, when, to which shelters | Ranked village-level evacuation list with population, assigned shelter, road status, deadline per IMD stage |
+| **District Collector** (primary) | Which zones to evacuate, when, to which shelters | Evacuation orders per block and IMD stage deadline: people per flood cluster, assigned shelter, estimated distance (road status not modelled yet) |
 | **State Relief Commissioner** | Where to concentrate resources; when to sound sirens | Cross-district severity comparison; shelter capacity vs. demand gap |
-| **Power utility control room** | Which feeders to de-energize; where to pre-stage crews | Substations and line segments inside the surge/wind footprint, ranked by customers served |
-| **NDRF staging officer** | Where to pre-position teams — **currently decided with no algorithm at all** | Optimised staging by expected access loss and population at risk |
+| **Power utility control room** | Which feeders to de-energize; where to pre-stage crews | *Planned:* substations and feeders inside the footprint. Power assets are **not ingested yet**, so no power orders are generated today |
+| **NDRF staging officer** | Where to pre-position teams — **currently decided with no algorithm at all** | Pre-positioning orders at the largest flood clusters with no shelter place (a ranking, not an optimisation yet) |
 | **State finance / DRF desk** | Whether a parametric threshold is crossed | Trigger status and computed payout per zone, with evidence |
 
 ---
@@ -125,10 +125,21 @@ Derived from NDMA's own guidelines, where the District Collector as DDMA chair i
 
 ```bash
 cd backend
+python -m venv .venv && . .venv/Scripts/activate   # Windows; use .venv/bin/activate elsewhere
 pip install -e ".[dev]"
-make data          # downloads IBTrACS NI basin (27.9 MB, one time)
-make test          # 30 tests, no network / no auth needed
+make data          # downloads IBTrACS NI basin (27.9 MB, one time; needed only to recompute)
+make test          # pytest -m "not network and not gee": no network, no keys
 make dev           # http://localhost:8080/api/v1/docs
+```
+
+Without `make` (Windows PowerShell), run the Makefile commands directly, e.g.
+`.venv/Scripts/python -m uvicorn prahari.api.main:app --port 8080`.
+
+The precomputed runs in `data/runs/` (`fani-2019-puri`, `yaas-2021-balasore`)
+open with no Earth Engine or Gemini key. To recompute one:
+
+```bash
+python -m prahari.workers.scenario --storm FANI --season 2019     --aoi puri_khordha --validate --alias fani-2019-puri
 ```
 
 ### Frontend (React 19, Vite, TypeScript strict)
@@ -137,7 +148,7 @@ make dev           # http://localhost:8080/api/v1/docs
 cd web
 npm install
 npm run dev        # http://localhost:5173 (proxies /api -> :8080)
-npm run check      # typecheck + lint + stylelint + tests
+npm run check      # typecheck + lint + token lint (.css.ts) + tests
 ```
 
 > The dev server proxies `/api` to the backend, mirroring the Firebase Hosting rewrite used in production. **This is why the backend has no CORS middleware — everything is same-origin by architecture.**
@@ -176,7 +187,7 @@ backend/          FastAPI service
     config/       settings, GEE asset IDs, region params, paths
     models/       Pydantic domain models (+ the disclosure contract)
     hazard/       L2: Holland wind field, surge index, inundation  <- pure, tested
-    ingestion/    L1: IBTrACS, GDACS, IMD bulletin, exposure layers
+    ingestion/    L1: IBTrACS, OSDMA register, Earth Engine layers (DEM, water, WorldPop, Open Buildings, Sentinel-1)
     exposure/     L3: hazard x asset intersection
     decision/     L4: shelter assignment, action packets, parametric triggers
     ai/           L5: Gemini extract / narrate / query + grounding validator
@@ -196,14 +207,22 @@ docs/design/      PRD, architecture, data layer, AI layer, evals, API, frontend
 
 ### Build status
 
+Measured on this branch; the commands and outputs are in `EVALUATION.md`.
+
 | | |
 |---|---|
-| Backend tests | **30 passing** — no network, no auth, no API keys required |
-| Frontend tests | **9 passing** · `tsc --noEmit` clean · `ruff` clean |
-| Bundle | **84 kB gzipped** initial JS (map in a separate async chunk) |
+| Backend tests | see `EVALUATION.md` (final round) — no network, no auth, no API keys required |
+| Static checks | `mypy --strict`, `ruff`, `tsc --noEmit`, `eslint --max-warnings 0` all clean |
+| Bundle | initial JS ~114 kB gzipped (React, router, TanStack Query and the shell); each screen and the map (deck.gl + MapLibre, ~529 kB gz) load on demand; `dist/index.html` preloads nothing else |
 
-**Complete and tested:** the hazard engine (L2). Holland wind field, connectivity inundation, eval metrics.
-**Structured with `TODO(owner)` markers:** exposure (L3), decision (L4), AI (L5), GEE client, Postgres/Cloud Tasks. The scenario endpoint is a synchronous in-memory stub so frontend work can proceed against a real contract.
+**Built and tested:** L1 IBTrACS and Earth Engine layers, L2 hazard, L3 exposure,
+L4 OR-Tools assignment and role-addressed orders, L5 Gemini briefings behind a
+grounding validator, the parametric trigger, L6 Sentinel-1 validation, and the
+content-addressed scenario API with file-backed run storage.
+**Not built:** GDACS and IMD bulletin ingestion, road routing, hospital and
+power assets, Postgres/GCS storage and Cloud Tasks. **Not deployed:** the
+Cloud Run and Firebase config is ready in `Dockerfile`, `firebase.json` and
+`deploy/deploy.ps1`.
 
 ---
 
@@ -213,9 +232,9 @@ Read `docs/design/01-PRD.md` §9 in full. The short version:
 
 **1. Never claim people die for lack of warning.** India's evacuation system works. Saying otherwise is false, and anyone who knows the domain will catch it. The gap is *asset* loss.
 
-**2. The AI never produces a number.** Gemini extracts structure from documents and narrates computed results. Every numeric claim is validated against deterministic engine output before rendering; failure falls back to a template. A hallucinated casualty or rupee figure on a District Collector's screen is the worst thing this system could do, so it's made structurally impossible rather than merely discouraged.
+**2. The AI never produces a number.** Gemini narrates computed results. Every number it writes must be one the prompt gave it, and a claim lint rejects casualty wording and "has been issued"-style assertions. A failure gets one repair attempt, then the deterministic template, and the UI shows which one you are reading. The validator checks digits, not numbers written as words; the prompt forbids those, and `05-evals.md` measures what slips through rather than assuming it is zero.
 
-**3. A modelled value never renders without its disclosure.** Enforced end to end: `Literal` types in Pydantic, contract tests in CI, `Disclosed<T>` in React.
+**3. A modelled value never renders without its disclosure.** Enforced end to end: `Literal` types in Pydantic, contract tests in the test suite (C1–C12 in `backend/tests/`, run by `.github/workflows/ci.yml` — configured, not yet run on GitHub), and disclosure badges fed by the server's own limitations in React.
 
 **4. Report the eval score we get, not the one we want.** Expected CSI is **0.30–0.50** for a parametric model; calibrated hydrodynamic models reach 0.60–0.80. A score above **0.70 is treated as a bug signal** — mask leakage or unmasked permanent water — not a win.
 
@@ -231,7 +250,7 @@ Read `docs/design/01-PRD.md` §9 in full. The short version:
 | Copernicus DEM | ⚠️ use `GLO30_2024_1` — plain `GLO30` is **deprecated and silently breaks** |
 | Open Buildings v3 | ✅ India confirmed in the v3 country roster |
 | Sentinel-1 GRD | ✅ granules confirmed for Fani / Yaas / Amphan |
-| Copernicus EMS | ✅ `EMSR357` (Fani) — the only Indian cyclone activation in existence |
+| Copernicus EMS | ⚠️ `EMSR357` (Fani) exists — the only Indian cyclone activation — but is **not yet ingested** |
 
 ### Traps that will cost you a day
 
@@ -239,13 +258,13 @@ Read `docs/design/01-PRD.md` §9 in full. The short version:
 - **Use `USA_*` (JTWC) columns.** IMD's `NEWDELHI_*` fields carry **no RMW at all**; `WMO_*` is ~13% populated basin-wide.
 - **Never use RMW raw.** Fani's rows read 30 → 5 → 12 → 5 nmi near peak. 5 nmi is a Dvorak artefact. We median-smooth with an intensity fallback and flag every imputed value (12/71 for Fani).
 - **Never mix ascending and descending Sentinel-1 orbit passes** between pre- and post-images. Look-angle difference alone creates false "flooding" that will visibly wreck the demo.
-- **Storm selection is not arbitrary.** Build on **Fani** (the only storm with an independent official cross-check). Demo **Yaas** (cleanest imagery). ❌ Never **Michaung** or **Remal** — no usable post-landfall Sentinel-1 imagery exists, because Sentinel-1B was lost in Dec 2021 and revisit degraded from ~6 to ~12 days.
+- **Storm selection is not arbitrary.** Build on **Fani** (the only storm with an independent official cross-check). Yaas is precomputed as a second coast; its same-orbit Sentinel-1 pair had nothing scorable, and the app says so. ❌ Never **Michaung** or **Remal** — no usable post-landfall Sentinel-1 imagery exists, because Sentinel-1B was lost in Dec 2021 and revisit degraded from ~6 to ~12 days.
 
 ### What is honestly uncertain
 
 **No published Bay-of-Bengal wind-to-surge formula exists.** The real literature (Dube/Rao/Sinha, Johns 1985, Flather 1994) is dynamical shallow-water modelling, not a plug-in equation. Our surge output is therefore a **transparent heuristic index**, labelled as such in the type system, the API response, and the UI — and `calibration_rmse_m` stays `None` until someone verifies against IMD's per-cyclone Preliminary Reports.
 
-**Credibility rests on the SAR-validated flood extent, never on the surge height.**
+**Credibility was meant to rest on the SAR-validated flood extent, never on the surge height.** Measured for Fani, the extent failed (CSI 0.001); the app says so on every screen that shows an order, and nothing is badged validated.
 
 ---
 

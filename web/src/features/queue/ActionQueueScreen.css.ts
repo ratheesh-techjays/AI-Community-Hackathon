@@ -115,11 +115,22 @@ export const check = style({
   cursor: "pointer",
 });
 
+// The row's select target is a real <button>, beside (not around) the
+// checkbox: nesting one control inside another breaks screen readers.
 export const itemBody = style({
   display: "flex",
   flexDirection: "column",
   gap: vars.space[1],
   minWidth: 0,
+  flex: 1,
+  padding: 0,
+  border: "none",
+  background: "transparent",
+  textAlign: "start",
+  font: "inherit",
+  color: "inherit",
+  cursor: "pointer",
+  ":focus-visible": { outline: `${vars.stroke.outline} solid ${vars.color.focus.ring}` },
 });
 
 export const itemTitle = style({ color: vars.color.text.primary });
@@ -140,12 +151,12 @@ export const itemMeta = style({
 
 export const deadline = styleVariants({
   due: { color: vars.color.text.secondary },
-  soon: { color: vars.color.intent.warning, fontWeight: "600" },
-  overdue: { color: vars.color.intent.danger, fontWeight: "600" },
+  soon: { color: vars.color.intent.warning, fontWeight: vars.weight.semibold },
+  overdue: { color: vars.color.intent.danger, fontWeight: vars.weight.semibold },
   done: { color: vars.color.intent.success },
 });
 
-export const people = style({ color: vars.color.hazard.compromised, fontWeight: "600" });
+export const people = style({ color: vars.color.hazard.compromised, fontWeight: vars.weight.semibold });
 
 // ----------------------------------------------------------------- detail
 
@@ -165,9 +176,11 @@ export const detailHead = style({
 export const kind = style({ color: vars.color.text.muted });
 
 export const detailTitle = style({
+  // eslint-disable-next-line no-restricted-syntax -- one-off display size outside the text scale
   fontSize: "24px",
+  // eslint-disable-next-line no-restricted-syntax -- one-off display size outside the text scale
   lineHeight: "30px",
-  fontWeight: "600",
+  fontWeight: vars.weight.semibold,
   letterSpacing: "-0.01em",
   color: vars.color.text.primary,
 });
@@ -232,7 +245,7 @@ const buttonBase = style({
   paddingInline: vars.space[4],
   paddingBlock: vars.space[2],
   borderRadius: vars.radius.md,
-  fontWeight: "600",
+  fontWeight: vars.weight.semibold,
   borderWidth: vars.stroke.hair,
   borderStyle: "solid",
   transitionProperty: "background-color, border-color",
@@ -282,6 +295,7 @@ export const kbd = style({
   border: `${vars.stroke.hair} solid ${vars.color.border.default}`,
   background: vars.color.surface.raised,
   fontFamily: vars.font.mono,
+  // eslint-disable-next-line no-restricted-syntax -- one-off display size outside the text scale
   fontSize: "11px",
 });
 

@@ -53,9 +53,11 @@ export const valueRow = style({
 
 export const value = style({
   color: vars.color.text.primary,
+  // eslint-disable-next-line no-restricted-syntax -- one-off display size outside the text scale
   fontSize: "28px",
+  // eslint-disable-next-line no-restricted-syntax -- one-off display size outside the text scale
   lineHeight: "32px",
-  fontWeight: "600",
+  fontWeight: vars.weight.semibold,
   letterSpacing: "-0.01em",
   fontVariantNumeric: "tabular-nums",
 });

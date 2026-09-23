@@ -18,7 +18,7 @@ _STRUCTURE = np.ones((3, 3), dtype=bool)
 
 def naive_threshold(dem: np.ndarray, surge_level_m: float) -> np.ndarray:
     """Elevation threshold WITHOUT connectivity. Reference/comparison only."""
-    return (dem <= surge_level_m) & ~np.isnan(dem)
+    return np.asarray((dem <= surge_level_m) & ~np.isnan(dem), dtype=bool)
 
 
 def connected_inundation(
@@ -41,7 +41,52 @@ def connected_inundation(
     if seed_ids.size == 0:
         return np.zeros_like(candidate, dtype=bool)
 
-    return np.isin(labels, seed_ids) & candidate
+    return np.asarray(np.isin(labels, seed_ids) & candidate, dtype=bool)
+
+
+def split_water(
+    dem: np.ndarray,
+    water_occurrence: np.ndarray,
+    min_occurrence: float = 80.0,
+    inlet_cells: int = 2,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Split surface water into (open sea, enclosed lagoons).
+
+    A water cell is DEM <= 0 m or near-permanent surface water. A morphological
+    opening of `inlet_cells` removes channels narrower than about
+    2 x inlet_cells + 1 cells. That separates tidal lagoons such as Chilika
+    from the sea: a narrow inlet throttles surge, so a static bathtub must
+    neither seed from a lagoon nor flood across it. Narrow rivers vanish in the
+    opening and stay open as conduits, as estuaries are for surge.
+
+    The sea is the largest edge-touching water body that survives the opening.
+    Every other surviving body is a lagoon.
+    """
+    water = (dem <= 0.0) | (water_occurrence >= min_occurrence)
+    opened = ndimage.binary_opening(water, structure=_STRUCTURE, iterations=inlet_cells)
+    labels, count = ndimage.label(opened, structure=_STRUCTURE)
+    empty = np.zeros_like(water, dtype=bool)
+    if count == 0:
+        return empty, empty
+    edge = np.unique(np.concatenate([labels[0], labels[-1], labels[:, 0], labels[:, -1]]))
+    edge = edge[edge > 0]
+    if edge.size == 0:
+        return empty, opened
+    sizes = ndimage.sum(opened, labels, index=edge)
+    sea_core = labels == edge[int(np.argmax(sizes))]
+    # Give back the coastline cells the opening shaved off the sea itself.
+    sea = ndimage.binary_dilation(sea_core, structure=_STRUCTURE, iterations=inlet_cells) & water
+    lagoons = opened & ~sea_core
+    lagoons = (
+        ndimage.binary_dilation(lagoons, structure=_STRUCTURE, iterations=inlet_cells)
+        & water
+        & ~sea
+    )
+    return sea, lagoons
+
+
+def ocean_mask(dem: np.ndarray, water_occurrence: np.ndarray) -> np.ndarray:
+    return split_water(dem, water_occurrence)[0]
 
 
 def flooded_area_km2(mask: np.ndarray, cell_area_km2_value: float) -> float:

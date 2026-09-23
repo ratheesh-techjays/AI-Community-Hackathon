@@ -4,7 +4,9 @@ React 19 frontend built with Vite 5, TypeScript strict, vanilla-extract, TanStac
 
 ## Commands
 - `npm install`, then `npm run dev`. The dev server runs on :5173 and proxies `/api` to `localhost:8080`, where the backend's `make dev` listens.
-- `npm run check`: runs `typecheck`, then `lint` (eslint `--max-warnings 0`, so any warning fails), then `lint:css` (stylelint on `src/**/*.css.ts`), then `test` (vitest). Run it before calling frontend work done.
+- `npm run check`: runs `typecheck`, then `lint` (eslint `--max-warnings 0`, so any warning fails), then `lint:css`, then `test` (vitest). Run it before calling frontend work done.
+  - `lint:css` is eslint on `src/**/*.css.ts` with the token rule. Stylelint was removed because it could not parse vanilla-extract.
+- `node scripts/snapshot-bundle.mjs`: refreshes `tests/fixtures/run-bundle.json` from the running backend. It is a trimmed snapshot of real engine output.
 - Single test file: `npx vitest run tests/orderLedger.test.tsx`. Single test: `npx vitest run -t "test name"`.
 - `npm run build`: runs `tsc -b` and then the vite build.
 - API types:
@@ -32,25 +34,27 @@ Tests run under jsdom with vitest globals (`tests/setup.ts` loads jest-dom). The
 - **Feature slices** live in `features/<name>/`:
   - `scenario`, `queue`, `situation`, `shelters`, `validation` and `orders` are the feature slices.
   - Shared presentational components live in `components/`.
-- **Scenario data (current state):**
-  - `ScenarioLayout` (`features/scenario/useScenario.tsx`) resolves `runId` through `features/scenario/registry.ts`.
-  - The registry maps run ids to the fixtures in `features/fixtures/` (`fani.ts`, `actions.ts`, `disclosures.ts`).
-  - Screens read everything from `useScenario()`, whose shape is `ScenarioData` in `features/scenario/types.ts`, and **must not import fixtures directly**.
-  - An unknown `runId` renders an honest "not computed" state, never an empty dashboard.
-  - When the backend is live, `useScenario` will switch to TanStack Query and the registry will keep only the precomputed demo runs.
+- **Scenario data:**
+  - `ScenarioLayout` and `AppShell` share `useRunData(runId)` (`features/scenario/useScenario.tsx`). It is one TanStack query that loads `/scenarios/{id}` plus its result endpoints.
+  - The query polls while a run is QUEUED or RUNNING.
+  - `adapter.ts` (`toScenarioData`) maps the responses to `ScenarioData`. It only renames and joins fields: no number is created there.
+  - Disclosure badges get the server's own `limitations`.
+  - `registry.ts` holds only the storm catalogue (`STORM_OPTIONS`, including each storm's `aoiPreset` and `runId`).
+  - The API types come from `api/generated/schema.d.ts` (`npm run api:types`).
 - **Order ledger** (`features/orders/orderLedger.tsx`):
   - A ticked checkbox is an auditable order: `subjectId`, `action`, IMD `stage`, `orderedAt` and `byRole`.
   - `orderedAt` is recorded at the moment of the tick, never derived later.
   - Writes are optimistic and persisted to localStorage (`prahari.orders.v1`) until `POST /scenarios/{id}/orders` exists.
   - Storage failures must never block an in-memory write.
   - Times are shown in 24-hour IST (`formatIST`).
-- **Map** (`map/ImpactMap.tsx`):
-  - Currently a hand-drawn schematic SVG that is labelled as such in the UI.
-  - `deck.gl` and `maplibre-gl` are installed, and `vite.config.ts` already splits them into a separate `map` chunk. When the real layers land, keep them out of the initial bundle.
-  - Map encodings must never rely on hue alone:
-    - flood bands carry a pattern as well as a hue;
-    - wind bands are outlines;
-    - compromised shelters get a halo, a distinct shape and a label.
+- **Map** (`map/`):
+  - `ImpactMap` lazily loads `DeckMap`: MapLibre 6 with an OpenFreeMap positron basemap (keyless), plus deck.gl layers.
+  - Don't add `manualChunks` for the map. A manual chunk pulled shared helpers into itself and made every route preload it; the dynamic import already splits it.
+  - MapLibre 6 needs `setWorkerUrl(...?url)`; without it no vector tile is ever requested.
+  - The flood, wind and validation layers are class-indexed PNGs from the API. `raster.ts` recolours them from tokens, and flood bands also carry a pattern.
+  - `tokens.ts` provides `useResolvedTokens()`, the only bridge from CSS tokens to RGBA.
+  - Only the ten deepest compromised shelters get a label.
+  - In tests, mock `@/map/ImpactMap` (jsdom has no WebGL).
 
 ## Transport and data fetching (`api/`)
 - `api/client.ts` is the **only** place `fetch` is allowed. ESLint bans the global `fetch` and `window.fetch` everywhere else. Use `apiClient.get`, `post` and `delete`.
@@ -73,7 +77,7 @@ Tests run under jsdom with vitest globals (`tests/setup.ts` loads jest-dom). The
   - `staleTime` is 5 minutes, because completed runs are immutable and content-addressed.
   - Errors with status ≥500 throw to the error boundary.
 - Always build query keys with `api/queryKeys.ts`. Never inline a key. The keys are hierarchical under `scenario(id)`, so invalidating a run drops all of its child queries.
-- `api/endpoints/index.ts` has hand-written interfaces that mirror the backend models. The plan is to replace them with generated `components["schemas"][...]` types.
+- `api/endpoints/index.ts` re-exports the generated `components["schemas"][...]` types. Never hand-write an API type.
 
 ## Design system (`design/`), strictly lint-enforced
 - `design/tokens/source.ts` transcribes the published design system. It is the **only** file allowed to contain raw hex colors or `px`/`em`/`ms` literals.
@@ -88,7 +92,10 @@ Tests run under jsdom with vitest globals (`tests/setup.ts` loads jest-dom). The
   - **In `.tsx` and `.ts` files:** no hex colors, no `px`/`em`/`ms` literals, and no inline `style={...}`. The one exception is `style={assignInlineVars(...)}`, which is how runtime values reach CSS.
   - **In `*.css.ts` files:** raw layout lengths are allowed and raw colors are not.
   - **In `src/map/**`:** raw colors are banned.
-- Stylelint requires tokens for color, background, border, shadow, z-index, font-*, line-height, margin, padding, gap, radius and durations. The allowed plain values are `0`, `auto`, `100%`, `none`, `inherit`, `transparent` and `currentColor`.
+- In `*.css.ts` files, ESLint also bans literal values for token-scale properties: color, background, shadow, z-index, font-*, line-height, margin, padding, gap, radius and durations.
+  - The allowed plain values are `0`, `auto`, `100%`, `none`, `inherit`, `transparent` and `currentColor`.
+  - Use `vars.weight.*` for font weights.
+  - A one-off display size needs `// eslint-disable-next-line no-restricted-syntax -- <reason>`.
 - `tests/designSystem.test.ts` guards invariants in `source.ts`. Keep them intact:
   - IMD stage colors are identical in both themes, because they are IMD's color code.
   - `text.onDark` stays white.
@@ -97,10 +104,9 @@ Tests run under jsdom with vitest globals (`tests/setup.ts` loads jest-dom). The
 
 ## Disclosure in the UI
 - Every modelled number must render with a `DisclosureBadge` (`components/DisclosureBadge.tsx`). `StatCard`, `MetricStrip` and `DataTable` accept disclosure props for this.
-- Fixture disclosures and limitations live in `features/fixtures/disclosures.ts`.
+- Badge copy (method and reason) is built in `features/scenario/adapter.ts`; its `notCaptured` list is the server's `limitations`.
 - `types/disclosed.ts` defines the `Disclosed<T>` brand, `disclose()`, `unsafeUnwrap(d, reason)` (which warns in dev) and `disclosureVariant()`.
   - Wrap API data at the query boundary once live endpoints are wired.
-  - `<DisclosedValue>` is referenced in the comments but does not exist yet.
 
 ## Environment (`.env.example`)
 - `VITE_API_BASE`: defaults to `/api/v1`.

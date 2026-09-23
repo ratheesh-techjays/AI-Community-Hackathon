@@ -47,7 +47,7 @@ const filterBase = style({
   borderRadius: vars.radius.sm,
   borderWidth: vars.stroke.hair,
   borderStyle: "solid",
-  fontWeight: "600",
+  fontWeight: vars.weight.semibold,
 });
 
 export const filterOn = style([

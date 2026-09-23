@@ -9,7 +9,9 @@ globalStyle("html", { colorScheme: "light dark" });
 globalStyle("body", {
   margin: vars.space[0],
   fontFamily: vars.font.sans,
+  // eslint-disable-next-line no-restricted-syntax -- base reset sets the root type scale
   fontSize: "14px",
+  // eslint-disable-next-line no-restricted-syntax -- base reset sets the root type scale
   lineHeight: "20px",
   fontVariantNumeric: "tabular-nums",
   color: vars.color.text.primary,
@@ -20,16 +22,18 @@ globalStyle("body", {
 globalStyle("h1, h2, h3, h4, p, ul, ol, figure", { margin: vars.space[0] });
 globalStyle("ul, ol", { paddingInlineStart: vars.space[4] });
 
+// eslint-disable-next-line no-restricted-syntax -- base reset sets the root type scale
 globalStyle("code, kbd", { fontFamily: vars.font.mono, fontSize: "12px" });
 
 /** Odia takes the Odia family and its taller leading wherever it is marked. */
 globalStyle('[lang="or"]', {
   fontFamily: vars.font.odia,
+  // eslint-disable-next-line no-restricted-syntax -- base reset sets the root type scale
   lineHeight: "24px",
 });
 
 globalStyle("table", { borderCollapse: "collapse", width: "100%" });
-globalStyle("th", { textAlign: "start", fontWeight: "600" });
+globalStyle("th", { textAlign: "start", fontWeight: vars.weight.semibold });
 
 globalStyle("button", {
   font: "inherit",
@@ -63,6 +67,7 @@ globalStyle(".sr-only", {
   position: "absolute",
   width: "1px",
   height: "1px",
+  // eslint-disable-next-line no-restricted-syntax -- visually-hidden pattern needs a negative 1px margin
   margin: "-1px",
   padding: vars.space[0],
   overflow: "hidden",

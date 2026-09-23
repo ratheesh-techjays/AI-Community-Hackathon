@@ -1,11 +1,9 @@
-import { createBrowserRouter, Navigate } from "react-router-dom";
+import { lazy, Suspense, type JSX, type LazyExoticComponent } from "react";
+import { createBrowserRouter, Link, Navigate } from "react-router-dom";
 
-import { ActionQueueScreen } from "@/features/queue/ActionQueueScreen";
-import { StormSelectorScreen } from "@/features/scenario/StormSelectorScreen";
+import { Callout } from "@/components/Callout";
+import { TableSkeleton } from "@/components/Skeleton";
 import { ScenarioLayout } from "@/features/scenario/useScenario";
-import { SheltersScreen } from "@/features/shelters/SheltersScreen";
-import { SituationScreen } from "@/features/situation/SituationScreen";
-import { ValidationScreen } from "@/features/validation/ValidationScreen";
 
 import { AppShell } from "./AppShell";
 
@@ -19,24 +17,57 @@ import { AppShell } from "./AppShell";
  *   /scenarios/:runId/map
  *   /scenarios/:runId/shelters
  *   /scenarios/:runId/evidence
+ *
+ * Screens are split per route: the first paint ships only the shell and the
+ * screen being opened.
  */
+
+const named = <K extends string>(
+  load: () => Promise<Record<K, () => JSX.Element>>,
+  key: K,
+): LazyExoticComponent<() => JSX.Element> => lazy(() => load().then((m) => ({ default: m[key] })));
+
+const StormSelectorScreen = named(() => import("@/features/scenario/StormSelectorScreen"), "StormSelectorScreen");
+const ActionQueueScreen = named(() => import("@/features/queue/ActionQueueScreen"), "ActionQueueScreen");
+const SituationScreen = named(() => import("@/features/situation/SituationScreen"), "SituationScreen");
+const SheltersScreen = named(() => import("@/features/shelters/SheltersScreen"), "SheltersScreen");
+const ValidationScreen = named(() => import("@/features/validation/ValidationScreen"), "ValidationScreen");
+
+function screen(Screen: LazyExoticComponent<() => JSX.Element>): JSX.Element {
+  return (
+    <Suspense fallback={<TableSkeleton rows={6} />}>
+      <Screen />
+    </Suspense>
+  );
+}
+
+function NotFound(): JSX.Element {
+  return (
+    <Callout intent="info" title="No such page">
+      This address is not part of PRAHARI. <Link to="/">Back to storms</Link>
+    </Callout>
+  );
+}
+
 export const router = createBrowserRouter([
   {
     path: "/",
     element: <AppShell />,
     children: [
-      { index: true, element: <StormSelectorScreen /> },
+      { index: true, element: screen(StormSelectorScreen) },
       {
         path: "scenarios/:runId",
         element: <ScenarioLayout />,
         children: [
           { index: true, element: <Navigate to="orders" replace /> },
-          { path: "orders", element: <ActionQueueScreen /> },
-          { path: "map", element: <SituationScreen /> },
-          { path: "shelters", element: <SheltersScreen /> },
-          { path: "evidence", element: <ValidationScreen /> },
+          { path: "orders", element: screen(ActionQueueScreen) },
+          { path: "map", element: screen(SituationScreen) },
+          { path: "shelters", element: screen(SheltersScreen) },
+          { path: "evidence", element: screen(ValidationScreen) },
+          { path: "*", element: <NotFound /> },
         ],
       },
+      { path: "*", element: <NotFound /> },
     ],
   },
 ]);

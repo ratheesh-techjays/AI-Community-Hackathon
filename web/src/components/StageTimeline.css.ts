@@ -144,7 +144,7 @@ const chipBase = style({
   borderRadius: vars.radius.sm,
   textTransform: "uppercase",
   letterSpacing: "0.04em",
-  fontWeight: "600",
+  fontWeight: vars.weight.semibold,
 });
 
 export const chip = styleVariants({
@@ -165,7 +165,7 @@ export const skippedTag = style({
   alignItems: "center",
   gap: vars.space[1],
   color: vars.color.intent.danger,
-  fontWeight: "600",
+  fontWeight: vars.weight.semibold,
 });
 
 export const srCaption = style({ color: vars.color.text.muted });

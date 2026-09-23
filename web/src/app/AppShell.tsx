@@ -5,7 +5,7 @@ import { Icon, type IconName } from "@/components/Icon";
 import { statusDot } from "@/design/effects.css";
 import { text } from "@/design/typography.css";
 import { useOrderLedger } from "@/features/orders/orderLedger";
-import { SCENARIOS } from "@/features/scenario/registry";
+import { useRunData } from "@/features/scenario/useScenario";
 
 import * as styles from "./AppShell.css";
 
@@ -40,7 +40,7 @@ export function AppShell(): JSX.Element {
   const match = useMatch("/scenarios/:runId/:section");
   const runId = match?.params.runId ?? null;
   const section = match?.params.section ?? "orders";
-  const scenario = runId ? SCENARIOS[runId] : undefined;
+  const { data: scenario } = useRunData(runId);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
@@ -59,7 +59,7 @@ export function AppShell(): JSX.Element {
           label: "Shelters",
           icon: "shelter",
           end: true,
-          count: scenario.shelterSummary.compromised,
+          count: scenario.headline.sheltersCompromised,
         },
         { to: `/scenarios/${runId}/evidence`, label: "Evidence", icon: "satellite", end: true },
       ]
@@ -86,7 +86,7 @@ export function AppShell(): JSX.Element {
           {scenario ? (
             <>
               <span className={`${text.label} ${styles.navLabel}`}>
-                {scenario.meta.storm.toUpperCase()} · {scenario.meta.district.toUpperCase()}
+                {scenario.meta.storm.toUpperCase()} · {scenario.meta.area.toUpperCase()}
               </span>
               {nav.map((item) => (
                 <NavLink
@@ -115,12 +115,12 @@ export function AppShell(): JSX.Element {
                 <span className={text.bodyStrong}>Cyclone {scenario.meta.storm}</span>
               </span>
               <span className={`${text.caption} ${styles.stormMeta}`}>
-                {scenario.meta.district}, {scenario.meta.state} · {scenario.meta.stageName}
+                {scenario.meta.area} · {scenario.meta.stageName}
               </span>
               <span className={`${text.clock} ${styles.stormClock}`}>T-{scenario.meta.nowHours}h</span>
-              {scenario.meta.isFixture ? (
-                <span className={`${text.caption} ${styles.stormMeta}`}>Fixture run — not live output</span>
-              ) : null}
+              <span className={`${text.caption} ${styles.stormMeta}`}>
+                Replay of a historical storm · engine output
+              </span>
             </div>
           ) : null}
 

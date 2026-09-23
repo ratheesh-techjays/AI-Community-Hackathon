@@ -17,6 +17,7 @@ from pydantic import BaseModel
 CSI_FLOOR = 0.25
 CSI_EXPECTED: tuple[float, float] = (0.30, 0.50)
 CSI_CEILING_WARNING = 0.70
+CSI_DEGENERATE = 0.05  # masks barely overlap: check the truth pipeline first
 
 
 class HazardSkill(BaseModel):
@@ -28,6 +29,7 @@ class HazardSkill(BaseModel):
     far: float  # false alarm ratio
     bias: float  # > 1 over-predicts extent
     suspicious: bool  # above ceiling -> investigate before celebrating
+    degenerate: bool  # near zero -> investigate before blaming the model
 
     @property
     def passes_floor(self) -> bool:
@@ -66,4 +68,5 @@ def hazard_skill(
         far=false_alarms / predicted_total if predicted_total else 0.0,
         bias=predicted_total / observed_total if observed_total else 0.0,
         suspicious=csi > CSI_CEILING_WARNING,
+        degenerate=denom > 0 and csi < CSI_DEGENERATE,
     )

@@ -5,14 +5,19 @@ from __future__ import annotations
 from functools import lru_cache
 from typing import Literal
 
+from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-    env: Literal["local", "staging", "prod"] = "local"
-    config_version: str = "v1"
+    env: Literal["local", "staging", "prod"] = Field(
+        "local", validation_alias=AliasChoices("PRAHARI_ENV", "ENV")
+    )
+    config_version: str = Field(
+        "v1", validation_alias=AliasChoices("PRAHARI_CONFIG_VERSION", "CONFIG_VERSION")
+    )
 
     # --- Gemini -----------------------------------------------------------
     # Flash tier only. Pro was removed from the free tier on 2026-04-01 and
@@ -35,6 +40,11 @@ class Settings(BaseSettings):
     # --- Storage ----------------------------------------------------------
     gcs_bucket: str = "prahari-artifacts"
     database_url: str = "postgresql+psycopg://prahari:prahari@localhost:5432/prahari"
+
+    # --- API ------------------------------------------------------------
+    # Write/compute endpoints require X-Prahari-Key. Unset is allowed only when
+    # env == "local"; staging and prod refuse writes without a configured key.
+    prahari_api_key: str = ""
 
     # --- Limits -----------------------------------------------------------
     max_aoi_area_km2: float = 50_000.0  # guards raster memory; -> HTTP 413

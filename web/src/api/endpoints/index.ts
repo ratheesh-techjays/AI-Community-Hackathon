@@ -1,81 +1,53 @@
 /**
  * Thin typed wrappers over apiClient.
  *
- * TODO(frontend): once the backend is running, replace these hand-written
- * interfaces with generated types:
+ * Every type here comes from the backend's OpenAPI schema:
  *
- *     npm run api:types      # writes src/api/generated/schema.d.ts
- *     import type { components } from "../generated/schema";
- *     type ScenarioDetail = components["schemas"]["ScenarioDetail"];
+ *     npm run api:types      # regenerates src/api/generated/schema.d.ts
+ *     npm run api:check      # CI gate: fails if the committed schema drifted
  *
- * `npm run api:check` gates CI so backend contract drift becomes a CI failure
- * rather than a demo-day runtime error.
+ * so backend contract drift is a type error, not a demo-day runtime error.
  */
 import { apiClient } from "../client";
+import type { components } from "../generated/schema";
 import type { ShelterParams } from "../queryKeys";
 
-// --- meta -------------------------------------------------------------------
+type Schemas = components["schemas"];
 
-export interface HealthResponse {
-  status: "ok" | "degraded";
-  gee_authenticated: boolean;
-  gemini_reachable: boolean;
-  gcs_writable: boolean;
-  db_reachable: boolean;
-  ai_enabled: boolean;
-  code_version: string;
-}
+export type HealthResponse = Schemas["HealthResponse"];
+export type SourceDescriptor = Schemas["SourceDescriptor"];
+export type LimitationsResponse = Schemas["LimitationsResponse"];
+export type StormSummary = Schemas["StormSummary"];
+export type CycloneTrack = Schemas["CycloneTrack"];
+export type ShelterRecord = Schemas["ShelterRecord"];
 
-export interface SourceDescriptor {
-  source_id: string;
-  authority: string;
-  url?: string | null;
-  licence: string;
-  role: string;
-  is_synthetic: boolean;
-  confidence: string;
-}
-
-export interface LimitationsResponse {
-  surge: string[];
-  parametric: string[];
-  general: string[];
-}
+export type RunStatus = Schemas["ScenarioDetail"]["status"];
+export type ScenarioRequest = Schemas["ScenarioRequest"];
+export type ScenarioAccepted = Schemas["ScenarioAccepted"];
+export type ScenarioDetail = Schemas["ScenarioDetail"];
+export type RunSummary = Schemas["RunSummary"];
+export type ModelDisclosure = Schemas["ModelDisclosure"];
+export type HazardResponse = Schemas["HazardResponse"];
+export type LayerRef = Schemas["LayerRef"];
+export type ExposureResponse = Schemas["ExposureResponse"];
+export type BlockExposure = Schemas["BlockExposure"];
+export type AssetsResponse = Schemas["AssetsResponse"];
+export type ShelterStatus = Schemas["ShelterStatus"];
+export type DecisionsResponse = Schemas["DecisionsResponse"];
+export type ActionItem = Schemas["ActionItem"];
+export type UnassignedCluster = Schemas["UnassignedCluster"];
+export type ParametricResponse = Schemas["ParametricResponse"];
+export type ValidationResponse = Schemas["ValidationResponse"];
+export type AdvisoriesResponse = Schemas["AdvisoriesResponse"];
+export type Advisory = Schemas["Advisory"];
+export type QueryRequest = Schemas["QueryRequest"];
+export type QueryResponse = Schemas["QueryResponse"];
 
 export const metaApi = {
   health: () => apiClient.get<HealthResponse>("/healthz"),
   sources: () => apiClient.get<{ sources: SourceDescriptor[] }>("/meta/sources"),
   limitations: () => apiClient.get<LimitationsResponse>("/meta/limitations"),
 };
-
-// --- storms -----------------------------------------------------------------
-
-export interface StormSummary {
-  name: string;
-  season: number;
-  has_sar_truth: boolean;
-  has_ems_activation: boolean;
-  note: string;
-}
-
-export interface TrackPoint {
-  iso_time: string;
-  lat: number;
-  lon: number;
-  max_wind_kt: number | null;
-  central_pressure_mb: number | null;
-  rmw_nmi: number | null;
-  rmw_imputed: boolean;
-}
-
-export interface CycloneTrack {
-  sid: string;
-  name: string;
-  season: number;
-  points: TrackPoint[];
-  landfall: { iso_time: string; lat: number; lon: number } | null;
-  provenance: { authority: string; confidence: string; caveats: string[] };
-}
 
 export const stormsApi = {
   list: () => apiClient.get<{ storms: StormSummary[] }>("/storms"),
@@ -85,93 +57,35 @@ export const stormsApi = {
     ),
 };
 
-// --- shelters ---------------------------------------------------------------
-
-export interface Shelter {
-  name: string;
-  lat: number;
-  lon: number;
-  district: string;
-  block: string | null;
-  village: string | null;
-  shelter_type: string;
-}
-
 export const sheltersApi = {
   list: (params: ShelterParams) => {
     const qs = new URLSearchParams();
     if (params.district) qs.set("district", params.district);
     if (params.shelterType) qs.set("shelter_type", params.shelterType);
-    const suffix = qs.toString() ? `?${qs}` : "";
-    return apiClient.get<{ count: number; shelters: Shelter[] }>(`/shelters${suffix}`);
+    const suffix = qs.toString() ? `?${qs.toString()}` : "";
+    return apiClient.get<{ count: number; shelters: ShelterRecord[] }>(`/shelters${suffix}`);
   },
 };
 
-// --- scenarios --------------------------------------------------------------
-
-export type RunStatus = "QUEUED" | "RUNNING" | "COMPLETE" | "FAILED";
-
-export interface ScenarioRequest {
-  track: { kind: "ibtracs" | "gdacs" | "bulletin" | "manual"; storm_name?: string; season?: number };
-  aoi_preset: string;
-  hazard?: { surge_level_m?: number; funnel_amplification?: number; dem_offset_m?: number };
-  generate_advisories?: boolean;
-  languages?: Array<"en" | "or">;
-  run_validation?: boolean;
-  label?: string;
-}
-
-export interface ScenarioAccepted {
-  run_id: string;
-  status: RunStatus;
-  params_hash: string;
-  cache_hit: boolean;
-  poll_url: string;
-  events_url: string;
-  estimated_seconds: number | null;
-}
-
-export interface ScenarioDetail {
-  run_id: string;
-  status: RunStatus;
-  request: ScenarioRequest;
-  params_hash: string;
-  code_version: string;
-  config_version: string;
-  stages_complete: string[];
-  warnings: string[];
-  summary: ScenarioSummary | null;
-  created_at: string;
-}
-
-export interface ScenarioSummary {
-  storm_name: string;
-  peak_surge_m: number;
-  area_flooded_km2: number;
-  population_at_risk: number;
-  buildings_at_risk: number;
-  shelters_total: number;
-  shelters_compromised: number;
-  unassigned_population: number;
-  compressed_timeline: boolean;
-  disclosure: {
-    model_class: "heuristic_index" | "parametric_physical" | "optimisation";
-    limitations: string[];
-    validated_against?: string | null;
-    skill_metric?: Record<string, number> | null;
-  };
-}
+const run = (runId: string, part: string): string =>
+  `/scenarios/${encodeURIComponent(runId)}/${part}`;
 
 export const scenariosApi = {
   create: (body: ScenarioRequest, idempotencyKey: string) =>
     apiClient.post<ScenarioAccepted>("/scenarios", body, {
       headers: { "Idempotency-Key": idempotencyKey },
     }),
-  get: (runId: string) => apiClient.get<ScenarioDetail>(`/scenarios/${runId}`),
+  get: (runId: string) => apiClient.get<ScenarioDetail>(`/scenarios/${encodeURIComponent(runId)}`),
+  hazard: (runId: string) => apiClient.get<HazardResponse>(run(runId, "hazard")),
+  exposure: (runId: string) => apiClient.get<ExposureResponse>(run(runId, "exposure")),
+  assets: (runId: string) => apiClient.get<AssetsResponse>(run(runId, "assets")),
+  decisions: (runId: string) => apiClient.get<DecisionsResponse>(run(runId, "decisions")),
+  parametric: (runId: string) => apiClient.get<ParametricResponse>(run(runId, "parametric")),
+  validation: (runId: string) => apiClient.get<ValidationResponse>(run(runId, "validation")),
+  advisories: (runId: string) => apiClient.get<AdvisoriesResponse>(run(runId, "advisories")),
 };
 
-// Endpoints the backend has not shipped yet -- see docs/design/06-api-contracts.md:
-//   /scenarios/{id}/hazard, /exposure, /assets, /decisions, /advisories,
-//   /parametric, /validation
-// Until they exist, screens read from src/features/fixtures/, whose shapes
-// match those responses exactly.
+export const queryApi = {
+  /** Gemini function calling over a stored run; every number is re-validated. */
+  ask: (body: QueryRequest) => apiClient.post<QueryResponse>("/query", body),
+};
