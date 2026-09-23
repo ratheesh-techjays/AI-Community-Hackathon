@@ -44,3 +44,6 @@ docs/design/01-PRD.md
 out/
 *.log
 .DS_Store
+
+# Playwright MCP screenshots and logs
+.playwright-mcp/

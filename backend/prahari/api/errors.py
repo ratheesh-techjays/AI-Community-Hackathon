@@ -11,6 +11,7 @@ from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 PROBLEM_BASE = "https://prahari.dev/problems"
 
@@ -43,6 +44,14 @@ class PrahariError(Exception):
 
 class IngestionError(PrahariError):
     slug, title, status = "ingestion-error", "Upstream data unavailable", 503
+
+
+class InvalidTrackSourceError(PrahariError):
+    slug, title, status = "invalid-track-source", "No resolvable track", 400
+
+
+class UnauthorizedError(PrahariError):
+    slug, title, status = "unauthorized", "Missing or invalid API key", 401
 
 
 class StormNotFoundError(PrahariError):
@@ -99,6 +108,20 @@ def register_exception_handlers(app: FastAPI) -> None:
                 instance=str(request.url.path),
             ),
             headers,
+        )
+
+    @app.exception_handler(StarletteHTTPException)
+    async def _handle_http(request: Request, exc: StarletteHTTPException) -> JSONResponse:
+        """Unmatched routes and framework errors speak problem+json too."""
+        slug = "not-found" if exc.status_code == 404 else "http-error"
+        return _problem_response(
+            Problem(
+                type=f"{PROBLEM_BASE}/{slug}",
+                title="Not found" if exc.status_code == 404 else "HTTP error",
+                status=exc.status_code,
+                detail=str(exc.detail),
+                instance=str(request.url.path),
+            )
         )
 
     @app.exception_handler(RequestValidationError)

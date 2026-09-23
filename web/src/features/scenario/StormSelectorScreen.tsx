@@ -15,9 +15,10 @@ import * as styles from "./StormSelectorScreen.css";
 /**
  * THE ENTRY SCREEN: pick a storm.
  *
- * The product is not Fani-only. Fani is the one run that is precomputed and
- * validated, so it is featured; every other storm in the catalogue can be
- * modelled on demand through the real backend (POST /scenarios).
+ * The product is not Fani-only. Fani and Yaas are precomputed by the real
+ * pipeline, so they are featured; a storm whose coast has an AOI preset can be
+ * modelled on demand through the backend (POST /scenarios). A storm with no
+ * preset says so instead of pretending to run.
  *
  * The truth flags are shown up front because they decide what a run can
  * honestly claim. Michaung, for instance, can be modelled but never
@@ -66,9 +67,8 @@ export function StormSelectorScreen(): JSX.Element {
       </section>
 
       <p className={`${text.caption} ${styles.foot}`}>
-        Live systems: the backend accepts GDACS tracks (<code>track.kind = "gdacs"</code>) and IMD
-        bulletin PDFs parsed by Gemini. A live-storm entry appears here when a system forms in the
-        Bay of Bengal.
+        Runs replay IBTrACS best-track. Live GDACS feeds and Gemini-read IMD bulletin PDFs are the
+        next ingestion step; the API rejects those track kinds today (HTTP 400) rather than faking them.
       </p>
     </div>
   );
@@ -90,8 +90,11 @@ function StormCard({
       scenariosApi.create(
         {
           track: { kind: "ibtracs", storm_name: storm.name, season: storm.season },
-          aoi_preset: "puri_khordha",
+          aoi_preset: storm.aoiPreset ?? "puri_khordha",
+          hazard: { dem_offset_m: 0 },
+          generate_advisories: true,
           run_validation: storm.hasSarTruth,
+          languages: ["en", "or"],
         },
         crypto.randomUUID(),
       ),
@@ -117,7 +120,7 @@ function StormCard({
         </div>
         {storm.runId ? (
           <span className={`${text.metric} ${styles.pillValidated}`}>
-            <Icon name="check" size={12} /> VALIDATED
+            <Icon name="check" size={12} /> PRECOMPUTED
           </span>
         ) : null}
       </header>
@@ -141,9 +144,12 @@ function StormCard({
             Open run
           </Link>
         ) : accepted ? (
+          <Link to={`/scenarios/${accepted.runId}/orders`} className={styles.primary}>
+            {accepted.cacheHit ? "Open run" : "Run queued · open"}
+          </Link>
+        ) : !storm.aoiPreset ? (
           <span className={`${text.caption} ${styles.accepted}`}>
-            <Icon name="check" size={12} />
-            {accepted.cacheHit ? "Run exists" : "Run queued"} · {accepted.runId.slice(0, 8)}…
+            No modelling area configured for this coast yet
           </span>
         ) : (
           <button
@@ -161,7 +167,11 @@ function StormCard({
           <span className={`${text.caption} ${styles.error}`}>
             {err.isTruthUnavailable
               ? "Cannot validate: no satellite truth for this storm."
-              : err.title}
+              : err.status === 429
+                ? "Another scenario is computing. Try again in a minute."
+                : err.status === 401
+                  ? "Modelling a new storm is operator-only on this deployment; open a precomputed run."
+                  : err.title}
           </span>
         ) : null}
       </div>

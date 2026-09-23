@@ -23,8 +23,8 @@ typecheck:
 
 check: lint typecheck test
 
-docker:
-	docker build -t prahari-api .
+docker:  ## build from the repo root so the image carries data/
+	docker build -t prahari-api ..
 
 data:
 	@python -c "from prahari.config.paths import IBTRACS_CSV; from prahari.ingestion.tracks.ibtracs import download; p = download(IBTRACS_CSV); print(f'IBTrACS ready: {p} ({p.stat().st_size/1e6:.1f} MB)')"

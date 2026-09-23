@@ -1,0 +1,3422 @@
+{
+ "detail": {
+  "run_id": "1b436335-3172-43da-9baa-9d94726502af",
+  "alias": "fani-2019-puri",
+  "status": "COMPLETE",
+  "request": {
+   "track": {
+    "kind": "ibtracs",
+    "storm_name": "FANI",
+    "season": 2019
+   },
+   "aoi_preset": "puri_khordha",
+   "hazard": {
+    "surge_level_m": null,
+    "funnel_amplification": null,
+    "holland_b_override": null,
+    "dem_offset_m": 0
+   },
+   "generate_advisories": true,
+   "languages": [
+    "en",
+    "or"
+   ],
+   "run_validation": true,
+   "label": "fani-2019-puri"
+  },
+  "params_hash": "74af85bd728ce64a2b8e9a3c394664075225955158e1a5f53faa20199841252a",
+  "code_version": "0.2.0",
+  "config_version": "v1",
+  "stages_complete": [
+   "hazard.wind_field",
+   "hazard.inundation",
+   "exposure",
+   "decision.assignment",
+   "decision.parametric_and_packets",
+   "validation.sar",
+   "ai.advisories"
+  ],
+  "stage_timings_ms": {
+   "hazard.wind_field": 366,
+   "hazard.inundation": 14116,
+   "exposure": 49870,
+   "decision.assignment": 254,
+   "decision.parametric_and_packets": 84,
+   "validation.sar": 15848,
+   "ai.advisories": 50221
+  },
+  "warnings": [
+   "RMW_IMPUTED: 12 of 71 track points smoothed or filled",
+   "LAGOON_BARRIER: 5040 enclosed-lagoon cells neither seed nor carry surge",
+   "VALIDATION_BELOW_FLOOR: CSI 0.001 < 0.25; extent stays 'heuristic', never 'validated'"
+  ],
+  "error": null,
+  "provenance": {
+   "track": "ibtracs.ni.v04r01",
+   "dem": "COPERNICUS/DEM/GLO30_2024_1",
+   "surface_water": "JRC/GSW1_4/GlobalSurfaceWater",
+   "population": "WorldPop/GP/100m/pop (2019)",
+   "buildings": "GOOGLE/Research/open-buildings/v3/polygons",
+   "shelters": "osdma.shelters (data/raw/osdma_shelters.csv)",
+   "sar_truth": "COPERNICUS/S1_GRD"
+  },
+  "summary": {
+   "storm_name": "FANI",
+   "season": 2019,
+   "aoi": "Puri + Khordha",
+   "landfall_at": "2019-05-03T06:00:00Z",
+   "landfall_lat": 20.2,
+   "landfall_lon": 85.9,
+   "compressed_timeline": false,
+   "peak_surge_m": 2.63,
+   "max_wind_ms": 63.8,
+   "area_flooded_km2": 782.2,
+   "population_at_risk": 470801,
+   "buildings_at_risk": 19226,
+   "shelters_total": 241,
+   "shelters_compromised": 29,
+   "unassigned_population": 350318,
+   "total_payout_inr": 15375000000,
+   "csi": 0.001,
+   "disclosure": {
+    "model_class": "heuristic_index",
+    "limitations": [
+     "Static bathtub inundation; no storm dynamics, tide phase, or timing.",
+     "No wave setup or runup, which can add more than 1 m.",
+     "DEM vertical error (several metres) is comparable to the surge signal itself in low-relief floodplains.",
+     "No river discharge coupling; compound flooding at deltas is unmodelled.",
+     "30 m DEM does not resolve embankment crests.",
+     "Surge height is a calibrated heuristic index, NOT a validated forecast model. No published Bay-of-Bengal wind-to-surge formula exists."
+    ],
+    "validated_against": null,
+    "skill_metric": {
+     "csi": 0.001,
+     "pod": 0.003,
+     "far": 0.999
+    }
+   }
+  },
+  "created_at": "2026-09-22T22:49:30.994573Z",
+  "completed_at": "2026-09-22T22:51:43.908340Z"
+ },
+ "hazard": {
+  "storm": "FANI",
+  "track": [
+   {
+    "iso_time": "2019-04-25T18:00:00Z",
+    "lat": 1.9,
+    "lon": 90.2,
+    "max_wind_kt": 25
+   },
+   {
+    "iso_time": "2019-04-26T12:00:00Z",
+    "lat": 3.2,
+    "lon": 89.8,
+    "max_wind_kt": 25
+   },
+   {
+    "iso_time": "2019-04-27T06:00:00Z",
+    "lat": 5.1,
+    "lon": 89.4,
+    "max_wind_kt": 45
+   },
+   {
+    "iso_time": "2019-04-28T00:00:00Z",
+    "lat": 7.1,
+    "lon": 88.1,
+    "max_wind_kt": 45
+   },
+   {
+    "iso_time": "2019-04-28T18:00:00Z",
+    "lat": 8.2,
+    "lon": 87.5,
+    "max_wind_kt": 45
+   },
+   {
+    "iso_time": "2019-04-29T12:00:00Z",
+    "lat": 10.2,
+    "lon": 87.1,
+    "max_wind_kt": 60
+   },
+   {
+    "iso_time": "2019-04-30T06:00:00Z",
+    "lat": 12.7,
+    "lon": 85.8,
+    "max_wind_kt": 90
+   },
+   {
+    "iso_time": "2019-05-01T00:00:00Z",
+    "lat": 13.9,
+    "lon": 84.1,
+    "max_wind_kt": 105
+   },
+   {
+    "iso_time": "2019-05-01T18:00:00Z",
+    "lat": 15.2,
+    "lon": 84.2,
+    "max_wind_kt": 105
+   },
+   {
+    "iso_time": "2019-05-02T12:00:00Z",
+    "lat": 17.6,
+    "lon": 84.8,
+    "max_wind_kt": 150
+   },
+   {
+    "iso_time": "2019-05-03T06:00:00Z",
+    "lat": 20.2,
+    "lon": 85.9,
+    "max_wind_kt": 115
+   },
+   {
+    "iso_time": "2019-05-04T00:00:00Z",
+    "lat": 23.2,
+    "lon": 88.5,
+    "max_wind_kt": 40
+   }
+  ],
+  "landfall_at": "2019-05-03T06:00:00Z",
+  "holland_b": 1.765,
+  "max_wind_ms": 63.8,
+  "surge": {
+   "peak_surge_m": 2.63,
+   "funnel_amplification": 1,
+   "coefficient": 0.00075,
+   "model_class": "heuristic_index",
+   "imd_forecast_surge_m": null,
+   "limitations": [
+    "Static bathtub inundation; no storm dynamics, tide phase, or timing.",
+    "No wave setup or runup, which can add more than 1 m.",
+    "DEM vertical error (several metres) is comparable to the surge signal itself in low-relief floodplains.",
+    "No river discharge coupling; compound flooding at deltas is unmodelled.",
+    "30 m DEM does not resolve embankment crests.",
+    "Surge height is a calibrated heuristic index, NOT a validated forecast model. No published Bay-of-Bengal wind-to-surge formula exists."
+   ],
+   "calibration": null
+  },
+  "inundation": {
+   "surge_level_m": 2.63,
+   "area_flooded_km2": 782.2,
+   "connectivity_enforced": true,
+   "dem_asset": "COPERNICUS/DEM/GLO30_2024_1",
+   "dem_vertical_error_m": 4,
+   "naive_threshold_area_km2": 852.8
+  },
+  "layers": [
+   {
+    "layer": "flood_depth",
+    "url": "/api/v1/scenarios/1b436335-3172-43da-9baa-9d94726502af/layers/flood_depth",
+    "bbox": [
+     85.3,
+     19.6,
+     86.4,
+     20.4
+    ],
+    "width": 440,
+    "height": 320,
+    "classes": [
+     "none",
+     "floodShallow",
+     "floodModerate",
+     "floodDeep"
+    ]
+   },
+   {
+    "layer": "wind",
+    "url": "/api/v1/scenarios/1b436335-3172-43da-9baa-9d94726502af/layers/wind",
+    "bbox": [
+     85.3,
+     19.6,
+     86.4,
+     20.4
+    ],
+    "width": 440,
+    "height": 320,
+    "classes": [
+     "none",
+     "windLow",
+     "windModerate",
+     "windSevere",
+     "windExtreme"
+    ]
+   }
+  ],
+  "disclosure": {
+   "model_class": "heuristic_index",
+   "limitations": [
+    "Static bathtub inundation; no storm dynamics, tide phase, or timing.",
+    "No wave setup or runup, which can add more than 1 m.",
+    "DEM vertical error (several metres) is comparable to the surge signal itself in low-relief floodplains.",
+    "No river discharge coupling; compound flooding at deltas is unmodelled.",
+    "30 m DEM does not resolve embankment crests.",
+    "Surge height is a calibrated heuristic index, NOT a validated forecast model. No published Bay-of-Bengal wind-to-surge formula exists."
+   ],
+   "validated_against": null,
+   "skill_metric": {
+    "csi": 0.001,
+    "pod": 0.003,
+    "far": 0.999
+   }
+  }
+ },
+ "exposure": {
+  "rows": [
+   {
+    "block": "KANAS",
+    "district": "PURI",
+    "population_at_risk": 130688,
+    "buildings_at_risk": 4958,
+    "area_flooded_km2": 133.97,
+    "max_depth_m": 2.06,
+    "shelters_total": 25,
+    "shelters_compromised": 12
+   },
+   {
+    "block": "BRAHMAGIRI",
+    "district": "PURI",
+    "population_at_risk": 71215,
+    "buildings_at_risk": 4285,
+    "area_flooded_km2": 152.54,
+    "max_depth_m": 2.39,
+    "shelters_total": 33,
+    "shelters_compromised": 6
+   },
+   {
+    "block": "TANGI",
+    "district": "KHORDHA",
+    "population_at_risk": 46510,
+    "buildings_at_risk": 650,
+    "area_flooded_km2": 112.52,
+    "max_depth_m": 2.39,
+    "shelters_total": 16,
+    "shelters_compromised": 1
+   },
+   {
+    "block": "JAGATSINGPUR",
+    "district": "JAGATSINGHPUR",
+    "population_at_risk": 44174,
+    "buildings_at_risk": 2424,
+    "area_flooded_km2": 67.66,
+    "max_depth_m": 2.11,
+    "shelters_total": 7,
+    "shelters_compromised": 4
+   },
+   {
+    "block": "ASTARANGA",
+    "district": "PURI",
+    "population_at_risk": 34412,
+    "buildings_at_risk": 2193,
+    "area_flooded_km2": 43.38,
+    "max_depth_m": 2.63,
+    "shelters_total": 20,
+    "shelters_compromised": 2
+   },
+   {
+    "block": "DELANGA",
+    "district": "PURI",
+    "population_at_risk": 33172,
+    "buildings_at_risk": 381,
+    "area_flooded_km2": 30.87,
+    "max_depth_m": 1.28,
+    "shelters_total": 4,
+    "shelters_compromised": 0
+   },
+   {
+    "block": "ERSAMA",
+    "district": "JAGATSINGHPUR",
+    "population_at_risk": 32856,
+    "buildings_at_risk": 1393,
+    "area_flooded_km2": 66.22,
+    "max_depth_m": 1.68,
+    "shelters_total": 2,
+    "shelters_compromised": 0
+   },
+   {
+    "block": "SATYABADI",
+    "district": "PURI",
+    "population_at_risk": 23449,
+    "buildings_at_risk": 333,
+    "area_flooded_km2": 27.32,
+    "max_depth_m": 0.99,
+    "shelters_total": 5,
+    "shelters_compromised": 1
+   },
+   {
+    "block": "KRUSHNAPRASAD",
+    "district": "PURI",
+    "population_at_risk": 15693,
+    "buildings_at_risk": 1237,
+    "area_flooded_km2": 57.4,
+    "max_depth_m": 2.45,
+    "shelters_total": 25,
+    "shelters_compromised": 1
+   },
+   {
+    "block": "JAGATSINGHPUR",
+    "district": "JAGATSINGHPUR",
+    "population_at_risk": 8265,
+    "buildings_at_risk": 313,
+    "area_flooded_km2": 13.73,
+    "max_depth_m": 2.61,
+    "shelters_total": 4,
+    "shelters_compromised": 1
+   },
+   {
+    "block": "PURI",
+    "district": "PURI",
+    "population_at_risk": 8121,
+    "buildings_at_risk": 234,
+    "area_flooded_km2": 16.19,
+    "max_depth_m": 2.29,
+    "shelters_total": 16,
+    "shelters_compromised": 1
+   },
+   {
+    "block": "KAKATPUR",
+    "district": "PURI",
+    "population_at_risk": 8073,
+    "buildings_at_risk": 624,
+    "area_flooded_km2": 17.07,
+    "max_depth_m": 1.92,
+    "shelters_total": 7,
+    "shelters_compromised": 0
+   },
+   {
+    "block": "CHILIKA",
+    "district": "KHORDHA",
+    "population_at_risk": 7528,
+    "buildings_at_risk": 87,
+    "area_flooded_km2": 17.42,
+    "max_depth_m": 2.34,
+    "shelters_total": 7,
+    "shelters_compromised": 0
+   },
+   {
+    "block": "GOP",
+    "district": "PURI",
+    "population_at_risk": 5993,
+    "buildings_at_risk": 112,
+    "area_flooded_km2": 15.55,
+    "max_depth_m": 1.9,
+    "shelters_total": 20,
+    "shelters_compromised": 0
+   },
+   {
+    "block": "BALIKUDA",
+    "district": "JAGATSINGHPUR",
+    "population_at_risk": 652,
+    "buildings_at_risk": 2,
+    "area_flooded_km2": 1,
+    "max_depth_m": 2.11,
+    "shelters_total": 1,
+    "shelters_compromised": 0
+   },
+   {
+    "block": "GADARPUR",
+    "district": "KENDRAPARA",
+    "population_at_risk": 0,
+    "buildings_at_risk": 0,
+    "area_flooded_km2": 0,
+    "max_depth_m": 0,
+    "shelters_total": 1,
+    "shelters_compromised": 0
+   },
+   {
+    "block": "BADAMBA",
+    "district": "CUTTACK",
+    "population_at_risk": 0,
+    "buildings_at_risk": 0,
+    "area_flooded_km2": 0,
+    "max_depth_m": 0,
+    "shelters_total": 3,
+    "shelters_compromised": 0
+   },
+   {
+    "block": "BANKI",
+    "district": "CUTTACK",
+    "population_at_risk": 0,
+    "buildings_at_risk": 0,
+    "area_flooded_km2": 0,
+    "max_depth_m": 0,
+    "shelters_total": 1,
+    "shelters_compromised": 0
+   },
+   {
+    "block": "DAMPARA",
+    "district": "CUTTACK",
+    "population_at_risk": 0,
+    "buildings_at_risk": 0,
+    "area_flooded_km2": 0,
+    "max_depth_m": 0,
+    "shelters_total": 2,
+    "shelters_compromised": 0
+   },
+   {
+    "block": "KANTAPARA",
+    "district": "CUTTACK",
+    "population_at_risk": 0,
+    "buildings_at_risk": 0,
+    "area_flooded_km2": 0,
+    "max_depth_m": 0,
+    "shelters_total": 1,
+    "shelters_compromised": 0
+   },
+   {
+    "block": "NIALI",
+    "district": "CUTTACK",
+    "population_at_risk": 0,
+    "buildings_at_risk": 0,
+    "area_flooded_km2": 0,
+    "max_depth_m": 0,
+    "shelters_total": 5,
+    "shelters_compromised": 0
+   },
+   {
+    "block": "NISCHITANTAKOIL",
+    "district": "CUTTACK",
+    "population_at_risk": 0,
+    "buildings_at_risk": 0,
+    "area_flooded_km2": 0,
+    "max_depth_m": 0,
+    "shelters_total": 1,
+    "shelters_compromised": 0
+   },
+   {
+    "block": "BIRIDI",
+    "district": "JAGATSINGHPUR",
+    "population_at_risk": 0,
+    "buildings_at_risk": 0,
+    "area_flooded_km2": 0,
+    "max_depth_m": 0,
+    "shelters_total": 2,
+    "shelters_compromised": 0
+   },
+   {
+    "block": "TIRTOL",
+    "district": "JAGATSINGHPUR",
+    "population_at_risk": 0,
+    "buildings_at_risk": 0,
+    "area_flooded_km2": 0,
+    "max_depth_m": 0,
+    "shelters_total": 5,
+    "shelters_compromised": 0
+   },
+   {
+    "block": "BALIANTA",
+    "district": "KHORDHA",
+    "population_at_risk": 0,
+    "buildings_at_risk": 0,
+    "area_flooded_km2": 0,
+    "max_depth_m": 0,
+    "shelters_total": 4,
+    "shelters_compromised": 0
+   },
+   {
+    "block": "BALIPATNA",
+    "district": "KHORDHA",
+    "population_at_risk": 0,
+    "buildings_at_risk": 0,
+    "area_flooded_km2": 0,
+    "max_depth_m": 0,
+    "shelters_total": 4,
+    "shelters_compromised": 0
+   },
+   {
+    "block": "BEGUNIA",
+    "district": "KHORDHA",
+    "population_at_risk": 0,
+    "buildings_at_risk": 0,
+    "area_flooded_km2": 0,
+    "max_depth_m": 0,
+    "shelters_total": 2,
+    "shelters_compromised": 0
+   },
+   {
+    "block": "BHUBANESWAR",
+    "district": "KHORDHA",
+    "population_at_risk": 0,
+    "buildings_at_risk": 0,
+    "area_flooded_km2": 0,
+    "max_depth_m": 0,
+    "shelters_total": 1,
+    "shelters_compromised": 0
+   },
+   {
+    "block": "JATANI",
+    "district": "KHORDHA",
+    "population_at_risk": 0,
+    "buildings_at_risk": 0,
+    "area_flooded_km2": 0,
+    "max_depth_m": 0,
+    "shelters_total": 3,
+    "shelters_compromised": 0
+   },
+   {
+    "block": "KHURDA",
+    "district": "KHORDHA",
+    "population_at_risk": 0,
+    "buildings_at_risk": 0,
+    "area_flooded_km2": 0,
+    "max_depth_m": 0,
+    "shelters_total": 1,
+    "shelters_compromised": 0
+   },
+   {
+    "block": "BHAPUR",
+    "district": "NAYAGARH",
+    "population_at_risk": 0,
+    "buildings_at_risk": 0,
+    "area_flooded_km2": 0,
+    "max_depth_m": 0,
+    "shelters_total": 1,
+    "shelters_compromised": 0
+   },
+   {
+    "block": "RANAPUR",
+    "district": "NAYAGARH",
+    "population_at_risk": 0,
+    "buildings_at_risk": 0,
+    "area_flooded_km2": 0,
+    "max_depth_m": 0,
+    "shelters_total": 6,
+    "shelters_compromised": 0
+   },
+   {
+    "block": "NIMAPADA",
+    "district": "PURI",
+    "population_at_risk": 0,
+    "buildings_at_risk": 0,
+    "area_flooded_km2": 0,
+    "max_depth_m": 0,
+    "shelters_total": 3,
+    "shelters_compromised": 0
+   },
+   {
+    "block": "PIPILI",
+    "district": "PURI",
+    "population_at_risk": 0,
+    "buildings_at_risk": 0,
+    "area_flooded_km2": 0,
+    "max_depth_m": 0,
+    "shelters_total": 3,
+    "shelters_compromised": 0
+   }
+  ],
+  "totals": {
+   "block": "ALL",
+   "district": null,
+   "population_at_risk": 470801,
+   "buildings_at_risk": 19226,
+   "area_flooded_km2": 772.84,
+   "max_depth_m": 2.63,
+   "shelters_total": 241,
+   "shelters_compromised": 29
+  },
+  "clusters": [
+   {
+    "cluster_id": "C009-053",
+    "block": "ERSAMA",
+    "near": "NARADIA",
+    "lat": 20.20401,
+    "lon": 86.37792,
+    "people_at_risk": 89,
+    "buildings_at_risk": 5,
+    "area_flooded_km2": 0.22,
+    "max_depth_m": 0.15
+   },
+   {
+    "cluster_id": "C009-054",
+    "block": "ERSAMA",
+    "near": "NARADIA",
+    "lat": 20.20566,
+    "lon": 86.391,
+    "people_at_risk": 1109,
+    "buildings_at_risk": 116,
+    "area_flooded_km2": 2.53,
+    "max_depth_m": 0.88
+   },
+   {
+    "cluster_id": "C010-050",
+    "block": "ERSAMA",
+    "near": "NARADIA",
+    "lat": 20.18252,
+    "lon": 86.31875,
+    "people_at_risk": 79,
+    "buildings_at_risk": 0,
+    "area_flooded_km2": 0.14,
+    "max_depth_m": 0.15
+   },
+   {
+    "cluster_id": "C010-051",
+    "block": "ERSAMA",
+    "near": "NARADIA",
+    "lat": 20.18246,
+    "lon": 86.32399,
+    "people_at_risk": 300,
+    "buildings_at_risk": 0,
+    "area_flooded_km2": 0.43,
+    "max_depth_m": 0.18
+   },
+   {
+    "cluster_id": "C010-052",
+    "block": "ERSAMA",
+    "near": "NARADIA",
+    "lat": 20.18764,
+    "lon": 86.35279,
+    "people_at_risk": 693,
+    "buildings_at_risk": 29,
+    "area_flooded_km2": 1.95,
+    "max_depth_m": 0.45
+   },
+   {
+    "cluster_id": "C010-053",
+    "block": "ERSAMA",
+    "near": "NARADIA",
+    "lat": 20.18675,
+    "lon": 86.37121,
+    "people_at_risk": 856,
+    "buildings_at_risk": 47,
+    "area_flooded_km2": 2.39,
+    "max_depth_m": 0.67
+   },
+   {
+    "cluster_id": "C010-054",
+    "block": "ERSAMA",
+    "near": "NARADIA",
+    "lat": 20.19007,
+    "lon": 86.38988,
+    "people_at_risk": 1580,
+    "buildings_at_risk": 59,
+    "area_flooded_km2": 4.27,
+    "max_depth_m": 0.96
+   },
+   {
+    "cluster_id": "C011-050",
+    "block": "ERSAMA",
+    "near": "NARADIA",
+    "lat": 20.16957,
+    "lon": 86.31663,
+    "people_at_risk": 390,
+    "buildings_at_risk": 14,
+    "area_flooded_km2": 0.94,
+    "max_depth_m": 0.36
+   },
+   {
+    "cluster_id": "C011-051",
+    "block": "ERSAMA",
+    "near": "NARADIA",
+    "lat": 20.17011,
+    "lon": 86.33063,
+    "people_at_risk": 2114,
+    "buildings_at_risk": 55,
+    "area_flooded_km2": 3.25,
+    "max_depth_m": 0.51
+   },
+   {
+    "cluster_id": "C011-052",
+    "block": "ERSAMA",
+    "near": "NARADIA",
+    "lat": 20.16803,
+    "lon": 86.34939,
+    "people_at_risk": 1142,
+    "buildings_at_risk": 29,
+    "area_flooded_km2": 2.39,
+    "max_depth_m": 0.51
+   },
+   {
+    "cluster_id": "C011-053",
+    "block": "ERSAMA",
+    "near": "NARADIA",
+    "lat": 20.1691,
+    "lon": 86.36983,
+    "people_at_risk": 1274,
+    "buildings_at_risk": 82,
+    "area_flooded_km2": 3.83,
+    "max_depth_m": 0.87
+   },
+   {
+    "cluster_id": "C011-054",
+    "block": "ERSAMA",
+    "near": "NARADIA",
+    "lat": 20.1698,
+    "lon": 86.38983,
+    "people_at_risk": 1030,
+    "buildings_at_risk": 47,
+    "area_flooded_km2": 4.27,
+    "max_depth_m": 1.1
+   }
+  ],
+  "disclosure": {
+   "model_class": "heuristic_index",
+   "limitations": [
+    "Static bathtub inundation; no storm dynamics, tide phase, or timing.",
+    "No wave setup or runup, which can add more than 1 m.",
+    "DEM vertical error (several metres) is comparable to the surge signal itself in low-relief floodplains.",
+    "No river discharge coupling; compound flooding at deltas is unmodelled.",
+    "30 m DEM does not resolve embankment crests.",
+    "Surge height is a calibrated heuristic index, NOT a validated forecast model. No published Bay-of-Bengal wind-to-surge formula exists.",
+    "Population is WorldPop 2019 (100 m, modelled), not a census count.",
+    "Buildings are Open Buildings v3 footprints at confidence >= 0.7; rural thatch roofs are under-detected.",
+    "Hospitals, roads and power assets are not yet ingested."
+   ],
+   "validated_against": null,
+   "skill_metric": null
+  }
+ },
+ "assets": {
+  "shelters": [
+   {
+    "register_id": "OSDMA-0552",
+    "name": "BALIJHORI",
+    "district": "JAGATSINGHPUR",
+    "block": "JAGATSINGPUR",
+    "locality": "BALIJHORI",
+    "shelter_type": "MFS(CMRF)",
+    "lat": 20.00707227,
+    "lon": 86.38789123,
+    "capacity": 500,
+    "capacity_imputed": true,
+    "depth_m": 0.01,
+    "max_wind_ms": 35.7,
+    "status": "compromised",
+    "assigned_people": 0,
+    "reassign_to": null,
+    "reassign_to_name": null,
+    "reassign_distance_km": null,
+    "displaced_people": 1278
+   },
+   {
+    "register_id": "OSDMA-0550",
+    "name": "BANDAR",
+    "district": "JAGATSINGHPUR",
+    "block": "JAGATSINGPUR",
+    "locality": "BANDAR",
+    "shelter_type": "IRCS",
+    "lat": 19.99536281,
+    "lon": 86.34851769,
+    "capacity": 500,
+    "capacity_imputed": true,
+    "depth_m": 0.13,
+    "max_wind_ms": 37.5,
+    "status": "compromised",
+    "assigned_people": 0,
+    "reassign_to": null,
+    "reassign_to_name": null,
+    "reassign_distance_km": null,
+    "displaced_people": 2096
+   },
+   {
+    "register_id": "OSDMA-0755",
+    "name": "BASANTPUR",
+    "district": "PURI",
+    "block": "KANAS",
+    "locality": "BASANTPUR",
+    "shelter_type": "NCRMP-AF",
+    "lat": 19.926352,
+    "lon": 85.624934,
+    "capacity": 1000,
+    "capacity_imputed": true,
+    "depth_m": 0.44,
+    "max_wind_ms": 51.5,
+    "status": "compromised",
+    "assigned_people": 0,
+    "reassign_to": null,
+    "reassign_to_name": null,
+    "reassign_distance_km": null,
+    "displaced_people": 5396
+   },
+   {
+    "register_id": "OSDMA-0762",
+    "name": "BERHATANDUL",
+    "district": "PURI",
+    "block": "KANAS",
+    "locality": "BERHATANDUL",
+    "shelter_type": "NCRMP-AF",
+    "lat": 19.962727,
+    "lon": 85.592715,
+    "capacity": 1000,
+    "capacity_imputed": true,
+    "depth_m": 0.02,
+    "max_wind_ms": 47.7,
+    "status": "compromised",
+    "assigned_people": 0,
+    "reassign_to": "OSDMA-0767",
+    "reassign_to_name": "BAKU",
+    "reassign_distance_km": 3.6,
+    "displaced_people": 1539
+   },
+   {
+    "register_id": "OSDMA-0752",
+    "name": "BILAPATNA",
+    "district": "PURI",
+    "block": "KANAS",
+    "locality": "BILAPATNA",
+    "shelter_type": "NCRMP-AF",
+    "lat": 19.919674,
+    "lon": 85.597849,
+    "capacity": 1000,
+    "capacity_imputed": true,
+    "depth_m": 0.37,
+    "max_wind_ms": 51.6,
+    "status": "compromised",
+    "assigned_people": 0,
+    "reassign_to": null,
+    "reassign_to_name": null,
+    "reassign_distance_km": null,
+    "displaced_people": 0
+   },
+   {
+    "register_id": "OSDMA-0554",
+    "name": "DANDABEDI",
+    "district": "JAGATSINGHPUR",
+    "block": "JAGATSINGPUR",
+    "locality": "DANDABEDI",
+    "shelter_type": "NCRMP",
+    "lat": 20.054373,
+    "lon": 86.389811,
+    "capacity": 1000,
+    "capacity_imputed": true,
+    "depth_m": 0.62,
+    "max_wind_ms": 36.6,
+    "status": "compromised",
+    "assigned_people": 0,
+    "reassign_to": null,
+    "reassign_to_name": null,
+    "reassign_distance_km": null,
+    "displaced_people": 11803
+   },
+   {
+    "register_id": "OSDMA-0757",
+    "name": "DEIPUR",
+    "district": "PURI",
+    "block": "KANAS",
+    "locality": "DEIPUR",
+    "shelter_type": "NCRMP-AF",
+    "lat": 19.941534,
+    "lon": 85.535387,
+    "capacity": 1000,
+    "capacity_imputed": true,
+    "depth_m": 0.64,
+    "max_wind_ms": 47.9,
+    "status": "compromised",
+    "assigned_people": 0,
+    "reassign_to": null,
+    "reassign_to_name": null,
+    "reassign_distance_km": null,
+    "displaced_people": 2797
+   },
+   {
+    "register_id": "OSDMA-0850",
+    "name": "Dharanikudi",
+    "district": "PURI",
+    "block": "BRAHMAGIRI",
+    "locality": "Dharanikudi",
+    "shelter_type": "NCRMP",
+    "lat": 19.799956,
+    "lon": 85.588575,
+    "capacity": 1000,
+    "capacity_imputed": true,
+    "depth_m": 0.82,
+    "max_wind_ms": 61.9,
+    "status": "compromised",
+    "assigned_people": 0,
+    "reassign_to": "OSDMA-0692",
+    "reassign_to_name": "BARA BENAKUDI",
+    "reassign_distance_km": 2.5,
+    "displaced_people": 3092
+   },
+   {
+    "register_id": "OSDMA-0707",
+    "name": "GHATAKURI",
+    "district": "PURI",
+    "block": "BRAHMAGIRI",
+    "locality": "GHATAKURI",
+    "shelter_type": "NCRMP-AF",
+    "lat": 19.860501,
+    "lon": 85.671267,
+    "capacity": 1000,
+    "capacity_imputed": true,
+    "depth_m": 0.05,
+    "max_wind_ms": 58.5,
+    "status": "compromised",
+    "assigned_people": 0,
+    "reassign_to": "OSDMA-0699",
+    "reassign_to_name": "TERAN",
+    "reassign_distance_km": 10.2,
+    "displaced_people": 3418
+   },
+   {
+    "register_id": "OSDMA-0705",
+    "name": "GOLORA",
+    "district": "PURI",
+    "block": "BRAHMAGIRI",
+    "locality": "GOLORA",
+    "shelter_type": "NCRMP-AF",
+    "lat": 19.85006,
+    "lon": 85.598452,
+    "capacity": 1000,
+    "capacity_imputed": true,
+    "depth_m": 1.06,
+    "max_wind_ms": 57.9,
+    "status": "compromised",
+    "assigned_people": 0,
+    "reassign_to": null,
+    "reassign_to_name": null,
+    "reassign_distance_km": null,
+    "displaced_people": 3511
+   },
+   {
+    "register_id": "OSDMA-0747",
+    "name": "JODAPADAR",
+    "district": "PURI",
+    "block": "KANAS",
+    "locality": "JODAPADAR",
+    "shelter_type": "NCRMP-AF",
+    "lat": 19.900456,
+    "lon": 85.634348,
+    "capacity": 1000,
+    "capacity_imputed": true,
+    "depth_m": 0.67,
+    "max_wind_ms": 54,
+    "status": "compromised",
+    "assigned_people": 0,
+    "reassign_to": null,
+    "reassign_to_name": null,
+    "reassign_distance_km": null,
+    "displaced_people": 12975
+   },
+   {
+    "register_id": "OSDMA-0695",
+    "name": "KAHALPADA",
+    "district": "PURI",
+    "block": "BRAHMAGIRI",
+    "locality": "KAHALPADA",
+    "shelter_type": "NCRMP",
+    "lat": 19.810755,
+    "lon": 85.608286,
+    "capacity": 1000,
+    "capacity_imputed": true,
+    "depth_m": 0.58,
+    "max_wind_ms": 61.6,
+    "status": "compromised",
+    "assigned_people": 0,
+    "reassign_to": "OSDMA-0685",
+    "reassign_to_name": "CHAMPANIK",
+    "reassign_distance_km": 9.1,
+    "displaced_people": 4951
+   },
+   {
+    "register_id": "OSDMA-0666",
+    "name": "KARAL",
+    "district": "PURI",
+    "block": "ASTARANGA",
+    "locality": "KARAL",
+    "shelter_type": "MFS(St.Plan)",
+    "lat": 19.925282,
+    "lon": 86.23997,
+    "capacity": 500,
+    "capacity_imputed": true,
+    "depth_m": 0.72,
+    "max_wind_ms": 40.6,
+    "status": "compromised",
+    "assigned_people": 0,
+    "reassign_to": "OSDMA-0667",
+    "reassign_to_name": "RATANPUR",
+    "reassign_distance_km": 2.9,
+    "displaced_people": 5999
+   },
+   {
+    "register_id": "OSDMA-0665",
+    "name": "KEATJANGA",
+    "district": "PURI",
+    "block": "ASTARANGA",
+    "locality": "KEATJANGA",
+    "shelter_type": "NCRMP",
+    "lat": 19.910164,
+    "lon": 86.228915,
+    "capacity": 1000,
+    "capacity_imputed": true,
+    "depth_m": 1.3,
+    "max_wind_ms": 40.4,
+    "status": "compromised",
+    "assigned_people": 0,
+    "reassign_to": "OSDMA-0664",
+    "reassign_to_name": "TONDAHAR",
+    "reassign_distance_km": 1.3,
+    "displaced_people": 1324
+   },
+   {
+    "register_id": "OSDMA-0780",
+    "name": "ALANDA",
+    "district": "PURI",
+    "block": "KRUSHNAPRASAD",
+    "locality": "ALANDA",
+    "shelter_type": "ICZMP",
+    "lat": 19.604889,
+    "lon": 85.314478,
+    "capacity": 1000,
+    "capacity_imputed": true,
+    "depth_m": null,
+    "max_wind_ms": 48.8,
+    "status": "watch",
+    "assigned_people": 1000,
+    "reassign_to": null,
+    "reassign_to_name": null,
+    "reassign_distance_km": null,
+    "displaced_people": 0
+   },
+   {
+    "register_id": "OSDMA-0733",
+    "name": "AMBILIGAN",
+    "district": "PURI",
+    "block": "GOP",
+    "locality": "AMBILIGAN",
+    "shelter_type": "NCRMP-AF",
+    "lat": 19.938055,
+    "lon": 86.110674,
+    "capacity": 1000,
+    "capacity_imputed": true,
+    "depth_m": null,
+    "max_wind_ms": 47.9,
+    "status": "watch",
+    "assigned_people": 1000,
+    "reassign_to": null,
+    "reassign_to_name": null,
+    "reassign_distance_km": null,
+    "displaced_people": 0
+   },
+   {
+    "register_id": "OSDMA-0634",
+    "name": "ARERI",
+    "district": "KHORDHA",
+    "block": "TANGI",
+    "locality": "ARERI",
+    "shelter_type": "NCRMP-AF",
+    "lat": 19.971304,
+    "lon": 85.555956,
+    "capacity": 1000,
+    "capacity_imputed": true,
+    "depth_m": null,
+    "max_wind_ms": 46.2,
+    "status": "watch",
+    "assigned_people": 1000,
+    "reassign_to": null,
+    "reassign_to_name": null,
+    "reassign_distance_km": null,
+    "displaced_people": 0
+   },
+   {
+    "register_id": "OSDMA-0795",
+    "name": "BAGHMUNDA",
+    "district": "PURI",
+    "block": "KRUSHNAPRASAD",
+    "locality": "BAGHMUNDA",
+    "shelter_type": "ICZMP",
+    "lat": 19.677386,
+    "lon": 85.477785,
+    "capacity": 1000,
+    "capacity_imputed": true,
+    "depth_m": null,
+    "max_wind_ms": 62.1,
+    "status": "watch",
+    "assigned_people": 1000,
+    "reassign_to": null,
+    "reassign_to_name": null,
+    "reassign_distance_km": null,
+    "displaced_people": 0
+   },
+   {
+    "register_id": "OSDMA-0629",
+    "name": "BALIPATPUR",
+    "district": "KHORDHA",
+    "block": "TANGI",
+    "locality": "BALIPATPUR",
+    "shelter_type": "NCRMP-AF",
+    "lat": 19.937941,
+    "lon": 85.488512,
+    "capacity": 1000,
+    "capacity_imputed": true,
+    "depth_m": null,
+    "max_wind_ms": 46.4,
+    "status": "watch",
+    "assigned_people": 1000,
+    "reassign_to": null,
+    "reassign_to_name": null,
+    "reassign_distance_km": null,
+    "displaced_people": 0
+   },
+   {
+    "register_id": "OSDMA-0708",
+    "name": "BANASTAPADA",
+    "district": "PURI",
+    "block": "BRAHMAGIRI",
+    "locality": "BANASTAPADA",
+    "shelter_type": "MFS(St.Plan)",
+    "lat": 19.861891,
+    "lon": 85.733363,
+    "capacity": 500,
+    "capacity_imputed": true,
+    "depth_m": null,
+    "max_wind_ms": 58.4,
+    "status": "watch",
+    "assigned_people": 500,
+    "reassign_to": null,
+    "reassign_to_name": null,
+    "reassign_distance_km": null,
+    "displaced_people": 0
+   },
+   {
+    "register_id": "OSDMA-0668",
+    "name": "BANTILO",
+    "district": "PURI",
+    "block": "ASTARANGA",
+    "locality": "BANTILO",
+    "shelter_type": "NCRMP",
+    "lat": 19.943537,
+    "lon": 86.23485,
+    "capacity": 1000,
+    "capacity_imputed": true,
+    "depth_m": null,
+    "max_wind_ms": 41.7,
+    "status": "watch",
+    "assigned_people": 1000,
+    "reassign_to": null,
+    "reassign_to_name": null,
+    "reassign_distance_km": null,
+    "displaced_people": 0
+   },
+   {
+    "register_id": "OSDMA-0696",
+    "name": "BARA BANDHKERA",
+    "district": "PURI",
+    "block": "BRAHMAGIRI",
+    "locality": "BARA BANDHKERA",
+    "shelter_type": "NCRMP-AF",
+    "lat": 19.811198,
+    "lon": 85.652193,
+    "capacity": 1000,
+    "capacity_imputed": true,
+    "depth_m": null,
+    "max_wind_ms": 62.5,
+    "status": "watch",
+    "assigned_people": 1000,
+    "reassign_to": null,
+    "reassign_to_name": null,
+    "reassign_distance_km": null,
+    "displaced_people": 0
+   },
+   {
+    "register_id": "OSDMA-0692",
+    "name": "BARA BENAKUDI",
+    "district": "PURI",
+    "block": "BRAHMAGIRI",
+    "locality": "BARA BENAKUDI",
+    "shelter_type": "NCRMP",
+    "lat": 19.786085,
+    "lon": 85.577196,
+    "capacity": 1000,
+    "capacity_imputed": true,
+    "depth_m": null,
+    "max_wind_ms": 62.2,
+    "status": "watch",
+    "assigned_people": 1000,
+    "reassign_to": null,
+    "reassign_to_name": null,
+    "reassign_distance_km": null,
+    "displaced_people": 0
+   },
+   {
+    "register_id": "OSDMA-0753",
+    "name": "BARAORA",
+    "district": "PURI",
+    "block": "KANAS",
+    "locality": "BARAORA",
+    "shelter_type": "MFS(St.Plan)",
+    "lat": 19.921265,
+    "lon": 85.574259,
+    "capacity": 500,
+    "capacity_imputed": true,
+    "depth_m": null,
+    "max_wind_ms": 50.7,
+    "status": "watch",
+    "assigned_people": 500,
+    "reassign_to": null,
+    "reassign_to_name": null,
+    "reassign_distance_km": null,
+    "displaced_people": 0
+   }
+  ],
+  "count": 241,
+  "compromised": 29,
+  "disclosure": {
+   "model_class": "heuristic_index",
+   "limitations": [
+    "Static bathtub inundation; no storm dynamics, tide phase, or timing.",
+    "No wave setup or runup, which can add more than 1 m.",
+    "DEM vertical error (several metres) is comparable to the surge signal itself in low-relief floodplains.",
+    "No river discharge coupling; compound flooding at deltas is unmodelled.",
+    "30 m DEM does not resolve embankment crests.",
+    "Surge height is a calibrated heuristic index, NOT a validated forecast model. No published Bay-of-Bengal wind-to-surge formula exists.",
+    "Population is WorldPop 2019 (100 m, modelled), not a census count.",
+    "Buildings are Open Buildings v3 footprints at confidence >= 0.7; rural thatch roofs are under-detected.",
+    "Hospitals, roads and power assets are not yet ingested."
+   ],
+   "validated_against": null,
+   "skill_metric": null
+  }
+ },
+ "decisions": {
+  "assignments": [
+   {
+    "population_cluster_id": "C012-054",
+    "block": "ERSAMA",
+    "people": 1000,
+    "shelter_register_id": "OSDMA-0544",
+    "shelter_name": "NARADIA",
+    "distance_km": 1.37,
+    "travel_time_min": 4.1,
+    "capacity_utilisation": 1
+   },
+   {
+    "population_cluster_id": "C016-051",
+    "block": "JAGATSINGPUR",
+    "people": 1000,
+    "shelter_register_id": "OSDMA-0556",
+    "shelter_name": "SANTARAPUR",
+    "distance_km": 0.75,
+    "travel_time_min": 2.2,
+    "capacity_utilisation": 1
+   },
+   {
+    "population_cluster_id": "C019-053",
+    "block": "JAGATSINGPUR",
+    "people": 1000,
+    "shelter_register_id": "OSDMA-0551",
+    "shelter_name": "ICHHAPUR",
+    "distance_km": 1.24,
+    "travel_time_min": 3.7,
+    "capacity_utilisation": 1
+   },
+   {
+    "population_cluster_id": "C020-048",
+    "block": "ASTARANGA",
+    "people": 1000,
+    "shelter_register_id": "OSDMA-0679",
+    "shelter_name": "KHANDASAHI",
+    "distance_km": 5.21,
+    "travel_time_min": 15.6,
+    "capacity_utilisation": 1
+   },
+   {
+    "population_cluster_id": "C020-050",
+    "block": "ASTARANGA",
+    "people": 1000,
+    "shelter_register_id": "OSDMA-0677",
+    "shelter_name": "NAGAR",
+    "distance_km": 2.45,
+    "travel_time_min": 7.4,
+    "capacity_utilisation": 1
+   },
+   {
+    "population_cluster_id": "C020-053",
+    "block": "JAGATSINGHPUR",
+    "people": 1000,
+    "shelter_register_id": "OSDMA-0849",
+    "shelter_name": "Dhanuharbelari",
+    "distance_km": 1.29,
+    "travel_time_min": 3.9,
+    "capacity_utilisation": 1
+   },
+   {
+    "population_cluster_id": "C021-012",
+    "block": "TANGI",
+    "people": 1000,
+    "shelter_register_id": "OSDMA-0634",
+    "shelter_name": "ARERI",
+    "distance_km": 1.18,
+    "travel_time_min": 3.5,
+    "capacity_utilisation": 1
+   },
+   {
+    "population_cluster_id": "C021-015",
+    "block": "KANAS",
+    "people": 1000,
+    "shelter_register_id": "OSDMA-0764",
+    "shelter_name": "CHUPURUNGI",
+    "distance_km": 1.16,
+    "travel_time_min": 3.5,
+    "capacity_utilisation": 1
+   },
+   {
+    "population_cluster_id": "C021-048",
+    "block": "ASTARANGA",
+    "people": 1000,
+    "shelter_register_id": "OSDMA-0674",
+    "shelter_name": "KENDRAPATI",
+    "distance_km": 7.53,
+    "travel_time_min": 22.6,
+    "capacity_utilisation": 1
+   },
+   {
+    "population_cluster_id": "C021-050",
+    "block": "ASTARANGA",
+    "people": 1000,
+    "shelter_register_id": "OSDMA-0671",
+    "shelter_name": "MADHUPUR",
+    "distance_km": 0.53,
+    "travel_time_min": 1.6,
+    "capacity_utilisation": 1
+   },
+   {
+    "population_cluster_id": "C022-009",
+    "block": "TANGI",
+    "people": 1000,
+    "shelter_register_id": "OSDMA-0633",
+    "shelter_name": "BHUSANDAPUR",
+    "distance_km": 2.52,
+    "travel_time_min": 7.5,
+    "capacity_utilisation": 1
+   },
+   {
+    "population_cluster_id": "C022-009",
+    "block": "TANGI",
+    "people": 1000,
+    "shelter_register_id": "OSDMA-0635",
+    "shelter_name": "NAYAGARH",
+    "distance_km": 3.65,
+    "travel_time_min": 11,
+    "capacity_utilisation": 1
+   }
+  ],
+  "unassigned": [
+   {
+    "population_cluster_id": "C022-018",
+    "block": "KANAS",
+    "near": "Khandahota",
+    "people": 5567,
+    "reason": "capacity_exhausted",
+    "nearest_infeasible_shelter": "Khandahota",
+    "nearest_distance_km": 4.2,
+    "why_infeasible": "All 5 usable shelters within 10 km are full at their imputed capacity."
+   },
+   {
+    "population_cluster_id": "C024-016",
+    "block": "KANAS",
+    "near": "JODAPADAR",
+    "people": 5413,
+    "reason": "capacity_exhausted",
+    "nearest_infeasible_shelter": "JODAPADAR",
+    "nearest_distance_km": 1.5,
+    "why_infeasible": "All 16 usable shelters within 10 km are full at their imputed capacity."
+   },
+   {
+    "population_cluster_id": "C023-016",
+    "block": "KANAS",
+    "near": "BASANTPUR",
+    "people": 5396,
+    "reason": "capacity_exhausted",
+    "nearest_infeasible_shelter": "BASANTPUR",
+    "nearest_distance_km": 0.8,
+    "why_infeasible": "All 14 usable shelters within 10 km are full at their imputed capacity."
+   },
+   {
+    "population_cluster_id": "C022-017",
+    "block": "KANAS",
+    "near": "Khandahota",
+    "people": 5184,
+    "reason": "capacity_exhausted",
+    "nearest_infeasible_shelter": "Khandahota",
+    "nearest_distance_km": 1.7,
+    "why_infeasible": "All 11 usable shelters within 10 km are full at their imputed capacity."
+   },
+   {
+    "population_cluster_id": "C023-015",
+    "block": "KANAS",
+    "near": "JAMILIGODA",
+    "people": 5167,
+    "reason": "capacity_exhausted",
+    "nearest_infeasible_shelter": "JAMILIGODA",
+    "nearest_distance_km": 1.7,
+    "why_infeasible": "All 15 usable shelters within 10 km are full at their imputed capacity."
+   },
+   {
+    "population_cluster_id": "C023-017",
+    "block": "KANAS",
+    "near": "Mulabasanta",
+    "people": 5134,
+    "reason": "capacity_exhausted",
+    "nearest_infeasible_shelter": "Khandahota",
+    "nearest_distance_km": 2.6,
+    "why_infeasible": "All 12 usable shelters within 10 km are full at their imputed capacity."
+   },
+   {
+    "population_cluster_id": "C022-016",
+    "block": "KANAS",
+    "near": "Khandahota",
+    "people": 5030,
+    "reason": "capacity_exhausted",
+    "nearest_infeasible_shelter": "Khandahota",
+    "nearest_distance_km": 1.5,
+    "why_infeasible": "All 13 usable shelters within 10 km are full at their imputed capacity."
+   },
+   {
+    "population_cluster_id": "C024-017",
+    "block": "KANAS",
+    "near": "Mulabasanta",
+    "people": 4777,
+    "reason": "capacity_exhausted",
+    "nearest_infeasible_shelter": "Mulabasanta",
+    "nearest_distance_km": 0.6,
+    "why_infeasible": "All 14 usable shelters within 10 km are full at their imputed capacity."
+   }
+  ],
+  "optimiser": {
+   "solver": "ortools_min_cost_flow",
+   "status": "OPTIMAL",
+   "arcs_considered": 4088,
+   "arcs_filtered": 1041,
+   "total_person_km": 460085.2,
+   "greedy_person_km": 760404.1,
+   "assigned_people": 120483,
+   "greedy_assigned_people": 117539,
+   "solve_ms": 150
+  },
+  "actions": [
+   {
+    "sequence": 1,
+    "subject_id": "watch-compromised-shelters-PURI",
+    "kind": "verify",
+    "role": "DISTRICT_COLLECTOR",
+    "stage": "PRE_CYCLONE_WATCH",
+    "office": "District Collector, Puri",
+    "title": "Withdraw 23 shelters inside the surge zone from the evacuation plan",
+    "summary": "23 of 161 register shelters of Puri in the modelled area sit in flood cells. The deepest is KEATJANGA (OSDMA-0665) at 1.3 m. Confirm alternates with each BDO.",
+    "people": 0,
+    "related": [
+     "OSDMA-0665",
+     "OSDMA-0666",
+     "OSDMA-0694",
+     "OSDMA-0695",
+     "OSDMA-0705",
+     "OSDMA-0707",
+     "OSDMA-0713",
+     "OSDMA-0747",
+     "OSDMA-0749",
+     "OSDMA-0751",
+     "OSDMA-0752",
+     "OSDMA-0755",
+     "OSDMA-0756",
+     "OSDMA-0757",
+     "OSDMA-0759",
+     "OSDMA-0762",
+     "OSDMA-0819",
+     "OSDMA-0828",
+     "OSDMA-0847",
+     "OSDMA-0850",
+     "OSDMA-0858",
+     "OSDMA-0868",
+     "OSDMA-0870"
+    ],
+    "focus_lat": 19.910164,
+    "focus_lon": 86.228915,
+    "focus_label": "KEATJANGA",
+    "deadline": "2019-04-30T06:00:00Z",
+    "hours_before_landfall": 72,
+    "evidence": [
+     {
+      "label": "Shelters in flood cells",
+      "value": "23 of 161",
+      "state": "modelled"
+     },
+     {
+      "label": "Deepest footprint",
+      "value": "1.3 m",
+      "state": "heuristic"
+     }
+    ]
+   },
+   {
+    "sequence": 2,
+    "subject_id": "watch-compromised-shelters-JAGATSINGHPUR",
+    "kind": "verify",
+    "role": "DISTRICT_COLLECTOR",
+    "stage": "PRE_CYCLONE_WATCH",
+    "office": "District Collector, Jagatsinghpur",
+    "title": "Withdraw 5 shelters inside the surge zone from the evacuation plan",
+    "summary": "5 of 21 register shelters of Jagatsinghpur in the modelled area sit in flood cells. The deepest is DANDABEDI (OSDMA-0554) at 0.62 m. Confirm alternates with each BDO.",
+    "people": 0,
+    "related": [
+     "OSDMA-0550",
+     "OSDMA-0552",
+     "OSDMA-0553",
+     "OSDMA-0554",
+     "OSDMA-0855"
+    ],
+    "focus_lat": 20.054373,
+    "focus_lon": 86.389811,
+    "focus_label": "DANDABEDI",
+    "deadline": "2019-04-30T06:00:00Z",
+    "hours_before_landfall": 72,
+    "evidence": [
+     {
+      "label": "Shelters in flood cells",
+      "value": "5 of 21",
+      "state": "modelled"
+     },
+     {
+      "label": "Deepest footprint",
+      "value": "0.62 m",
+      "state": "heuristic"
+     }
+    ]
+   },
+   {
+    "sequence": 3,
+    "subject_id": "watch-compromised-shelters-KHORDHA",
+    "kind": "verify",
+    "role": "DISTRICT_COLLECTOR",
+    "stage": "PRE_CYCLONE_WATCH",
+    "office": "District Collector, Khordha",
+    "title": "Withdraw 1 shelter inside the surge zone from the evacuation plan",
+    "summary": "1 of 38 register shelters of Khordha in the modelled area sit in flood cells. The deepest is Saraswatinagar (OSDMA-0846) at 1.42 m. Confirm alternates with each BDO.",
+    "people": 0,
+    "related": [
+     "OSDMA-0846"
+    ],
+    "focus_lat": 19.916998,
+    "focus_lon": 85.53091,
+    "focus_label": "Saraswatinagar",
+    "deadline": "2019-04-30T06:00:00Z",
+    "hours_before_landfall": 72,
+    "evidence": [
+     {
+      "label": "Shelters in flood cells",
+      "value": "1 of 38",
+      "state": "modelled"
+     },
+     {
+      "label": "Deepest footprint",
+      "value": "1.42 m",
+      "state": "heuristic"
+     }
+    ]
+   },
+   {
+    "sequence": 4,
+    "subject_id": "watch-capacity-gap",
+    "kind": "logistics",
+    "role": "RELIEF_COMMISSIONER",
+    "stage": "PRE_CYCLONE_WATCH",
+    "office": "Special Relief Commissioner, Odisha",
+    "title": "Open temporary shelter for 350,318 people beyond cyclone-shelter capacity",
+    "summary": "After optimal assignment, 350,318 of 470,801 people at risk have no cyclone-shelter place within 10 km. Schools and public buildings outside the flood are the usual fallback.",
+    "people": 350318,
+    "related": [
+     "C022-018",
+     "C024-016",
+     "C023-016",
+     "C022-017",
+     "C023-015",
+     "C023-017",
+     "C022-016",
+     "C024-017",
+     "C022-015",
+     "C021-018",
+     "C023-019",
+     "C023-013",
+     "C021-017",
+     "C020-017",
+     "C022-019",
+     "C022-010",
+     "C020-019",
+     "C023-012",
+     "C023-010",
+     "C025-016",
+     "C028-016",
+     "C021-019",
+     "C022-012",
+     "C020-018",
+     "C019-019",
+     "C017-054",
+     "C021-016",
+     "C022-020",
+     "C025-017",
+     "C025-006",
+     "C023-018",
+     "C023-014",
+     "C021-049",
+     "C027-017",
+     "C024-013",
+     "C019-018",
+     "C019-052",
+     "C023-020",
+     "C025-019",
+     "C015-053",
+     "C029-016",
+     "C015-052",
+     "C023-011",
+     "C017-053",
+     "C020-049",
+     "C024-018",
+     "C021-020",
+     "C022-011",
+     "C026-006",
+     "C024-014",
+     "C022-013",
+     "C029-015",
+     "C015-054",
+     "C026-016",
+     "C020-020",
+     "C022-014",
+     "C024-015",
+     "C021-015",
+     "C017-052",
+     "C014-053",
+     "C025-018",
+     "C014-052",
+     "C024-019",
+     "C016-054",
+     "C024-010",
+     "C026-015",
+     "C026-017",
+     "C018-053",
+     "C023-021",
+     "C022-049",
+     "C018-052",
+     "C015-051",
+     "C017-051",
+     "C011-051",
+     "C024-007",
+     "C014-051",
+     "C016-052",
+     "C025-007",
+     "C026-007",
+     "C025-010",
+     "C027-018",
+     "C024-012",
+     "C012-053",
+     "C020-052",
+     "C022-050",
+     "C025-011",
+     "C015-050",
+     "C025-014",
+     "C020-016",
+     "C025-012",
+     "C022-048",
+     "C018-054",
+     "C027-016",
+     "C010-054",
+     "C013-053",
+     "C016-051",
+     "C023-048",
+     "C013-052",
+     "C024-009",
+     "C013-054",
+     "C025-015",
+     "C016-053",
+     "C025-009",
+     "C030-015",
+     "C012-052",
+     "C021-050",
+     "C024-020",
+     "C025-008",
+     "C026-013",
+     "C024-008",
+     "C019-054",
+     "C011-053",
+     "C025-020",
+     "C027-015",
+     "C021-011",
+     "C011-052",
+     "C025-005",
+     "C015-049",
+     "C009-054",
+     "C019-053",
+     "C011-054",
+     "C027-014",
+     "C029-014",
+     "C021-021",
+     "C026-018",
+     "C028-015",
+     "C014-050",
+     "C026-019",
+     "C024-021",
+     "C016-050",
+     "C027-013",
+     "C014-054",
+     "C028-017",
+     "C028-014",
+     "C010-053",
+     "C021-051",
+     "C025-013",
+     "C016-049",
+     "C029-013",
+     "C012-050",
+     "C017-050",
+     "C023-009",
+     "C010-052",
+     "C026-008",
+     "C018-051",
+     "C020-054",
+     "C027-006",
+     "C012-051",
+     "C023-049",
+     "C026-012",
+     "C019-051",
+     "C026-005",
+     "C022-051",
+     "C011-050",
+     "C020-053",
+     "C030-014",
+     "C028-013",
+     "C023-022",
+     "C010-051",
+     "C026-009",
+     "C019-017",
+     "C020-050",
+     "C027-007",
+     "C026-010",
+     "C014-049",
+     "C020-051",
+     "C021-012",
+     "C024-011",
+     "C024-022",
+     "C022-021",
+     "C027-012",
+     "C012-054",
+     "C013-051",
+     "C024-006",
+     "C019-020",
+     "C027-008",
+     "C009-053",
+     "C010-050",
+     "C021-010",
+     "C022-052",
+     "C027-009",
+     "C021-053",
+     "C026-014",
+     "C021-052",
+     "C013-050",
+     "C026-011",
+     "C027-010",
+     "C030-012",
+     "C029-012",
+     "C027-011",
+     "C023-008",
+     "C021-054"
+    ],
+    "focus_lat": null,
+    "focus_lon": null,
+    "focus_label": null,
+    "deadline": "2019-04-30T06:00:00Z",
+    "hours_before_landfall": 72,
+    "evidence": [
+     {
+      "label": "People without a place",
+      "value": "350,318",
+      "state": "modelled"
+     },
+     {
+      "label": "Usable shelter capacity",
+      "value": "175,000",
+      "state": "modelled"
+     }
+    ]
+   },
+   {
+    "sequence": 5,
+    "subject_id": "alert-reassign-OSDMA-0694",
+    "kind": "reassign",
+    "role": "BLOCK_DEV_OFFICER",
+    "stage": "CYCLONE_ALERT",
+    "office": "BDO, Brahmagiri block (Puri)",
+    "title": "Redirect SANA BANDHKERA catchment to BRAHMANJA",
+    "summary": "SANA BANDHKERA (OSDMA-0694) is inside the modelled flood at 0.52 m. 6,601 people live nearest to it; the optimiser sends most of them to BRAHMANJA (OSDMA-0698), 2.7 km away.",
+    "people": 6601,
+    "related": [
+     "OSDMA-0694",
+     "OSDMA-0698"
+    ],
+    "focus_lat": 19.81008,
+    "focus_lon": 85.641138,
+    "focus_label": "SANA BANDHKERA",
+    "deadline": "2019-05-01T06:00:00Z",
+    "hours_before_landfall": 48,
+    "evidence": [
+     {
+      "label": "Depth at footprint",
+      "value": "0.52 m",
+      "state": "heuristic"
+     },
+     {
+      "label": "People nearest to it",
+      "value": "6,601",
+      "state": "modelled"
+     },
+     {
+      "label": "Reassign distance",
+      "value": "2.7 km",
+      "state": "modelled"
+     }
+    ]
+   },
+   {
+    "sequence": 6,
+    "subject_id": "alert-reassign-OSDMA-0666",
+    "kind": "reassign",
+    "role": "BLOCK_DEV_OFFICER",
+    "stage": "CYCLONE_ALERT",
+    "office": "BDO, Astaranga block (Puri)",
+    "title": "Redirect KARAL catchment to RATANPUR",
+    "summary": "KARAL (OSDMA-0666) is inside the modelled flood at 0.72 m. 5,999 people live nearest to it; the optimiser sends most of them to RATANPUR (OSDMA-0667), 2.9 km away.",
+    "people": 5999,
+    "related": [
+     "OSDMA-0666",
+     "OSDMA-0667"
+    ],
+    "focus_lat": 19.925282,
+    "focus_lon": 86.23997,
+    "focus_label": "KARAL",
+    "deadline": "2019-05-01T06:00:00Z",
+    "hours_before_landfall": 48,
+    "evidence": [
+     {
+      "label": "Depth at footprint",
+      "value": "0.72 m",
+      "state": "heuristic"
+     },
+     {
+      "label": "People nearest to it",
+      "value": "5,999",
+      "state": "modelled"
+     },
+     {
+      "label": "Reassign distance",
+      "value": "2.9 km",
+      "state": "modelled"
+     }
+    ]
+   },
+   {
+    "sequence": 7,
+    "subject_id": "alert-reassign-OSDMA-0695",
+    "kind": "reassign",
+    "role": "BLOCK_DEV_OFFICER",
+    "stage": "CYCLONE_ALERT",
+    "office": "BDO, Brahmagiri block (Puri)",
+    "title": "Redirect KAHALPADA catchment to CHAMPANIK",
+    "summary": "KAHALPADA (OSDMA-0695) is inside the modelled flood at 0.58 m. 4,951 people live nearest to it; the optimiser sends most of them to CHAMPANIK (OSDMA-0685), 9.1 km away.",
+    "people": 4951,
+    "related": [
+     "OSDMA-0695",
+     "OSDMA-0685"
+    ],
+    "focus_lat": 19.810755,
+    "focus_lon": 85.608286,
+    "focus_label": "KAHALPADA",
+    "deadline": "2019-05-01T06:00:00Z",
+    "hours_before_landfall": 48,
+    "evidence": [
+     {
+      "label": "Depth at footprint",
+      "value": "0.58 m",
+      "state": "heuristic"
+     },
+     {
+      "label": "People nearest to it",
+      "value": "4,951",
+      "state": "modelled"
+     },
+     {
+      "label": "Reassign distance",
+      "value": "9.1 km",
+      "state": "modelled"
+     }
+    ]
+   },
+   {
+    "sequence": 8,
+    "subject_id": "alert-reassign-OSDMA-0707",
+    "kind": "reassign",
+    "role": "BLOCK_DEV_OFFICER",
+    "stage": "CYCLONE_ALERT",
+    "office": "BDO, Brahmagiri block (Puri)",
+    "title": "Redirect GHATAKURI catchment to TERAN",
+    "summary": "GHATAKURI (OSDMA-0707) is inside the modelled flood at 0.05 m. 3,418 people live nearest to it; the optimiser sends most of them to TERAN (OSDMA-0699), 10.2 km away.",
+    "people": 3418,
+    "related": [
+     "OSDMA-0707",
+     "OSDMA-0699"
+    ],
+    "focus_lat": 19.860501,
+    "focus_lon": 85.671267,
+    "focus_label": "GHATAKURI",
+    "deadline": "2019-05-01T06:00:00Z",
+    "hours_before_landfall": 48,
+    "evidence": [
+     {
+      "label": "Depth at footprint",
+      "value": "0.05 m",
+      "state": "heuristic"
+     },
+     {
+      "label": "People nearest to it",
+      "value": "3,418",
+      "state": "modelled"
+     },
+     {
+      "label": "Reassign distance",
+      "value": "10.2 km",
+      "state": "modelled"
+     }
+    ]
+   },
+   {
+    "sequence": 9,
+    "subject_id": "alert-reassign-OSDMA-0850",
+    "kind": "reassign",
+    "role": "BLOCK_DEV_OFFICER",
+    "stage": "CYCLONE_ALERT",
+    "office": "BDO, Brahmagiri block (Puri)",
+    "title": "Redirect Dharanikudi catchment to BARA BENAKUDI",
+    "summary": "Dharanikudi (OSDMA-0850) is inside the modelled flood at 0.82 m. 3,092 people live nearest to it; the optimiser sends most of them to BARA BENAKUDI (OSDMA-0692), 2.5 km away.",
+    "people": 3092,
+    "related": [
+     "OSDMA-0850",
+     "OSDMA-0692"
+    ],
+    "focus_lat": 19.799956,
+    "focus_lon": 85.588575,
+    "focus_label": "Dharanikudi",
+    "deadline": "2019-05-01T06:00:00Z",
+    "hours_before_landfall": 48,
+    "evidence": [
+     {
+      "label": "Depth at footprint",
+      "value": "0.82 m",
+      "state": "heuristic"
+     },
+     {
+      "label": "People nearest to it",
+      "value": "3,092",
+      "state": "modelled"
+     },
+     {
+      "label": "Reassign distance",
+      "value": "2.5 km",
+      "state": "modelled"
+     }
+    ]
+   },
+   {
+    "sequence": 10,
+    "subject_id": "alert-reassign-OSDMA-0819",
+    "kind": "reassign",
+    "role": "BLOCK_DEV_OFFICER",
+    "stage": "CYCLONE_ALERT",
+    "office": "BDO, Puri block (Puri)",
+    "title": "Redirect KURUNTI catchment to GORUAL",
+    "summary": "KURUNTI (OSDMA-0819) is inside the modelled flood at 0.01 m. 2,613 people live nearest to it; the optimiser sends most of them to GORUAL (OSDMA-0697), 8.9 km away.",
+    "people": 2613,
+    "related": [
+     "OSDMA-0819",
+     "OSDMA-0697"
+    ],
+    "focus_lat": 19.871159,
+    "focus_lon": 85.740259,
+    "focus_label": "KURUNTI",
+    "deadline": "2019-05-01T06:00:00Z",
+    "hours_before_landfall": 48,
+    "evidence": [
+     {
+      "label": "Depth at footprint",
+      "value": "0.01 m",
+      "state": "heuristic"
+     },
+     {
+      "label": "People nearest to it",
+      "value": "2,613",
+      "state": "modelled"
+     },
+     {
+      "label": "Reassign distance",
+      "value": "8.9 km",
+      "state": "modelled"
+     }
+    ]
+   },
+   {
+    "sequence": 11,
+    "subject_id": "alert-reassign-OSDMA-0762",
+    "kind": "reassign",
+    "role": "BLOCK_DEV_OFFICER",
+    "stage": "CYCLONE_ALERT",
+    "office": "BDO, Kanas block (Puri)",
+    "title": "Redirect BERHATANDUL catchment to BAKU",
+    "summary": "BERHATANDUL (OSDMA-0762) is inside the modelled flood at 0.02 m. 1,539 people live nearest to it; the optimiser sends most of them to BAKU (OSDMA-0767), 3.6 km away.",
+    "people": 1539,
+    "related": [
+     "OSDMA-0762",
+     "OSDMA-0767"
+    ],
+    "focus_lat": 19.962727,
+    "focus_lon": 85.592715,
+    "focus_label": "BERHATANDUL",
+    "deadline": "2019-05-01T06:00:00Z",
+    "hours_before_landfall": 48,
+    "evidence": [
+     {
+      "label": "Depth at footprint",
+      "value": "0.02 m",
+      "state": "heuristic"
+     },
+     {
+      "label": "People nearest to it",
+      "value": "1,539",
+      "state": "modelled"
+     },
+     {
+      "label": "Reassign distance",
+      "value": "3.6 km",
+      "state": "modelled"
+     }
+    ]
+   },
+   {
+    "sequence": 12,
+    "subject_id": "alert-reassign-OSDMA-0665",
+    "kind": "reassign",
+    "role": "BLOCK_DEV_OFFICER",
+    "stage": "CYCLONE_ALERT",
+    "office": "BDO, Astaranga block (Puri)",
+    "title": "Redirect KEATJANGA catchment to TONDAHAR",
+    "summary": "KEATJANGA (OSDMA-0665) is inside the modelled flood at 1.3 m. 1,324 people live nearest to it; the optimiser sends most of them to TONDAHAR (OSDMA-0664), 1.3 km away.",
+    "people": 1324,
+    "related": [
+     "OSDMA-0665",
+     "OSDMA-0664"
+    ],
+    "focus_lat": 19.910164,
+    "focus_lon": 86.228915,
+    "focus_label": "KEATJANGA",
+    "deadline": "2019-05-01T06:00:00Z",
+    "hours_before_landfall": 48,
+    "evidence": [
+     {
+      "label": "Depth at footprint",
+      "value": "1.3 m",
+      "state": "heuristic"
+     },
+     {
+      "label": "People nearest to it",
+      "value": "1,324",
+      "state": "modelled"
+     },
+     {
+      "label": "Reassign distance",
+      "value": "1.3 km",
+      "state": "modelled"
+     }
+    ]
+   },
+   {
+    "sequence": 13,
+    "subject_id": "alert-reassign-OSDMA-0553",
+    "kind": "reassign",
+    "role": "BLOCK_DEV_OFFICER",
+    "stage": "CYCLONE_ALERT",
+    "office": "BDO, Jagatsingpur block (Jagatsinghpur)",
+    "title": "Redirect RAGHUDIA catchment to OSIAN",
+    "summary": "RAGHUDIA (OSDMA-0553) is inside the modelled flood at 0.51 m. 671 people live nearest to it; the optimiser sends most of them to OSIAN (OSDMA-0680), 1.9 km away.",
+    "people": 671,
+    "related": [
+     "OSDMA-0553",
+     "OSDMA-0680"
+    ],
+    "focus_lat": 20.030054,
+    "focus_lon": 86.299677,
+    "focus_label": "RAGHUDIA",
+    "deadline": "2019-05-01T06:00:00Z",
+    "hours_before_landfall": 48,
+    "evidence": [
+     {
+      "label": "Depth at footprint",
+      "value": "0.51 m",
+      "state": "heuristic"
+     },
+     {
+      "label": "People nearest to it",
+      "value": "671",
+      "state": "modelled"
+     },
+     {
+      "label": "Reassign distance",
+      "value": "1.9 km",
+      "state": "modelled"
+     }
+    ]
+   },
+   {
+    "sequence": 14,
+    "subject_id": "alert-reassign-OSDMA-0858",
+    "kind": "reassign",
+    "role": "BLOCK_DEV_OFFICER",
+    "stage": "CYCLONE_ALERT",
+    "office": "BDO, Krushnaprasad block (Puri)",
+    "title": "Redirect Kurupala catchment to JHARKATA",
+    "summary": "Kurupala (OSDMA-0858) is inside the modelled flood at 0.98 m. 630 people live nearest to it; the optimiser sends most of them to JHARKATA (OSDMA-0788), 1.3 km away.",
+    "people": 630,
+    "related": [
+     "OSDMA-0858",
+     "OSDMA-0788"
+    ],
+    "focus_lat": 19.627912,
+    "focus_lon": 85.380367,
+    "focus_label": "Kurupala",
+    "deadline": "2019-05-01T06:00:00Z",
+    "hours_before_landfall": 48,
+    "evidence": [
+     {
+      "label": "Depth at footprint",
+      "value": "0.98 m",
+      "state": "heuristic"
+     },
+     {
+      "label": "People nearest to it",
+      "value": "630",
+      "state": "modelled"
+     },
+     {
+      "label": "Reassign distance",
+      "value": "1.3 km",
+      "state": "modelled"
+     }
+    ]
+   },
+   {
+    "sequence": 15,
+    "subject_id": "alert-ndrf-C022-018",
+    "kind": "staging",
+    "role": "NDRF_STAGING",
+    "stage": "CYCLONE_ALERT",
+    "office": "NDRF team commander",
+    "title": "Pre-position a team near Khandahota (Kanas)",
+    "summary": "5,567 people near Khandahota have no shelter place. All 5 usable shelters within 10 km are full at their imputed capacity.",
+    "people": 5567,
+    "related": [
+     "C022-018"
+    ],
+    "focus_lat": 19.95032,
+    "focus_lon": 85.66987,
+    "focus_label": "Khandahota",
+    "deadline": "2019-05-01T06:00:00Z",
+    "hours_before_landfall": 48,
+    "evidence": [
+     {
+      "label": "People without a place",
+      "value": "5,567",
+      "state": "modelled"
+     },
+     {
+      "label": "Reason",
+      "value": "capacity exhausted",
+      "state": "modelled"
+     },
+     {
+      "label": "Max depth in cluster",
+      "value": "1.32 m",
+      "state": "heuristic"
+     }
+    ]
+   },
+   {
+    "sequence": 16,
+    "subject_id": "alert-ndrf-C024-016",
+    "kind": "staging",
+    "role": "NDRF_STAGING",
+    "stage": "CYCLONE_ALERT",
+    "office": "NDRF team commander",
+    "title": "Pre-position a team near JODAPADAR (Kanas)",
+    "summary": "5,413 people near JODAPADAR have no shelter place. All 16 usable shelters within 10 km are full at their imputed capacity.",
+    "people": 5413,
+    "related": [
+     "C024-016"
+    ],
+    "focus_lat": 19.90997,
+    "focus_lon": 85.6299,
+    "focus_label": "JODAPADAR",
+    "deadline": "2019-05-01T06:00:00Z",
+    "hours_before_landfall": 48,
+    "evidence": [
+     {
+      "label": "People without a place",
+      "value": "5,413",
+      "state": "modelled"
+     },
+     {
+      "label": "Reason",
+      "value": "capacity exhausted",
+      "state": "modelled"
+     },
+     {
+      "label": "Max depth in cluster",
+      "value": "1.29 m",
+      "state": "heuristic"
+     }
+    ]
+   }
+  ],
+  "disclosure": {
+   "model_class": "optimisation",
+   "limitations": [
+    "Shelter capacity is imputed from shelter type; OSDMA publishes none.",
+    "Travel distance is straight-line x 1.3 detour; no road network, so road flooding before evacuation is not modelled.",
+    "Evacuation demand is the population of modelled flood cells only; wind and rain exposure are not added to demand."
+   ],
+   "validated_against": null,
+   "skill_metric": null
+  }
+ },
+ "parametric": {
+  "zones": [
+   {
+    "zone_id": "Z-ASTARANGA",
+    "zone_name": "ASTARANGA",
+    "trigger_a_wind": {
+     "metric": "peak_wind_ms",
+     "value": 46.8,
+     "threshold_hit": "wind >= 42 m/s",
+     "payout_fraction": 0.5
+    },
+    "trigger_b_population_index": {
+     "metric": "flooded_population_share",
+     "value": 0.263,
+     "threshold_hit": "index >= 0.20",
+     "payout_fraction": 1
+    },
+    "payout_inr": 500000000,
+    "triggered": true,
+    "reference_agency": "IMD_RSMC_NEW_DELHI",
+    "basis": "illustrative_not_actuarial"
+   },
+   {
+    "zone_id": "Z-BADAMBA",
+    "zone_name": "BADAMBA",
+    "trigger_a_wind": {
+     "metric": "peak_wind_ms",
+     "value": 41.1,
+     "threshold_hit": "wind >= 33 m/s",
+     "payout_fraction": 0.25
+    },
+    "trigger_b_population_index": {
+     "metric": "flooded_population_share",
+     "value": 0,
+     "threshold_hit": null,
+     "payout_fraction": 0
+    },
+    "payout_inr": 125000000,
+    "triggered": true,
+    "reference_agency": "IMD_RSMC_NEW_DELHI",
+    "basis": "illustrative_not_actuarial"
+   },
+   {
+    "zone_id": "Z-BALIANTA",
+    "zone_name": "BALIANTA",
+    "trigger_a_wind": {
+     "metric": "peak_wind_ms",
+     "value": 58.7,
+     "threshold_hit": "wind >= 50 m/s",
+     "payout_fraction": 1
+    },
+    "trigger_b_population_index": {
+     "metric": "flooded_population_share",
+     "value": 0,
+     "threshold_hit": null,
+     "payout_fraction": 0
+    },
+    "payout_inr": 500000000,
+    "triggered": true,
+    "reference_agency": "IMD_RSMC_NEW_DELHI",
+    "basis": "illustrative_not_actuarial"
+   },
+   {
+    "zone_id": "Z-BALIKUDA",
+    "zone_name": "BALIKUDA",
+    "trigger_a_wind": {
+     "metric": "peak_wind_ms",
+     "value": 52.3,
+     "threshold_hit": "wind >= 50 m/s",
+     "payout_fraction": 1
+    },
+    "trigger_b_population_index": {
+     "metric": "flooded_population_share",
+     "value": 0.013,
+     "threshold_hit": null,
+     "payout_fraction": 0
+    },
+    "payout_inr": 500000000,
+    "triggered": true,
+    "reference_agency": "IMD_RSMC_NEW_DELHI",
+    "basis": "illustrative_not_actuarial"
+   },
+   {
+    "zone_id": "Z-BALIPATNA",
+    "zone_name": "BALIPATNA",
+    "trigger_a_wind": {
+     "metric": "peak_wind_ms",
+     "value": 58.7,
+     "threshold_hit": "wind >= 50 m/s",
+     "payout_fraction": 1
+    },
+    "trigger_b_population_index": {
+     "metric": "flooded_population_share",
+     "value": 0,
+     "threshold_hit": null,
+     "payout_fraction": 0
+    },
+    "payout_inr": 500000000,
+    "triggered": true,
+    "reference_agency": "IMD_RSMC_NEW_DELHI",
+    "basis": "illustrative_not_actuarial"
+   },
+   {
+    "zone_id": "Z-BANKI",
+    "zone_name": "BANKI",
+    "trigger_a_wind": {
+     "metric": "peak_wind_ms",
+     "value": 43.8,
+     "threshold_hit": "wind >= 42 m/s",
+     "payout_fraction": 0.5
+    },
+    "trigger_b_population_index": {
+     "metric": "flooded_population_share",
+     "value": 0,
+     "threshold_hit": null,
+     "payout_fraction": 0
+    },
+    "payout_inr": 250000000,
+    "triggered": true,
+    "reference_agency": "IMD_RSMC_NEW_DELHI",
+    "basis": "illustrative_not_actuarial"
+   },
+   {
+    "zone_id": "Z-BEGUNIA",
+    "zone_name": "BEGUNIA",
+    "trigger_a_wind": {
+     "metric": "peak_wind_ms",
+     "value": 52.7,
+     "threshold_hit": "wind >= 50 m/s",
+     "payout_fraction": 1
+    },
+    "trigger_b_population_index": {
+     "metric": "flooded_population_share",
+     "value": 0,
+     "threshold_hit": null,
+     "payout_fraction": 0
+    },
+    "payout_inr": 500000000,
+    "triggered": true,
+    "reference_agency": "IMD_RSMC_NEW_DELHI",
+    "basis": "illustrative_not_actuarial"
+   },
+   {
+    "zone_id": "Z-BHAPUR",
+    "zone_name": "BHAPUR",
+    "trigger_a_wind": {
+     "metric": "peak_wind_ms",
+     "value": 37.4,
+     "threshold_hit": "wind >= 33 m/s",
+     "payout_fraction": 0.25
+    },
+    "trigger_b_population_index": {
+     "metric": "flooded_population_share",
+     "value": 0,
+     "threshold_hit": null,
+     "payout_fraction": 0
+    },
+    "payout_inr": 125000000,
+    "triggered": true,
+    "reference_agency": "IMD_RSMC_NEW_DELHI",
+    "basis": "illustrative_not_actuarial"
+   },
+   {
+    "zone_id": "Z-BHUBANESWAR",
+    "zone_name": "BHUBANESWAR",
+    "trigger_a_wind": {
+     "metric": "peak_wind_ms",
+     "value": 55.2,
+     "threshold_hit": "wind >= 50 m/s",
+     "payout_fraction": 1
+    },
+    "trigger_b_population_index": {
+     "metric": "flooded_population_share",
+     "value": 0,
+     "threshold_hit": null,
+     "payout_fraction": 0
+    },
+    "payout_inr": 500000000,
+    "triggered": true,
+    "reference_agency": "IMD_RSMC_NEW_DELHI",
+    "basis": "illustrative_not_actuarial"
+   },
+   {
+    "zone_id": "Z-BIRIDI",
+    "zone_name": "BIRIDI",
+    "trigger_a_wind": {
+     "metric": "peak_wind_ms",
+     "value": 58.7,
+     "threshold_hit": "wind >= 50 m/s",
+     "payout_fraction": 1
+    },
+    "trigger_b_population_index": {
+     "metric": "flooded_population_share",
+     "value": 0,
+     "threshold_hit": null,
+     "payout_fraction": 0
+    },
+    "payout_inr": 500000000,
+    "triggered": true,
+    "reference_agency": "IMD_RSMC_NEW_DELHI",
+    "basis": "illustrative_not_actuarial"
+   },
+   {
+    "zone_id": "Z-BRAHMAGIRI",
+    "zone_name": "BRAHMAGIRI",
+    "trigger_a_wind": {
+     "metric": "peak_wind_ms",
+     "value": 63.8,
+     "threshold_hit": "wind >= 50 m/s",
+     "payout_fraction": 1
+    },
+    "trigger_b_population_index": {
+     "metric": "flooded_population_share",
+     "value": 0.365,
+     "threshold_hit": "index >= 0.20",
+     "payout_fraction": 1
+    },
+    "payout_inr": 500000000,
+    "triggered": true,
+    "reference_agency": "IMD_RSMC_NEW_DELHI",
+    "basis": "illustrative_not_actuarial"
+   },
+   {
+    "zone_id": "Z-CHILIKA",
+    "zone_name": "CHILIKA",
+    "trigger_a_wind": {
+     "metric": "peak_wind_ms",
+     "value": 55.1,
+     "threshold_hit": "wind >= 50 m/s",
+     "payout_fraction": 1
+    },
+    "trigger_b_population_index": {
+     "metric": "flooded_population_share",
+     "value": 0.174,
+     "threshold_hit": "index >= 0.10",
+     "payout_fraction": 0.5
+    },
+    "payout_inr": 500000000,
+    "triggered": true,
+    "reference_agency": "IMD_RSMC_NEW_DELHI",
+    "basis": "illustrative_not_actuarial"
+   },
+   {
+    "zone_id": "Z-DAMPARA",
+    "zone_name": "DAMPARA",
+    "trigger_a_wind": {
+     "metric": "peak_wind_ms",
+     "value": 58.1,
+     "threshold_hit": "wind >= 50 m/s",
+     "payout_fraction": 1
+    },
+    "trigger_b_population_index": {
+     "metric": "flooded_population_share",
+     "value": 0,
+     "threshold_hit": null,
+     "payout_fraction": 0
+    },
+    "payout_inr": 500000000,
+    "triggered": true,
+    "reference_agency": "IMD_RSMC_NEW_DELHI",
+    "basis": "illustrative_not_actuarial"
+   },
+   {
+    "zone_id": "Z-DELANGA",
+    "zone_name": "DELANGA",
+    "trigger_a_wind": {
+     "metric": "peak_wind_ms",
+     "value": 58.7,
+     "threshold_hit": "wind >= 50 m/s",
+     "payout_fraction": 1
+    },
+    "trigger_b_population_index": {
+     "metric": "flooded_population_share",
+     "value": 0.216,
+     "threshold_hit": "index >= 0.20",
+     "payout_fraction": 1
+    },
+    "payout_inr": 500000000,
+    "triggered": true,
+    "reference_agency": "IMD_RSMC_NEW_DELHI",
+    "basis": "illustrative_not_actuarial"
+   },
+   {
+    "zone_id": "Z-ERSAMA",
+    "zone_name": "ERSAMA",
+    "trigger_a_wind": {
+     "metric": "peak_wind_ms",
+     "value": 47.1,
+     "threshold_hit": "wind >= 42 m/s",
+     "payout_fraction": 0.5
+    },
+    "trigger_b_population_index": {
+     "metric": "flooded_population_share",
+     "value": 0.326,
+     "threshold_hit": "index >= 0.20",
+     "payout_fraction": 1
+    },
+    "payout_inr": 500000000,
+    "triggered": true,
+    "reference_agency": "IMD_RSMC_NEW_DELHI",
+    "basis": "illustrative_not_actuarial"
+   },
+   {
+    "zone_id": "Z-GADARPUR",
+    "zone_name": "GADARPUR",
+    "trigger_a_wind": {
+     "metric": "peak_wind_ms",
+     "value": 41.1,
+     "threshold_hit": "wind >= 33 m/s",
+     "payout_fraction": 0.25
+    },
+    "trigger_b_population_index": {
+     "metric": "flooded_population_share",
+     "value": 0,
+     "threshold_hit": null,
+     "payout_fraction": 0
+    },
+    "payout_inr": 125000000,
+    "triggered": true,
+    "reference_agency": "IMD_RSMC_NEW_DELHI",
+    "basis": "illustrative_not_actuarial"
+   },
+   {
+    "zone_id": "Z-GOP",
+    "zone_name": "GOP",
+    "trigger_a_wind": {
+     "metric": "peak_wind_ms",
+     "value": 58.5,
+     "threshold_hit": "wind >= 50 m/s",
+     "payout_fraction": 1
+    },
+    "trigger_b_population_index": {
+     "metric": "flooded_population_share",
+     "value": 0.026,
+     "threshold_hit": null,
+     "payout_fraction": 0
+    },
+    "payout_inr": 500000000,
+    "triggered": true,
+    "reference_agency": "IMD_RSMC_NEW_DELHI",
+    "basis": "illustrative_not_actuarial"
+   },
+   {
+    "zone_id": "Z-JAGATSINGHPUR",
+    "zone_name": "JAGATSINGHPUR",
+    "trigger_a_wind": {
+     "metric": "peak_wind_ms",
+     "value": 46.6,
+     "threshold_hit": "wind >= 42 m/s",
+     "payout_fraction": 0.5
+    },
+    "trigger_b_population_index": {
+     "metric": "flooded_population_share",
+     "value": 0.343,
+     "threshold_hit": "index >= 0.20",
+     "payout_fraction": 1
+    },
+    "payout_inr": 500000000,
+    "triggered": true,
+    "reference_agency": "IMD_RSMC_NEW_DELHI",
+    "basis": "illustrative_not_actuarial"
+   },
+   {
+    "zone_id": "Z-JAGATSINGPUR",
+    "zone_name": "JAGATSINGPUR",
+    "trigger_a_wind": {
+     "metric": "peak_wind_ms",
+     "value": 47.2,
+     "threshold_hit": "wind >= 42 m/s",
+     "payout_fraction": 0.5
+    },
+    "trigger_b_population_index": {
+     "metric": "flooded_population_share",
+     "value": 0.446,
+     "threshold_hit": "index >= 0.20",
+     "payout_fraction": 1
+    },
+    "payout_inr": 500000000,
+    "triggered": true,
+    "reference_agency": "IMD_RSMC_NEW_DELHI",
+    "basis": "illustrative_not_actuarial"
+   },
+   {
+    "zone_id": "Z-JATANI",
+    "zone_name": "JATANI",
+    "trigger_a_wind": {
+     "metric": "peak_wind_ms",
+     "value": 58.7,
+     "threshold_hit": "wind >= 50 m/s",
+     "payout_fraction": 1
+    },
+    "trigger_b_population_index": {
+     "metric": "flooded_population_share",
+     "value": 0,
+     "threshold_hit": null,
+     "payout_fraction": 0
+    },
+    "payout_inr": 500000000,
+    "triggered": true,
+    "reference_agency": "IMD_RSMC_NEW_DELHI",
+    "basis": "illustrative_not_actuarial"
+   },
+   {
+    "zone_id": "Z-KAKATPUR",
+    "zone_name": "KAKATPUR",
+    "trigger_a_wind": {
+     "metric": "peak_wind_ms",
+     "value": 50.5,
+     "threshold_hit": "wind >= 50 m/s",
+     "payout_fraction": 1
+    },
+    "trigger_b_population_index": {
+     "metric": "flooded_population_share",
+     "value": 0.14,
+     "threshold_hit": "index >= 0.10",
+     "payout_fraction": 0.5
+    },
+    "payout_inr": 500000000,
+    "triggered": true,
+    "reference_agency": "IMD_RSMC_NEW_DELHI",
+    "basis": "illustrative_not_actuarial"
+   },
+   {
+    "zone_id": "Z-KANAS",
+    "zone_name": "KANAS",
+    "trigger_a_wind": {
+     "metric": "peak_wind_ms",
+     "value": 55.9,
+     "threshold_hit": "wind >= 50 m/s",
+     "payout_fraction": 1
+    },
+    "trigger_b_population_index": {
+     "metric": "flooded_population_share",
+     "value": 0.686,
+     "threshold_hit": "index >= 0.20",
+     "payout_fraction": 1
+    },
+    "payout_inr": 500000000,
+    "triggered": true,
+    "reference_agency": "IMD_RSMC_NEW_DELHI",
+    "basis": "illustrative_not_actuarial"
+   },
+   {
+    "zone_id": "Z-KANTAPARA",
+    "zone_name": "KANTAPARA",
+    "trigger_a_wind": {
+     "metric": "peak_wind_ms",
+     "value": 57.7,
+     "threshold_hit": "wind >= 50 m/s",
+     "payout_fraction": 1
+    },
+    "trigger_b_population_index": {
+     "metric": "flooded_population_share",
+     "value": 0,
+     "threshold_hit": null,
+     "payout_fraction": 0
+    },
+    "payout_inr": 500000000,
+    "triggered": true,
+    "reference_agency": "IMD_RSMC_NEW_DELHI",
+    "basis": "illustrative_not_actuarial"
+   },
+   {
+    "zone_id": "Z-KHURDA",
+    "zone_name": "KHURDA",
+    "trigger_a_wind": {
+     "metric": "peak_wind_ms",
+     "value": 51.4,
+     "threshold_hit": "wind >= 50 m/s",
+     "payout_fraction": 1
+    },
+    "trigger_b_population_index": {
+     "metric": "flooded_population_share",
+     "value": 0,
+     "threshold_hit": null,
+     "payout_fraction": 0
+    },
+    "payout_inr": 500000000,
+    "triggered": true,
+    "reference_agency": "IMD_RSMC_NEW_DELHI",
+    "basis": "illustrative_not_actuarial"
+   },
+   {
+    "zone_id": "Z-KRUSHNAPRASAD",
+    "zone_name": "KRUSHNAPRASAD",
+    "trigger_a_wind": {
+     "metric": "peak_wind_ms",
+     "value": 63.8,
+     "threshold_hit": "wind >= 50 m/s",
+     "payout_fraction": 1
+    },
+    "trigger_b_population_index": {
+     "metric": "flooded_population_share",
+     "value": 0.201,
+     "threshold_hit": "index >= 0.20",
+     "payout_fraction": 1
+    },
+    "payout_inr": 500000000,
+    "triggered": true,
+    "reference_agency": "IMD_RSMC_NEW_DELHI",
+    "basis": "illustrative_not_actuarial"
+   },
+   {
+    "zone_id": "Z-NIALI",
+    "zone_name": "NIALI",
+    "trigger_a_wind": {
+     "metric": "peak_wind_ms",
+     "value": 58.7,
+     "threshold_hit": "wind >= 50 m/s",
+     "payout_fraction": 1
+    },
+    "trigger_b_population_index": {
+     "metric": "flooded_population_share",
+     "value": 0,
+     "threshold_hit": null,
+     "payout_fraction": 0
+    },
+    "payout_inr": 500000000,
+    "triggered": true,
+    "reference_agency": "IMD_RSMC_NEW_DELHI",
+    "basis": "illustrative_not_actuarial"
+   },
+   {
+    "zone_id": "Z-NIMAPADA",
+    "zone_name": "NIMAPADA",
+    "trigger_a_wind": {
+     "metric": "peak_wind_ms",
+     "value": 58.7,
+     "threshold_hit": "wind >= 50 m/s",
+     "payout_fraction": 1
+    },
+    "trigger_b_population_index": {
+     "metric": "flooded_population_share",
+     "value": 0,
+     "threshold_hit": null,
+     "payout_fraction": 0
+    },
+    "payout_inr": 500000000,
+    "triggered": true,
+    "reference_agency": "IMD_RSMC_NEW_DELHI",
+    "basis": "illustrative_not_actuarial"
+   },
+   {
+    "zone_id": "Z-NISCHITANTAKOIL",
+    "zone_name": "NISCHITANTAKOIL",
+    "trigger_a_wind": {
+     "metric": "peak_wind_ms",
+     "value": 55,
+     "threshold_hit": "wind >= 50 m/s",
+     "payout_fraction": 1
+    },
+    "trigger_b_population_index": {
+     "metric": "flooded_population_share",
+     "value": 0,
+     "threshold_hit": null,
+     "payout_fraction": 0
+    },
+    "payout_inr": 500000000,
+    "triggered": true,
+    "reference_agency": "IMD_RSMC_NEW_DELHI",
+    "basis": "illustrative_not_actuarial"
+   },
+   {
+    "zone_id": "Z-PIPILI",
+    "zone_name": "PIPILI",
+    "trigger_a_wind": {
+     "metric": "peak_wind_ms",
+     "value": 58.7,
+     "threshold_hit": "wind >= 50 m/s",
+     "payout_fraction": 1
+    },
+    "trigger_b_population_index": {
+     "metric": "flooded_population_share",
+     "value": 0,
+     "threshold_hit": null,
+     "payout_fraction": 0
+    },
+    "payout_inr": 500000000,
+    "triggered": true,
+    "reference_agency": "IMD_RSMC_NEW_DELHI",
+    "basis": "illustrative_not_actuarial"
+   },
+   {
+    "zone_id": "Z-PURI",
+    "zone_name": "PURI",
+    "trigger_a_wind": {
+     "metric": "peak_wind_ms",
+     "value": 63.5,
+     "threshold_hit": "wind >= 50 m/s",
+     "payout_fraction": 1
+    },
+    "trigger_b_population_index": {
+     "metric": "flooded_population_share",
+     "value": 0.019,
+     "threshold_hit": null,
+     "payout_fraction": 0
+    },
+    "payout_inr": 500000000,
+    "triggered": true,
+    "reference_agency": "IMD_RSMC_NEW_DELHI",
+    "basis": "illustrative_not_actuarial"
+   },
+   {
+    "zone_id": "Z-RANAPUR",
+    "zone_name": "RANAPUR",
+    "trigger_a_wind": {
+     "metric": "peak_wind_ms",
+     "value": 43.6,
+     "threshold_hit": "wind >= 42 m/s",
+     "payout_fraction": 0.5
+    },
+    "trigger_b_population_index": {
+     "metric": "flooded_population_share",
+     "value": 0,
+     "threshold_hit": null,
+     "payout_fraction": 0
+    },
+    "payout_inr": 250000000,
+    "triggered": true,
+    "reference_agency": "IMD_RSMC_NEW_DELHI",
+    "basis": "illustrative_not_actuarial"
+   },
+   {
+    "zone_id": "Z-SATYABADI",
+    "zone_name": "SATYABADI",
+    "trigger_a_wind": {
+     "metric": "peak_wind_ms",
+     "value": 58.7,
+     "threshold_hit": "wind >= 50 m/s",
+     "payout_fraction": 1
+    },
+    "trigger_b_population_index": {
+     "metric": "flooded_population_share",
+     "value": 0.14,
+     "threshold_hit": "index >= 0.10",
+     "payout_fraction": 0.5
+    },
+    "payout_inr": 500000000,
+    "triggered": true,
+    "reference_agency": "IMD_RSMC_NEW_DELHI",
+    "basis": "illustrative_not_actuarial"
+   },
+   {
+    "zone_id": "Z-TANGI",
+    "zone_name": "TANGI",
+    "trigger_a_wind": {
+     "metric": "peak_wind_ms",
+     "value": 54.7,
+     "threshold_hit": "wind >= 50 m/s",
+     "payout_fraction": 1
+    },
+    "trigger_b_population_index": {
+     "metric": "flooded_population_share",
+     "value": 0.22,
+     "threshold_hit": "index >= 0.20",
+     "payout_fraction": 1
+    },
+    "payout_inr": 500000000,
+    "triggered": true,
+    "reference_agency": "IMD_RSMC_NEW_DELHI",
+    "basis": "illustrative_not_actuarial"
+   },
+   {
+    "zone_id": "Z-TIRTOL",
+    "zone_name": "TIRTOL",
+    "trigger_a_wind": {
+     "metric": "peak_wind_ms",
+     "value": 51.6,
+     "threshold_hit": "wind >= 50 m/s",
+     "payout_fraction": 1
+    },
+    "trigger_b_population_index": {
+     "metric": "flooded_population_share",
+     "value": 0,
+     "threshold_hit": null,
+     "payout_fraction": 0
+    },
+    "payout_inr": 500000000,
+    "triggered": true,
+    "reference_agency": "IMD_RSMC_NEW_DELHI",
+    "basis": "illustrative_not_actuarial"
+   }
+  ],
+  "total_payout_inr": 15375000000,
+  "zone_limit_inr": 500000000,
+  "disclosure": {
+   "model_class": "heuristic_index",
+   "limitations": [
+    "Parametric zones are illustrative, not actuarially derived.",
+    "Payout matrices are demonstrative of the mechanism only."
+   ],
+   "validated_against": null,
+   "skill_metric": null
+  }
+ },
+ "validation": {
+  "available": true,
+  "storm": "Fani 2019",
+  "aoi": "Puri + Khordha",
+  "skill": {
+   "csi": 0.001,
+   "pod": 0.003,
+   "far": 0.999,
+   "bias": 2.652,
+   "hits": 3,
+   "misses": 1169,
+   "false_alarms": 3105,
+   "hits_km2": 0.2,
+   "misses_km2": 84.5,
+   "false_alarms_km2": 224.5,
+   "suspicious": false,
+   "degenerate": true,
+   "expected_range": [
+    0.3,
+    0.5
+   ],
+   "truth_source": "sentinel1_vv_change_-3db_relorbit_48",
+   "orbit_pass": "DESCENDING",
+   "pre_dates": [
+    "2019-04-22",
+    "2019-04-28"
+   ],
+   "post_dates": [
+    "2019-05-04"
+   ],
+   "failure_analysis": [
+    "CSI 0.001 is near zero: the predicted and observed masks barely overlap. Check the truth pipeline (orbit geometry, swath edges, date gap) before attributing this to the model.",
+    "Largest over-prediction: Ersama (67 km2 modelled wet, observed dry). Static bathtub has no drainage or embankments.",
+    "Largest miss: Puri (24 km2 observed wet, modelled dry). A surge-only model cannot represent rain-fed or riverine flooding; where that is the cause it is out of scope, not a tuning target.",
+    "Bias 2.65: the model floods more area than was observed.",
+    "First post-event pass is ~18 h after landfall; surge water that drained before the pass counts as a false alarm.",
+    "DEM vertical error (~4 m) is comparable to the surge level itself; Copernicus GLO-30 is a surface model, so canopy and roofs read high."
+   ]
+  },
+  "sensitivity": [
+   {
+    "surge_level_m": 1.63,
+    "csi": 0,
+    "area_flooded_km2": 243.4
+   },
+   {
+    "surge_level_m": 2.13,
+    "csi": 0.001,
+    "area_flooded_km2": 518.8
+   },
+   {
+    "surge_level_m": 2.63,
+    "csi": 0.001,
+    "area_flooded_km2": 782.2
+   },
+   {
+    "surge_level_m": 3.13,
+    "csi": 0.001,
+    "area_flooded_km2": 1018.6
+   },
+   {
+    "surge_level_m": 3.63,
+    "csi": 0,
+    "area_flooded_km2": 1185.8
+   }
+  ],
+  "ems_crosscheck": "Copernicus EMS EMSR357 exists as an independent reference; not yet ingested.",
+  "layers": [
+   {
+    "layer": "validation",
+    "url": "/api/v1/scenarios/1b436335-3172-43da-9baa-9d94726502af/layers/validation",
+    "bbox": [
+     85.3,
+     19.6,
+     86.4,
+     20.4
+    ],
+    "width": 440,
+    "height": 320,
+    "classes": [
+     "none",
+     "agreement",
+     "miss",
+     "falseAlarm"
+    ]
+   }
+  ],
+  "reason_unavailable": null
+ },
+ "advisories": {
+  "advisories": [
+   {
+    "role": "DISTRICT_COLLECTOR",
+    "stage": "PRE_CYCLONE_WATCH",
+    "language": "en",
+    "headline": "Cyclone Fani 2019: Pre-Cyclone Watch Briefing for Puri + Khordha at 72.0 Hours Before Landfall",
+    "situation": "Under the Pre-Cyclone Watch at 72.0 hours before landfall, heuristic model projections indicate potential inundation over 782.2 km2 with a peak surge index of 2.63 m, placing 470801 population and 19226 buildings at risk across Puri + Khordha. Model assessment identifies 29 shelters compromised out of 241 shelters total, leaving 350318 people without a shelter place. Accordingly, 4 orders are recommended for consideration by the respective Collectors and the Special Relief Commissioner to withdraw affected facilities and open temporary shelter accommodations.",
+    "action_ids": [
+     "watch-compromised-shelters-PURI",
+     "watch-compromised-shelters-JAGATSINGHPUR",
+     "watch-compromised-shelters-KHORDHA",
+     "watch-capacity-gap"
+    ],
+    "caveats": [
+     "Static bathtub inundation; no storm dynamics, tide phase, or timing.",
+     "No wave setup or runup, which can add more than 1 m.",
+     "DEM vertical error (several metres) is comparable to the surge signal itself in low-relief floodplains."
+    ],
+    "generated_by": "GEMINI",
+    "grounding": {
+     "ok": true,
+     "found": [
+      782.2,
+      2.63,
+      470801,
+      19226,
+      29,
+      241,
+      350318,
+      4
+     ],
+     "ungrounded": [],
+     "banned": []
+    },
+    "model_id": "gemini-3.8-flash",
+    "prompt_version": "narrate_advisory.v2",
+    "notice": null
+   },
+   {
+    "role": "DISTRICT_COLLECTOR",
+    "stage": "PRE_CYCLONE_WATCH",
+    "language": "or",
+    "headline": "Cyclone Fani 2019: ସ୍ଥଳଭାଗ ଛୁଇଁବାର 72.0 ଘଣ୍ଟା ପୂର୍ବରୁ Puri + Khordha ପାଇଁ Pre-Cyclone Watch ବ୍ରିଫିଂ",
+    "situation": "ସ୍ଥଳଭାଗ ଛୁଇଁବାର 72.0 ଘଣ୍ଟା ପୂର୍ବରୁ Pre-Cyclone Watch ଅଧୀନରେ, ମଡେଲ୍ ଆକଳନ ଅନୁଯାୟୀ 2.63 m ର ସର୍ବୋଚ୍ଚ ଜୁଆର ସୂଚକାଙ୍କ ସହିତ 782.2 km2 ଅଞ୍ଚଳ ଜଳମଗ୍ନ ହେବାର ସମ୍ଭାବନା ରହିଛି, ଯାହା Puri + Khordha ରେ 470801 ଜନସଂଖ୍ୟା ଏବଂ 19226 ଟି କୋଠାବାଡ଼ିକୁ ବିପଦରେ ପକାଉଛି। ମଡେଲ୍ ମୂଲ୍ୟାଙ୍କନରୁ ଜଣାପଡିଛି ଯେ ମୋଟ 241 ଟି ଆଶ୍ରୟସ୍ଥଳୀ ମଧ୍ୟରୁ 29 ଟି ଆଶ୍ରୟସ୍ଥଳୀ କ୍ଷତିଗ୍ରସ୍ତ ହୋଇଛି, ଯାହାଫଳରେ 350318 ଜଣ ଲୋକ ଆଶ୍ରୟସ୍ଥଳ ବିହୀନ ହୋଇଛନ୍ତି। ତଦନୁଯାୟୀ, ପ୍ରଭାବିତ ସୁବିଧାଗୁଡ଼ିକୁ ପ୍ରତ୍ୟାହାର କରିବା ଏବଂ ଅସ୍ଥାୟୀ ଆଶ୍ରୟ ବ୍ୟବସ୍ଥା ଖୋଲିବା ପାଇଁ ସମ୍ପୃକ୍ତ Collectors ଏବଂ Special Relief Commissioner ଙ୍କ ବିଚାରାର୍ଥେ 4 ଟି ନିର୍ଦ୍ଦେଶ ସୁପାରିଶ କରାଯାଇଛି।",
+    "action_ids": [
+     "watch-compromised-shelters-PURI",
+     "watch-compromised-shelters-JAGATSINGHPUR",
+     "watch-compromised-shelters-KHORDHA",
+     "watch-capacity-gap"
+    ],
+    "caveats": [
+     "Static bathtub inundation; no storm dynamics, tide phase, or timing.",
+     "No wave setup or runup, which can add more than 1 m.",
+     "DEM vertical error (several metres) is comparable to the surge signal itself in low-relief floodplains."
+    ],
+    "generated_by": "GEMINI",
+    "grounding": {
+     "ok": true,
+     "found": [
+      2.63,
+      782.2,
+      470801,
+      19226,
+      241,
+      29,
+      350318,
+      4
+     ],
+     "ungrounded": [],
+     "banned": []
+    },
+    "model_id": "gemini-3.8-flash",
+    "prompt_version": "narrate_advisory.v2",
+    "notice": null
+   },
+   {
+    "role": "DISTRICT_COLLECTOR",
+    "stage": "CYCLONE_ALERT",
+    "language": "en",
+    "headline": "Cyclone Alert: Fani 2019 threat assessment for Puri + Khordha at 48.0 hours before landfall",
+    "situation": "Heuristic modeling indicates a potential inundated area of 782.2 km2 with a peak surge index of 2.63 m, placing 470801 population at risk and 19226 buildings at risk across Puri + Khordha. Out of 241 total shelters, 29 are projected as compromised, leaving 350318 people without a shelter place. A schedule of 15 operational orders is placed for the Collector to issue to effect necessary shelter catchment redirections.",
+    "action_ids": [
+     "alert-reassign-OSDMA-0694",
+     "alert-reassign-OSDMA-0666",
+     "alert-reassign-OSDMA-0695",
+     "alert-reassign-OSDMA-0707",
+     "alert-reassign-OSDMA-0850",
+     "alert-reassign-OSDMA-0819",
+     "alert-reassign-OSDMA-0762",
+     "alert-reassign-OSDMA-0665",
+     "alert-reassign-OSDMA-0553",
+     "alert-reassign-OSDMA-0858",
+     "alert-ndrf-C022-018",
+     "alert-ndrf-C024-016",
+     "alert-ndrf-C023-016",
+     "alert-ndrf-C022-017",
+     "alert-ndrf-C023-015"
+    ],
+    "caveats": [
+     "Static bathtub inundation; no storm dynamics, tide phase, or timing.",
+     "No wave setup or runup, which can add more than 1 m.",
+     "DEM vertical error (several metres) is comparable to the surge signal itself in low-relief floodplains."
+    ],
+    "generated_by": "GEMINI",
+    "grounding": {
+     "ok": true,
+     "found": [
+      782.2,
+      2.63,
+      470801,
+      19226,
+      241,
+      29,
+      350318,
+      15
+     ],
+     "ungrounded": [],
+     "banned": []
+    },
+    "model_id": "gemini-3.8-flash",
+    "prompt_version": "narrate_advisory.v2",
+    "notice": null
+   },
+   {
+    "role": "DISTRICT_COLLECTOR",
+    "stage": "CYCLONE_ALERT",
+    "language": "or",
+    "headline": "ବାତ୍ୟା ସତର୍କତା: ସ୍ଥଳଭାଗ ଛୁଇଁବାର 48.0 ଘଣ୍ଟା ପୂର୍ବରୁ Puri + Khordha ପାଇଁ Fani 2019 ବିପଦ ଆକଳନ",
+    "situation": "ହିଉରିଷ୍ଟିକ୍ ମଡେଲିଂରୁ ଜଣାପଡିଛି ଯେ Puri + Khordha ରେ 2.63 m ସର୍ବୋଚ୍ଚ ଜୁଆର ସୂଚକାଙ୍କ ସହିତ 782.2 km2 ଅଞ୍ଚଳ ଜଳମଗ୍ନ ହେବାର ସମ୍ଭାବନା ରହିଛି, ଯାହା 470801 ଜନସଂଖ୍ୟା ଏବଂ 19226 ଟି କୋଠାକୁ ବିପଦରେ ପକାଉଛି। ସମୁଦାୟ 241 ଟି ଆଶ୍ରୟସ୍ଥଳୀ ମଧ୍ୟରୁ 29 ଟି ବ୍ୟାହତ ହେବା ନେଇ ଆକଳନ କରାଯାଇଛି, ଯାହାଫଳରେ 350318 ଲୋକ ଆଶ୍ରୟସ୍ଥଳୀ ବିହୀନ ହୋଇଯିବେ। ଆବଶ୍ୟକ ଆଶ୍ରୟସ୍ଥଳୀ କ୍ୟାଚମେଣ୍ଟ ପୁନଃନିର୍ଦ୍ଦେଶନ କାର୍ଯ୍ୟକାରୀ କରିବା ପାଇଁ Collector ଙ୍କ ଦ୍ୱାରା ଜାରି କରିବା ନିମନ୍ତେ 15 ଟି କାର୍ଯ୍ୟକ୍ଷମ ନିର୍ଦ୍ଦେଶନାମାର ଏକ କାର୍ଯ୍ୟସୂଚୀ ଉପସ୍ଥାପନ କରାଯାଇଛି।",
+    "action_ids": [
+     "alert-reassign-OSDMA-0694",
+     "alert-reassign-OSDMA-0666",
+     "alert-reassign-OSDMA-0695",
+     "alert-reassign-OSDMA-0707",
+     "alert-reassign-OSDMA-0850",
+     "alert-reassign-OSDMA-0819",
+     "alert-reassign-OSDMA-0762",
+     "alert-reassign-OSDMA-0665",
+     "alert-reassign-OSDMA-0553",
+     "alert-reassign-OSDMA-0858",
+     "alert-ndrf-C022-018",
+     "alert-ndrf-C024-016",
+     "alert-ndrf-C023-016",
+     "alert-ndrf-C022-017",
+     "alert-ndrf-C023-015"
+    ],
+    "caveats": [
+     "Static bathtub inundation; no storm dynamics, tide phase, or timing.",
+     "No wave setup or runup, which can add more than 1 m.",
+     "DEM vertical error (several metres) is comparable to the surge signal itself in low-relief floodplains."
+    ],
+    "generated_by": "GEMINI",
+    "grounding": {
+     "ok": true,
+     "found": [
+      2.63,
+      782.2,
+      470801,
+      19226,
+      241,
+      29,
+      350318,
+      15
+     ],
+     "ungrounded": [],
+     "banned": []
+    },
+    "model_id": "gemini-3.8-flash",
+    "prompt_version": "narrate_advisory.v2",
+    "notice": null
+   },
+   {
+    "role": "DISTRICT_COLLECTOR",
+    "stage": "CYCLONE_WARNING",
+    "language": "en",
+    "headline": "Cyclone Warning: Fani 2019 response planning for Puri + Khordha at 24.0 hours before landfall",
+    "situation": "Heuristic modeling indicates a potential inundated area of 782.2 km2 and a peak surge index of 2.63 m, placing 470801 population and 19226 buildings at risk across Puri + Khordha. Of the 241 total shelters, 29 are projected as compromised, leaving 350318 people without a shelter place. A total of 18 evacuation and preparedness orders are submitted for the Collector to issue across vulnerable blocks.",
+    "action_ids": [
+     "warning-evacuate-BRAHMAGIRI",
+     "warning-evacuate-ASTARANGA",
+     "warning-evacuate-KRUSHNAPRASAD",
+     "warning-evacuate-TANGI",
+     "warning-evacuate-KANAS",
+     "warning-evacuate-KAKATPUR",
+     "warning-evacuate-CHILIKA",
+     "warning-evacuate-GOP",
+     "warning-evacuate-PURI",
+     "warning-evacuate-JAGATSINGPUR",
+     "warning-evacuate-DELANGA",
+     "warning-evacuate-SATYABADI",
+     "warning-evacuate-ERSAMA",
+     "warning-evacuate-JAGATSINGHPUR",
+     "warning-evacuate-BALIKUDA",
+     "warning-watch-shelters-PURI",
+     "warning-watch-shelters-JAGATSINGHPUR",
+     "warning-watch-shelters-KHORDHA"
+    ],
+    "caveats": [
+     "Static bathtub inundation; no storm dynamics, tide phase, or timing.",
+     "No wave setup or runup, which can add more than 1 m.",
+     "DEM vertical error (several metres) is comparable to the surge signal itself in low-relief floodplains."
+    ],
+    "generated_by": "GEMINI",
+    "grounding": {
+     "ok": true,
+     "found": [
+      782.2,
+      2.63,
+      470801,
+      19226,
+      241,
+      29,
+      350318,
+      18
+     ],
+     "ungrounded": [],
+     "banned": []
+    },
+    "model_id": "gemini-3.8-flash",
+    "prompt_version": "narrate_advisory.v2",
+    "notice": null
+   },
+   {
+    "role": "DISTRICT_COLLECTOR",
+    "stage": "CYCLONE_WARNING",
+    "language": "or",
+    "headline": "ବାତ୍ୟା ସତର୍କତା: ସ୍ଥଳଭାଗ ଛୁଇଁବାର 24.0 ଘଣ୍ଟା ପୂର୍ବରୁ Puri + Khordha ପାଇଁ Fani 2019 ପ୍ରତିକ୍ରିୟା ଯୋଜନା",
+    "situation": "ହିଉରିଷ୍ଟିକ୍ ମଡେଲିଂ ଅନୁଯାୟୀ 782.2 km2 ଅଞ୍ଚଳ ଜଳମଗ୍ନ ହେବାର ସମ୍ଭାବନା ରହିଛି ଏବଂ ସର୍ବୋଚ୍ଚ ଜୁଆର ସୂଚକାଙ୍କ 2.63 m ଅଟେ, ଯାହା Puri + Khordha ରେ 470801 ଜନସଂଖ୍ୟା ଏବଂ 19226 ଟି କୋଠାକୁ ବିପଦରେ ପକାଇଛି। ସମୁଦାୟ 241 ଟି ଆଶ୍ରୟସ୍ଥଳୀ ମଧ୍ୟରୁ 29 ଟି ପ୍ରଭାବିତ ହେବାର ଆକଳନ କରାଯାଇଛି, ଯାହା ଫଳରେ 350318 ଲୋକ ଆଶ୍ରୟସ୍ଥଳୀ ବିହୀନ ହେବେ। ସମ୍ବେଦନଶୀଳ ବ୍ଲକଗୁଡ଼ିକରେ ଜାରି କରିବା ପାଇଁ Collector ଙ୍କ ନିକଟରେ ମୋଟ 18 ଟି ସ୍ଥାନାନ୍ତରଣ ଏବଂ ପ୍ରସ୍ତୁତି ନିର୍ଦ୍ଦେଶନାମା ଦାଖଲ କରାଯାଇଛି।",
+    "action_ids": [
+     "warning-evacuate-BRAHMAGIRI",
+     "warning-evacuate-ASTARANGA",
+     "warning-evacuate-KRUSHNAPRASAD",
+     "warning-evacuate-TANGI",
+     "warning-evacuate-KANAS",
+     "warning-evacuate-KAKATPUR",
+     "warning-evacuate-CHILIKA",
+     "warning-evacuate-GOP",
+     "warning-evacuate-PURI",
+     "warning-evacuate-JAGATSINGPUR",
+     "warning-evacuate-DELANGA",
+     "warning-evacuate-SATYABADI",
+     "warning-evacuate-ERSAMA",
+     "warning-evacuate-JAGATSINGHPUR",
+     "warning-evacuate-BALIKUDA",
+     "warning-watch-shelters-PURI",
+     "warning-watch-shelters-JAGATSINGHPUR",
+     "warning-watch-shelters-KHORDHA"
+    ],
+    "caveats": [
+     "Static bathtub inundation; no storm dynamics, tide phase, or timing.",
+     "No wave setup or runup, which can add more than 1 m.",
+     "DEM vertical error (several metres) is comparable to the surge signal itself in low-relief floodplains."
+    ],
+    "generated_by": "GEMINI",
+    "grounding": {
+     "ok": true,
+     "found": [
+      782.2,
+      2.63,
+      470801,
+      19226,
+      241,
+      29,
+      350318,
+      18
+     ],
+     "ungrounded": [],
+     "banned": []
+    },
+    "model_id": "gemini-3.8-flash",
+    "prompt_version": "narrate_advisory.v2",
+    "notice": null
+   },
+   {
+    "role": "DISTRICT_COLLECTOR",
+    "stage": "POST_LANDFALL",
+    "language": "en",
+    "headline": "Cyclone Fani 2019 Post-Landfall Outlook: Puri + Khordha Infrastructure and Shelter Assessment",
+    "situation": "Heuristic model outputs project potential inundation of 782.2 km2 and a peak surge index of 2.63 m, placing 470801 population and 19226 buildings at risk across Puri + Khordha. Out of 241 total shelters, 29 shelters are compromised, indicating 350318 people without a shelter place at a maximum estimated road distance of 10 km. There are 4 orders recommended for the Collector to issue, including keeping 23 flooded shelters closed in Puri, 5 in Jagatsinghpur, and 1 in Khordha until inspected.",
+    "action_ids": [
+     "post-parametric-release",
+     "post-keep-closed-PURI",
+     "post-keep-closed-JAGATSINGHPUR",
+     "post-keep-closed-KHORDHA"
+    ],
+    "caveats": [
+     "Static bathtub inundation; no storm dynamics, tide phase, or timing.",
+     "No wave setup or runup, which can add more than 1 m.",
+     "DEM vertical error (several metres) is comparable to the surge signal itself in low-relief floodplains."
+    ],
+    "generated_by": "GEMINI",
+    "grounding": {
+     "ok": true,
+     "found": [
+      782.2,
+      2.63,
+      470801,
+      19226,
+      241,
+      29,
+      350318,
+      10,
+      4,
+      23,
+      5,
+      1
+     ],
+     "ungrounded": [],
+     "banned": []
+    },
+    "model_id": "gemini-3.8-flash",
+    "prompt_version": "narrate_advisory.v2",
+    "notice": null
+   },
+   {
+    "role": "DISTRICT_COLLECTOR",
+    "stage": "POST_LANDFALL",
+    "language": "or",
+    "headline": "ବାତ୍ୟା Fani 2019 ସ୍ଥଳଭାଗ ଛୁଇଁବା ପରବର୍ତ୍ତୀ ଆକଳନ: Puri + Khordha ଭିତ୍ତିଭୂମି ଏବଂ ଆଶ୍ରୟସ୍ଥଳୀ ମୂଲ୍ୟାଙ୍କନ",
+    "situation": "ହିଉରିଷ୍ଟିକ୍ ମଡେଲ୍ ଆଉଟପୁଟ୍ ଅନୁସାରେ 782.2 km2 ସମ୍ଭାବ୍ୟ ଜଳପ୍ଲାବନ ଏବଂ 2.63 m ର ସର୍ବୋଚ୍ଚ ଜୁଆର ସୂଚକାଙ୍କ ଆକଳନ କରାଯାଇଛି, ଯାହା Puri + Khordha ରେ 470801 ଜନସଂଖ୍ୟା ଓ 19226 ଟି କୋଠାବାଡ଼ିକୁ ବିପଦରେ ପକାଇଛି। ମୋଟ 241 ଟି ଆଶ୍ରୟସ୍ଥଳୀ ମଧ୍ୟରୁ 29 ଟି ଆଶ୍ରୟସ୍ଥଳୀ କ୍ଷତିଗ୍ରସ୍ତ ହୋଇଛି, ଯାହା ସର୍ବାଧିକ ଆନୁମାନିକ 10 km ସଡ଼କ ଦୂରତା ମଧ୍ୟରେ 350318 ଲୋକଙ୍କ ପାଇଁ ଆଶ୍ରୟସ୍ଥଳୀ ନଥିବା ସୂଚାଉଛି। ଯାଞ୍ଚ ନହେବା ପର୍ଯ୍ୟନ୍ତ Puri ରେ 23 ଟି, Jagatsinghpur ରେ 5 ଟି ଏବଂ Khordha ରେ 1 ଟି ଜଳମଗ୍ନ ଆଶ୍ରୟସ୍ଥଳୀକୁ ବନ୍ଦ ରଖିବା ସମେତ Collector ଙ୍କ ଦ୍ୱାରା ଜାରି କରିବା ପାଇଁ 4 ଟି ନିର୍ଦ୍ଦେଶ ସୁପାରିଶ କରାଯାଇଛି।",
+    "action_ids": [
+     "post-parametric-release",
+     "post-keep-closed-PURI",
+     "post-keep-closed-JAGATSINGHPUR",
+     "post-keep-closed-KHORDHA"
+    ],
+    "caveats": [
+     "Static bathtub inundation; no storm dynamics, tide phase, or timing.",
+     "No wave setup or runup, which can add more than 1 m.",
+     "DEM vertical error (several metres) is comparable to the surge signal itself in low-relief floodplains."
+    ],
+    "generated_by": "GEMINI",
+    "grounding": {
+     "ok": true,
+     "found": [
+      782.2,
+      2.63,
+      470801,
+      19226,
+      241,
+      29,
+      10,
+      350318,
+      23,
+      5,
+      1,
+      4
+     ],
+     "ungrounded": [],
+     "banned": []
+    },
+    "model_id": "gemini-3.8-flash",
+    "prompt_version": "narrate_advisory.v2",
+    "notice": null
+   }
+  ]
+ }
+}

@@ -101,8 +101,8 @@ export function HazardLegend({ sections, floating = false }: HazardLegendProps):
             <span className={text.body}>Shelter — usable</span>
           </div>
           <div className={styles.item}>
-            <span className={styles.pinHospital} />
-            <span className={text.body}>Hospital</span>
+            <span className={styles.pinWatch} />
+            <span className={text.body}>Shelter — flood edge (watch)</span>
           </div>
         </section>
       ) : null}

@@ -24,5 +24,19 @@ export const emptyLink = style({
   border: `${vars.stroke.hair} solid ${vars.color.border.strong}`,
   color: vars.color.text.primary,
   textDecoration: "none",
-  fontWeight: "600",
+  fontWeight: vars.weight.semibold,
+});
+
+export const loading = style({
+  display: "flex",
+  flexDirection: "column",
+  gap: vars.space[4],
+  paddingBlock: vars.space[6],
+  color: vars.color.text.secondary,
+});
+
+export const loadingRow = style({
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+  gap: vars.space[4],
 });

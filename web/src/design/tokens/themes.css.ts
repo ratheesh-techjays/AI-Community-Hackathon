@@ -7,6 +7,7 @@ import {
   duration,
   easing,
   fontFamily,
+  fontWeight,
   glass,
   layout,
   radius,
@@ -103,6 +104,7 @@ function build(theme: ThemeId) {
       shimmer: { base: pick(shimmer.base), highlight: pick(shimmer.highlight) },
     },
     font: fontFamily,
+    weight: fontWeight,
     space,
     radius,
     shadow: {

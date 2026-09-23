@@ -25,9 +25,11 @@ const base = style({
   borderWidth: vars.stroke.hair,
   borderStyle: "solid",
   fontFamily: vars.font.mono,
+  // eslint-disable-next-line no-restricted-syntax -- one-off display size outside the text scale
   fontSize: "12px",
+  // eslint-disable-next-line no-restricted-syntax -- one-off display size outside the text scale
   lineHeight: "16px",
-  fontWeight: "500",
+  fontWeight: vars.weight.medium,
   letterSpacing: "0.04em",
   textTransform: "uppercase",
   whiteSpace: "nowrap",
@@ -39,6 +41,7 @@ const base = style({
 });
 
 /** Larger variant for table column headers, per the component guidelines. */
+// eslint-disable-next-line no-restricted-syntax -- one-off display size outside the text scale
 export const large = style({ fontSize: "12px", paddingInline: vars.space[3] });
 
 export const badge = styleVariants({

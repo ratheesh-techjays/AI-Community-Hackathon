@@ -13,15 +13,16 @@ from collections.abc import Awaitable, Callable
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.gzip import GZipMiddleware
 
+from prahari import __version__
 from prahari.api.errors import register_exception_handlers
-from prahari.api.routers import health, meta, scenarios, shelters, storms
+from prahari.api.routers import health, meta, query, scenarios, shelters, storms
 from prahari.config.settings import get_settings
 
 settings = get_settings()
 
 app = FastAPI(
     title="PRAHARI API",
-    version="0.1.0",
+    version=__version__,
     description="Cyclone impact & infrastructure vulnerability forecaster",
     docs_url="/api/v1/docs",
     openapi_url="/api/v1/openapi.json",
@@ -48,5 +49,12 @@ async def request_context(
     return response
 
 
-for router in (health.router, meta.router, storms.router, scenarios.router, shelters.router):
+for router in (
+    health.router,
+    meta.router,
+    storms.router,
+    scenarios.router,
+    shelters.router,
+    query.router,
+):
     app.include_router(router, prefix="/api/v1")

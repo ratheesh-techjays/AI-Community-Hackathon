@@ -81,12 +81,13 @@ export const pinCompromised = style([
   },
 ]);
 
+// Pins match the map: filled by status, dark outline.
 export const pinSafe = style([
   pinBase,
-  { background: vars.color.surface.raised, borderColor: vars.color.intent.success },
+  { background: vars.color.intent.success, borderColor: vars.color.text.primary },
 ]);
 
-export const pinHospital = style([
+export const pinWatch = style([
   pinBase,
-  { background: vars.color.surface.raised, borderColor: vars.color.intent.info, borderRadius: vars.radius.sm },
+  { background: vars.color.intent.warning, borderColor: vars.color.text.primary },
 ]);

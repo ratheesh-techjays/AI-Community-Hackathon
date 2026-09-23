@@ -71,7 +71,7 @@ export const shimmer = style({
   background: `linear-gradient(90deg, ${vars.color.shimmer.base} 25%, ${vars.color.shimmer.highlight} 50%, ${vars.color.shimmer.base} 75%)`,
   backgroundSize: "200% 100%",
   animationName: sweep,
-  animationDuration: "1.4s",
+  animationDuration: vars.duration.shimmer,
   animationTimingFunction: "linear",
   animationIterationCount: "infinite",
   borderRadius: vars.radius.sm,
@@ -144,7 +144,7 @@ const pulse = keyframes({
 /** Reserved for a genuinely live feed. Never on static fixture data. */
 export const livePulse = style({
   animationName: pulse,
-  animationDuration: "2.4s",
+  animationDuration: vars.duration.pulse,
   animationTimingFunction: vars.easing.standard,
   animationIterationCount: "infinite",
   "@media": { "(prefers-reduced-motion: reduce)": { animationName: "none" } },

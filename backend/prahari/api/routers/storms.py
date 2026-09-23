@@ -41,7 +41,10 @@ CATALOGUE: list[StormSummary] = [
         season=2021,
         has_sar_truth=True,
         has_ems_activation=False,
-        note="Demo storm. Cleanest pre/landfall/post Sentinel-1 sequence.",
+        note=(
+            "Precomputed demo run. A same-orbit Sentinel-1 pair exists; nothing in its "
+            "swath was scorable."
+        ),
     ),
     StormSummary(
         name="AMPHAN",

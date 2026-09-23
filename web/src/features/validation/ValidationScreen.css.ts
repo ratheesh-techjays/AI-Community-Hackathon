@@ -129,7 +129,7 @@ export const confusionHead = style({
   paddingBlock: vars.space[2],
   paddingInline: vars.space[0],
   color: vars.color.text.secondary,
-  fontWeight: "400",
+  fontWeight: vars.weight.regular,
   borderBlockEnd: `${vars.stroke.hair} solid ${vars.color.border.default}`,
 });
 
@@ -143,10 +143,19 @@ export const confusionCell = style({
 /** A failure of the satellite truth, not of the model. */
 export const classTruth = style({
   color: vars.color.intent.info,
-  fontWeight: "600",
+  fontWeight: vars.weight.semibold,
 });
 
 export const classModel = style({
   color: vars.color.text.primary,
-  fontWeight: "600",
+  fontWeight: vars.weight.semibold,
+});
+
+export const failures = style({
+  display: "flex",
+  flexDirection: "column",
+  gap: vars.space[2],
+  margin: 0,
+  paddingInlineStart: vars.space[6],
+  color: vars.color.text.primary,
 });

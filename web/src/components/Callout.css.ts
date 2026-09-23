@@ -72,7 +72,7 @@ const buttonBase = style({
   borderRadius: vars.radius.md,
   borderWidth: vars.stroke.hair,
   borderStyle: "solid",
-  fontWeight: "600",
+  fontWeight: vars.weight.semibold,
 });
 
 export const action = styleVariants({

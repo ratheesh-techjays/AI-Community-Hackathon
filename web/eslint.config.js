@@ -11,8 +11,14 @@ export default tseslint.config(
   // Config files live outside tsconfig's include, so type-aware rules cannot
   // run on them. Without this they crash the whole lint run.
   {
-    files: ["*.config.js", "*.config.ts", "eslint.config.js", "vite.config.ts"],
+    files: ["*.config.js", "*.config.ts", "eslint.config.js", "vite.config.ts", "scripts/**/*.mjs"],
     ...tseslint.configs.disableTypeChecked,
+  },
+
+  // Node scripts (fixture snapshots) run outside the browser bundle.
+  {
+    files: ["scripts/**/*.mjs"],
+    languageOptions: { globals: { process: "readonly", fetch: "readonly", console: "readonly" } },
   },
 
   {
@@ -98,6 +104,9 @@ export default tseslint.config(
 
   // .css.ts files legitimately carry layout lengths the token scale does not
   // cover (a 34px track height, a 14px marker). Colour literals stay banned.
+  // Literals are also banned for the properties the token scale DOES cover:
+  // the stylelint declaration-strict-value rule, ported. Stylelint cannot
+  // parse vanilla-extract objects, so it never checked a .css.ts declaration.
   {
     files: ["src/**/*.css.ts"],
     rules: {
@@ -106,6 +115,12 @@ export default tseslint.config(
         {
           selector: "Literal[value=/^#(?:[0-9a-fA-F]{3,8})$/]",
           message: "Raw colour literal. Use a token from design/tokens/contract.css.ts.",
+        },
+        {
+          selector:
+            "Property[key.name=/^(color|background|backgroundColor|borderColor|boxShadow|zIndex|fontSize|fontFamily|fontWeight|lineHeight|gap|margin|marginInline|marginBlock|marginTop|marginBottom|padding|paddingInline|paddingBlock|paddingTop|paddingBottom|paddingLeft|paddingRight|borderRadius|transitionDuration|animationDuration)$/] > Literal[value!=/^(0|auto|100%|none|inherit|transparent|currentColor)$/]",
+          message:
+            "Token-scale property with a literal value. Use vars.* (or 0 / auto / 100% / none / inherit / transparent / currentColor).",
         },
       ],
     },

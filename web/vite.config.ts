@@ -14,16 +14,10 @@ export default defineConfig({
     // This is why there is no CORS middleware on the backend.
     proxy: { "/api": { target: "http://localhost:8080", changeOrigin: true } },
   },
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          // The map is ~40% of JS. Keep it out of the initial bundle.
-          map: ["deck.gl", "maplibre-gl"],
-        },
-      },
-    },
-  },
+  // No manualChunks: the map is split by its dynamic import (map/ImpactMap.tsx).
+  // A manual "map" chunk pulled shared helpers into itself, which made every
+  // route statically import and preload deck.gl + MapLibre.
+  build: { chunkSizeWarningLimit: 2000 },
   test: {
     environment: "jsdom",
     setupFiles: ["./tests/setup.ts"],

@@ -32,6 +32,8 @@ export interface StageSpec {
   nominalHours: number;
   /** Lead time at which the bulletin was actually issued, or null if none. */
   issuedAtHours: number | null;
+  /** IMD's actual issue time was not ingested: show the SOP window, never "skipped". */
+  issueUnknown?: boolean;
   /** Where this stage's actions went, if it was skipped. */
   skippedNote?: string;
   packetStatus?: string;
@@ -65,7 +67,8 @@ export function StageTimeline({
       <div className={styles.track} role="presentation">
         {stages.map((stage, index) => {
           // A window is skipped when its nominal time has passed with no bulletin.
-          const skipped = stage.issuedAtHours === null && stage.nominalHours >= nowHours;
+          const skipped =
+            !stage.issueUnknown && stage.issuedAtHours === null && stage.nominalHours >= nowHours;
           if (!skipped) return null;
           const previous = stages[index - 1];
           const from = previous ? previous.nominalHours : windowStartHours;
@@ -122,7 +125,8 @@ export function StageTimeline({
 
       <div className={styles.cards}>
         {stages.map((stage) => {
-          const skipped = stage.issuedAtHours === null && stage.nominalHours >= nowHours;
+          const skipped =
+            !stage.issueUnknown && stage.issuedAtHours === null && stage.nominalHours >= nowHours;
           const current = !skipped && stage.nominalHours >= nowHours;
           const classes = [
             styles.card,
@@ -145,6 +149,8 @@ export function StageTimeline({
                   issued T-{stage.issuedAtHours}h (
                   {deltaLabel(stage.nominalHours, stage.issuedAtHours)})
                 </span>
+              ) : stage.issueUnknown ? (
+                <span className={`${text.caption} ${styles.meta}`}>SOP window · issue time not ingested</span>
               ) : skipped ? (
                 <>
                   <span className={`${text.metric} ${styles.skippedTag}`}>

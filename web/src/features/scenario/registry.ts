@@ -1,76 +1,13 @@
-import type { StageSpec } from "@/components/StageTimeline";
-import { ACTIONS } from "@/features/fixtures/actions";
-import {
-  BLOCKS,
-  FAILURES,
-  HEADLINE,
-  SCENARIO,
-  SHELTERS,
-  SHELTER_SUMMARY,
-  UNREACHED,
-  VALIDATION,
-} from "@/features/fixtures/fani";
-
-import type { ScenarioData, StormOption } from "./types";
+import type { StormOption } from "./types";
 
 /**
- * SCENARIO REGISTRY.
+ * The precomputed demo runs. Computed by the real pipeline and stored by the
+ * backend (data/runs/, alias below):
  *
- * Maps a run id to its data. Today: one precomputed fixture run (Fani).
- * Tomorrow: `useScenario` fetches /scenarios/{runId} and this file shrinks to
- * the precomputed demo entries only.
- *
- * A run id is content-addressed on the backend (`params_hash`). The human
- * slug here is a frontend alias for the demo; live runs use the UUID.
+ *     python -m prahari.workers.scenario --storm FANI --season 2019 \
+ *         --aoi puri_khordha --validate --alias fani-2019-puri
  */
-
-// Fani intensified fast: Alert 18h early, Warning 12h early, no separate
-// Pre-Cyclone Watch bulletin. IMD's SOP explicitly permits this.
-const FANI_STAGES: StageSpec[] = [
-  {
-    id: "watch",
-    name: "Pre-Cyclone Watch",
-    nominalHours: 72,
-    issuedAtHours: null,
-    skippedNote: "Actions folded into the Cyclone Alert packet.",
-  },
-  { id: "alert", name: "Cyclone Alert", nominalHours: 48, issuedAtHours: 66, packetStatus: "Packet issued" },
-  { id: "warning", name: "Cyclone Warning", nominalHours: 24, issuedAtHours: 36, packetStatus: "Packet drafted" },
-  { id: "postLandfall", name: "Post-Landfall Outlook", nominalHours: 12, issuedAtHours: null },
-];
-
 export const FANI_RUN_ID = "fani-2019-puri";
-
-const FANI: ScenarioData = {
-  meta: {
-    runId: FANI_RUN_ID,
-    storm: SCENARIO.storm,
-    season: SCENARIO.season,
-    district: SCENARIO.district,
-    state: SCENARIO.state,
-    landfallIso: SCENARIO.landfallIso,
-    nowIso: SCENARIO.nowIso,
-    nowHours: SCENARIO.nowHours,
-    stage: SCENARIO.stage,
-    stageName: "Cyclone Alert",
-    precomputed: true,
-    validated: true,
-    isFixture: true,
-  },
-  stages: FANI_STAGES,
-  actions: ACTIONS,
-  shelters: SHELTERS,
-  shelterSummary: { inDistrict: SHELTER_SUMMARY.inDistrict, compromised: SHELTER_SUMMARY.compromised },
-  unreached: UNREACHED,
-  headline: { ...HEADLINE },
-  blocks: BLOCKS,
-  validation: { ...VALIDATION },
-  failures: FAILURES,
-};
-
-export const SCENARIOS: Record<string, ScenarioData> = {
-  [FANI_RUN_ID]: FANI,
-};
 
 /**
  * The storm catalogue offered by the selector.
@@ -91,7 +28,8 @@ export const STORM_OPTIONS: StormOption[] = [
     landfallLabel: "03 May 2019 · Puri",
     hasSarTruth: true,
     hasEmsActivation: true,
-    note: "Validated run. Only Indian cyclone with an official Copernicus EMS cross-check.",
+    note: "Precomputed from Earth Engine data. The only Indian cyclone with an official Copernicus EMS activation.",
+    aoiPreset: "puri_khordha",
     runId: FANI_RUN_ID,
   },
   {
@@ -102,7 +40,9 @@ export const STORM_OPTIONS: StormOption[] = [
     landfallLabel: "26 May 2021 · Dhamra",
     hasSarTruth: true,
     hasEmsActivation: false,
-    note: "Cleanest Sentinel-1 pre/landfall/post sequence of any candidate storm.",
+    note: "Precomputed. A same-orbit Sentinel-1 pair exists (14 and 26 May 2021), but the modelled flood is small and nothing in the swath was scorable.",
+    aoiPreset: "balasore_bhadrak",
+    runId: "yaas-2021-balasore",
   },
   {
     name: "AMPHAN",

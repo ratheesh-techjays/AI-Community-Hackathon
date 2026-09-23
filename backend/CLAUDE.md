@@ -3,7 +3,8 @@
 FastAPI service for Python 3.11, packaged as `prahari` (hatchling). Run every command from `backend/`. See the root `CLAUDE.md` for cross-cutting rules.
 
 ## Commands
-- `pip install -e ".[dev]"`: install.
+- Use `backend/.venv` (Python 3.11), then `pip install -e ".[dev]"`. The global Python has a TensorFlow/protobuf clash that breaks the `earthengine` CLI.
+- `make` is not installed on the dev machine; run the Makefile commands directly.
 - `make data`: one-time IBTrACS NI download (27.9 MB) to `<repo>/data/raw/ibtracs_NI.csv`.
   - `GET /storms/{name}/track` returns 404 `storm-not-found` until you run it.
 - `make dev`: uvicorn with reload on :8080. OpenAPI docs are at `/api/v1/docs` and the schema at `/api/v1/openapi.json`.
@@ -14,22 +15,29 @@ FastAPI service for Python 3.11, packaged as `prahari` (hatchling). Run every co
 - `make fmt`: formats with ruff and applies ruff's auto-fixes.
 - `make typecheck`: runs `mypy --strict` with the pydantic plugin. Every function needs full annotations.
 - `make check`: lint, typecheck and tests.
-- `make docker`: builds the Cloud Run image. The image includes GDAL, and Cloud Run injects `PORT`.
+- `make docker`: builds the Cloud Run image from the repo root (`Dockerfile`). The image carries `data/`, and Cloud Run injects `PORT`.
+- `python -m prahari.workers.scenario --storm FANI --season 2019 --aoi puri_khordha --validate --alias fani-2019-puri`: runs and stores a scenario. It needs Earth Engine and, for the briefings, Gemini.
 
 Pytest runs with `--strict-markers`. Register any new marker in `pyproject.toml`.
 
 ## Layout and layering
 The package is organized by pipeline stage. Keep that direction: `api` imports from the domain layers, never the reverse.
 
-| Dir | Layer | State |
-|---|---|---|
-| `ingestion/` | L1: IBTrACS (implemented), GDACS / IMD bulletin (TODO) | partial |
-| `hazard/` | L2: `holland.py` wind field, `surge.py` heuristic index, `inundation.py` connectivity flood-fill, `track.py` RMW smoothing and landfall, `grid.py` | **implemented and tested** |
-| `exposure/`, `decision/`, `ai/`, `gee/`, `storage/`, `workers/` | L3–L5 and infra | empty scaffolds |
-| `evals/metrics.py` | L6: CSI/POD/FAR/bias against a SAR mask | implemented and tested |
-| `models/` | Pydantic domain models (`track`, `hazard`, `disclosure`, `provenance`) | |
-| `config/` | `settings.py` (env), `paths.py`, `regions.py` (region params, AOI presets), `assets.py` (pinned GEE asset IDs) | |
-| `api/` | `main.py`, `errors.py`, `routers/` | |
+| Dir | Layer |
+|---|---|
+| `ingestion/` | L1: IBTrACS (`tracks/`), the OSDMA register (`shelters.py`, the only loader), and Earth Engine layers (`layers.py`, behind the `LayerSource` protocol) |
+| `hazard/` | L2: wind (`holland.py`), surge index (`surge.py`), connectivity flood-fill plus `split_water` for the sea and lagoons (`inundation.py`), and track handling (`track.py`) |
+| `exposure/grid_exposure.py` | L3: flood clusters, building counts per cluster, shelter states, block rollups |
+| `decision/` | L4: OR-Tools assignment with a greedy baseline, role-addressed action packets, and the parametric trigger |
+| `ai/` | L5: Gemini client, grounding validator, and stage briefings |
+| `evals/` | L6: metrics and Sentinel-1 scoring with computed failure analysis |
+| `workers/scenario.py` | `run_pipeline`, the one entry point for both the CLI and the API |
+| `api/` | routers, `service.py` (content-addressed runs on a background thread, capped at 1 concurrent run, HTTP 429 beyond), `auth.py`, `errors.py` |
+| `storage/` | file-backed `RunStore` and the class-indexed PNG encoder |
+| `models/results.py`, `models/scenario.py` | response shapes. The web app's `api/generated` types are generated from these |
+
+- **Testing without the network:** tests replace Earth Engine with `tests/synthetic.py` (`SyntheticLayers`, `synthetic_track`) and Gemini with a scripted fake (`tests/unit/test_ai.py`).
+- **Every `ScenarioService` in tests** must be given `ai=AIClient(Settings(enable_ai=False))`, or a test will call Gemini live.
 
 ### Hazard engine rules
 - It must stay **pure numpy/scipy with no I/O**. This is what lets the tests run offline.
@@ -65,9 +73,10 @@ The package is organized by pipeline stage. Keep that direction: `api` imports f
   - An AI or Gemini failure falls back to a template and returns 200.
   - `HazardModelError` returns 500 and must never be swallowed or degraded.
   - `TruthUnavailableError` returns 424. It is raised when validation is requested for a storm in `NO_SAR_TRUTH` (Michaung, Remal, Biparjoy), rather than fabricating a score.
-- `/healthz` reports `degraded` rather than an error when only Gemini is missing. The product still works on templates. The GEE, GCS and DB probes are stubs for now.
+- `/api/v1/healthz` makes real probes of Earth Engine, Gemini and the run store. Results are cached for 5 minutes.
+- It reports `degraded`, never an error: precomputed runs and templates keep working.
 - `/scenarios`:
-  - An in-memory stub (`_RUNS`, `_BY_HASH`).
+  - Runs are files under `data/runs/`. A precomputed run can also be addressed by its `alias`.
   - Runs are content-addressed by `params_hash`: a sha256 of the request (excluding the cosmetic `label` field) plus the code and config versions.
   - A repeated request returns `cache_hit=True`.
   - Keep `label` and any other cosmetic field out of the hash.
@@ -94,3 +103,17 @@ The package is organized by pipeline stage. Keep that direction: `api` imports f
   - flooded area is monotonic in surge level;
   - a CSI above 0.70 is flagged `suspicious`.
 - Follow that style for new hazard and eval code.
+
+## AI layer rules (`ai/`)
+- The grounding set is exactly the numbers in that stage's prompt (`advisories._facts_for_prompt`), and nothing else.
+- Integers must match exactly. Decimals may be rounded to 1–2 places, never to an integer.
+- Scale words count (lakh, crore, hundred, thousand, million, billion, Odia ଲକ୍ଷ/କୋଟି/ହଜାର, Hindi लाख/करोड़). Numbers glued to letters count too ("5000people", "6m").
+- Only the caller's `context` (storm label, real ids), `dates` and `times` (landfall and stage deadlines, in IST and UTC) are exempt.
+- A money figure must say "illustrative".
+- Query tools return ranked pages (`total`, `truncated`, `order`), so the model can't mistake page one for the whole list.
+- Stage hours are accepted only in time phrases, such as "T-48h", "24 hours" or "72.0 ଘଣ୍ଟା".
+- `BANNED_CLAIMS` rejects casualty wording and phrases such as "has been issued" or "communicated to".
+- On a failure, Gemini gets one repair attempt, then the template is used.
+- Odia is a separate translation and is validated again.
+- `generated_by` is shipped to the UI.
+- If a template states a number, that number must also be a prompt fact. The tests check this.

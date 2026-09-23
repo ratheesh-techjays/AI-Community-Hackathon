@@ -44,9 +44,11 @@ export const cardHead = style({
 });
 
 export const cardTitle = style({
+  // eslint-disable-next-line no-restricted-syntax -- one-off display size outside the text scale
   fontSize: "18px",
+  // eslint-disable-next-line no-restricted-syntax -- one-off display size outside the text scale
   lineHeight: "24px",
-  fontWeight: "600",
+  fontWeight: vars.weight.semibold,
   letterSpacing: "-0.01em",
   color: vars.color.text.primary,
 });
@@ -78,7 +80,9 @@ const flagBase = style({
   display: "flex",
   alignItems: "center",
   gap: vars.space[2],
+  // eslint-disable-next-line no-restricted-syntax -- one-off display size outside the text scale
   fontSize: "13px",
+  // eslint-disable-next-line no-restricted-syntax -- one-off display size outside the text scale
   lineHeight: "18px",
 });
 
@@ -103,7 +107,7 @@ const buttonBase = style({
   paddingInline: vars.space[4],
   paddingBlock: vars.space[2],
   borderRadius: vars.radius.md,
-  fontWeight: "600",
+  fontWeight: vars.weight.semibold,
   textDecoration: "none",
   borderWidth: vars.stroke.hair,
   borderStyle: "solid",

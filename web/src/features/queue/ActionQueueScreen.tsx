@@ -1,14 +1,16 @@
 import { assignInlineVars } from "@vanilla-extract/dynamic";
-import { useCallback, useEffect, useMemo, useRef, useState, type JSX } from "react";
+import { useCallback, useEffect, useMemo, useState, type JSX } from "react";
 import { Link } from "react-router-dom";
 
+import { Callout } from "@/components/Callout";
 import { DisclosureBadge } from "@/components/DisclosureBadge";
 import { Icon, type IconName } from "@/components/Icon";
 import { text } from "@/design/typography.css";
-import { KIND_LABEL, type Action, type ActionKind } from "@/features/fixtures/actions";
-import { EXPOSURE, EXTENT, REACHABILITY, SURGE } from "@/features/fixtures/disclosures";
 import { formatIST, useOrderLedger } from "@/features/orders/orderLedger";
+import type { Action, ActionKind, ScenarioData } from "@/features/scenario/types";
 import { useScenario } from "@/features/scenario/useScenario";
+
+import { Briefing } from "./Briefing";
 import { ImpactMap } from "@/map/ImpactMap";
 
 import * as styles from "./ActionQueueScreen.css";
@@ -48,20 +50,30 @@ function relative(deadline: string, nowMs: number): string {
 const KIND_ICON: Record<ActionKind, IconName> = {
   evacuate: "shelter",
   reassign: "compromised",
-  infrastructure: "substation",
   staging: "clock",
   logistics: "check",
-  health: "hospital",
+  verify: "satellite",
+  finance: "check",
 };
 
-/** Map an evidence label to the canonical limitations block for its badge. */
-function limitationsFor(label: string) {
+const KIND_LABEL: Record<ActionKind, string> = {
+  evacuate: "Evacuate",
+  reassign: "Reassign",
+  staging: "Pre-position",
+  logistics: "Logistics",
+  verify: "Verify",
+  finance: "Finance",
+};
+
+/** Map an evidence label to the server-backed limitations block for its badge. */
+function limitationsFor(label: string, limits: ScenarioData["limitations"]) {
   const l = label.toLowerCase();
-  if (l.includes("depth") || l.includes("surge")) return SURGE;
-  if (l.includes("distance") || l.includes("road") || l.includes("capacity") || l.includes("shelter"))
-    return REACHABILITY;
-  if (l.includes("extent") || l.includes("band")) return EXTENT;
-  return EXPOSURE;
+  if (l.includes("depth") || l.includes("surge")) return limits.surge;
+  if (l.includes("payout") || l.includes("zone")) return limits.parametric;
+  if (l.includes("distance") || l.includes("capacity") || l.includes("place") || l.includes("assigned") || l.includes("reason"))
+    return limits.reachability;
+  if (l.includes("flood cells") || l.includes("edge")) return limits.extent;
+  return limits.exposure;
 }
 
 export function ActionQueueScreen(): JSX.Element {
@@ -69,20 +81,6 @@ export function ActionQueueScreen(): JSX.Element {
   const { actions, meta } = scenario;
   const nowMs = useMemo(() => new Date(meta.nowIso).getTime(), [meta.nowIso]);
   const ledger = useOrderLedger();
-
-  // Pre-ordered fixtures seed the ledger ONCE per run so the demo opens
-  // mid-stage. Guarded by a ref: the ledger's identity changes on every write
-  // and an unguarded effect would toggle the seeds straight back off.
-  const seededFor = useRef<string | null>(null);
-  useEffect(() => {
-    if (seededFor.current === meta.runId) return;
-    seededFor.current = meta.runId;
-    for (const a of actions) {
-      if (a.preOrdered && !ledger.isOrdered(a.id)) {
-        ledger.toggle({ subjectId: a.id, action: a.title, stage: a.stage, byRole: a.owner });
-      }
-    }
-  }, [actions, meta.runId, ledger]);
 
   const sorted = useMemo(
     () =>
@@ -144,7 +142,22 @@ export function ActionQueueScreen(): JSX.Element {
     return { byDeadline: [...byDeadline.entries()], done };
   }, [sorted, ledger]);
 
+  const v = scenario.validation;
+  // Orders rest on the modelled flood extent: say how far to trust it, here,
+  // not only on the Evidence screen.
+  const extentNote = v
+    ? v.passed
+      ? null
+      : `Satellite validation of this flood extent failed (CSI ${v.csi.toFixed(3)} against Sentinel-1). Treat every order below as a recommendation to verify on the ground before it is issued.`
+    : "This run's flood extent has not been validated against satellite truth. Treat every order below as a recommendation to verify on the ground before it is issued.";
+
   return (
+    <>
+    {extentNote ? (
+      <Callout intent="warning" title="Orders rest on a heuristic flood extent">
+        {extentNote}
+      </Callout>
+    ) : null}
     <div className={styles.screen}>
       <aside className={styles.list} aria-label="Order queue">
         <div className={styles.listHead}>
@@ -152,6 +165,7 @@ export function ActionQueueScreen(): JSX.Element {
           <div
             className={styles.progressTrack}
             role="progressbar"
+            aria-label="Orders recorded at this stage"
             aria-valuenow={pct}
             aria-valuemin={0}
             aria-valuemax={100}
@@ -165,6 +179,12 @@ export function ActionQueueScreen(): JSX.Element {
             <span>T-{meta.nowHours}h</span>
           </div>
         </div>
+
+        {sorted.length === 0 ? (
+          <p className={`${text.body} ${styles.progressMeta}`}>
+            This run produced no orders: nothing in the modelled flood needs one.
+          </p>
+        ) : null}
 
         {groups.byDeadline.map(([when, items]) => (
           <div key={when} className={styles.group}>
@@ -218,6 +238,7 @@ export function ActionQueueScreen(): JSX.Element {
       {selected ? (
         <ActionDetail
           action={selected}
+          scenario={scenario}
           nowMs={nowMs}
           runId={meta.runId}
           ordered={ledger.isOrdered(selected.id)}
@@ -233,6 +254,7 @@ export function ActionQueueScreen(): JSX.Element {
         </div>
       )}
     </div>
+    </>
   );
 }
 
@@ -257,30 +279,15 @@ function QueueItem({
   const cls = selected ? styles.item.selected : ordered ? styles.item.ordered : styles.item.default;
 
   return (
-    <div
-      className={cls}
-      onClick={onSelect}
-      role="button"
-      tabIndex={0}
-      aria-pressed={selected}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          onSelect();
-          e.preventDefault();
-        }
-      }}
-    >
+    <div className={cls}>
       <input
         type="checkbox"
         className={styles.check}
         checked={ordered}
         aria-label={`Mark ordered: ${action.title}`}
-        onClick={(e) => {
-          e.stopPropagation();
-        }}
         onChange={onToggle}
       />
-      <div className={styles.itemBody}>
+      <button type="button" className={styles.itemBody} onClick={onSelect} aria-pressed={selected}>
         <span className={`${text.body} ${ordered ? styles.itemTitleOrdered : styles.itemTitle}`}>
           {action.title}
         </span>
@@ -297,7 +304,7 @@ function QueueItem({
             </>
           ) : null}
         </span>
-      </div>
+      </button>
     </div>
   );
 }
@@ -306,12 +313,14 @@ function QueueItem({
 
 function ActionDetail({
   action,
+  scenario,
   nowMs,
   runId,
   ordered,
   onToggle,
 }: {
   action: Action;
+  scenario: ScenarioData;
   nowMs: number;
   runId: string;
   ordered: boolean;
@@ -378,16 +387,24 @@ function ActionDetail({
               <dt className={`${text.caption} ${styles.evidenceLabel}`}>{ev.label}</dt>
               <dd className={styles.evidenceValue}>
                 <span className={text.bodyStrong}>{ev.value}</span>
-                <DisclosureBadge state={ev.state} limitations={limitationsFor(ev.label)} />
+                <DisclosureBadge state={ev.state} limitations={limitationsFor(ev.label, scenario.limitations)} />
               </dd>
             </div>
           ))}
         </dl>
       </section>
 
+      <Briefing stage={action.stage} briefings={scenario.briefings} />
+
       <section>
         <h3 className={`${text.label} ${styles.kind}`}>WHERE</h3>
-        <ImpactMap focus={action.mapFocus} showWind={false} />
+        <ImpactMap
+          bbox={scenario.map.bbox}
+          flood={scenario.map.flood}
+          shelters={scenario.map.shelters}
+          focus={action.focus}
+          label={`Map of ${scenario.meta.area}: modelled flood depth and register shelters${action.focus ? `, centred on ${action.focus.label}` : ""}.`}
+        />
       </section>
     </article>
   );

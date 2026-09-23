@@ -96,7 +96,7 @@ const tagBase = style({
   gap: vars.space[1],
   textTransform: "uppercase",
   letterSpacing: "0.04em",
-  fontWeight: "600",
+  fontWeight: vars.weight.semibold,
   whiteSpace: "nowrap",
 });
 

@@ -75,12 +75,17 @@ export const nav = style({
   display: "flex",
   flexDirection: "column",
   gap: vars.space[1],
+  // Phones: the rail becomes one scrolling row, so content starts above the fold.
+  "@media": {
+    "screen and (max-width: 720px)": { flexDirection: "row", flexWrap: "wrap" },
+  },
 });
 
 export const navLabel = style({
   color: vars.color.text.muted,
   paddingInline: vars.space[2],
   paddingBlockEnd: vars.space[1],
+  "@media": { "screen and (max-width: 720px)": { flexBasis: "100%" } },
 });
 
 const navItemBase = style({
@@ -110,7 +115,7 @@ export const navItemActive = style([
   {
     background: vars.color.intent.infoSoft,
     color: vars.color.intent.info,
-    fontWeight: "600",
+    fontWeight: vars.weight.semibold,
   },
 ]);
 
@@ -118,14 +123,14 @@ export const navItemActive = style([
 export const navCount = style({
   marginInlineStart: "auto",
   color: vars.color.text.muted,
-  fontWeight: "600",
+  fontWeight: vars.weight.semibold,
 });
 
 /** A count that means work is outstanding: open orders, compromised shelters. */
 export const navCountAlert = style({
   marginInlineStart: "auto",
   color: vars.color.hazard.compromised,
-  fontWeight: "600",
+  fontWeight: vars.weight.semibold,
 });
 
 export const stormClock = style({ color: vars.color.text.primary });
@@ -138,7 +143,10 @@ export const sidebarFoot = style({
   display: "flex",
   flexDirection: "column",
   gap: vars.space[3],
-  "@media": { "screen and (max-width: 900px)": { marginBlockStart: vars.space[3] } },
+  "@media": {
+    "screen and (max-width: 900px)": { marginBlockStart: vars.space[3] },
+    "screen and (max-width: 720px)": { display: "none" },
+  },
 });
 
 export const stormBlock = style({

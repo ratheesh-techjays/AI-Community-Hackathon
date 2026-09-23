@@ -292,6 +292,17 @@ export const duration = {
   instant: "0ms",
   fast: "120ms",
   normal: "180ms",
+  /** Skeleton shimmer sweep. */
+  shimmer: "1400ms",
+  /** Live-feed status pulse. */
+  pulse: "2400ms",
+} as const;
+
+/** Font weights. Text styles carry their own; these are for one-off emphasis. */
+export const fontWeight = {
+  regular: "400",
+  medium: "500",
+  semibold: "600",
 } as const;
 
 export const easing = {

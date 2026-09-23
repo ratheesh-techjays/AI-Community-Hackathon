@@ -33,3 +33,51 @@ AOI_PRESETS: dict[str, tuple[float, float, float, float]] = {
     "puri_khordha": (85.3, 19.6, 86.4, 20.4),
     "balasore_bhadrak": (86.5, 20.7, 87.5, 21.9),
 }
+
+
+class AOIParams(BaseModel):
+    """Per-AOI parameters. Funnel keys come from hazard/surge.py FUNNEL_AMPLIFICATION."""
+
+    label: str
+    district_label: str  # the Collector's district, for order wording
+    funnel_key: str
+
+
+AOI_PARAMS: dict[str, AOIParams] = {
+    "puri_khordha": AOIParams(label="Puri + Khordha", district_label="Puri", funnel_key="central"),
+    "balasore_bhadrak": AOIParams(
+        label="Balasore + Bhadrak", district_label="Balasore", funnel_key="head_of_bay"
+    ),
+}
+
+
+class SarWindowSpec(BaseModel):
+    """Same orbit direction pre and post -- never mix ASC and DSC."""
+
+    orbit_pass: str
+    pre_start: str
+    pre_end: str
+    post_start: str
+    post_end: str
+
+
+# Verified scene availability (EE queries, 2026-09-23):
+# Fani / puri_khordha: DSC relative orbit 48, pre 2019-04-22/28, post 2019-05-04.
+# Yaas / balasore_bhadrak: ASC relative orbit 12, pre 2021-05-14, post 2021-05-26
+# (the landfall day itself).
+SAR_WINDOWS: dict[tuple[str, int], SarWindowSpec] = {
+    ("FANI", 2019): SarWindowSpec(
+        orbit_pass="DESCENDING",
+        pre_start="2019-04-20",
+        pre_end="2019-05-02",
+        post_start="2019-05-04",
+        post_end="2019-05-05",
+    ),
+    ("YAAS", 2021): SarWindowSpec(
+        orbit_pass="ASCENDING",
+        pre_start="2021-05-10",
+        pre_end="2021-05-16",
+        post_start="2021-05-26",
+        post_end="2021-05-27",
+    ),
+}

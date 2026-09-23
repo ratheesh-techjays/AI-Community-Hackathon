@@ -24,7 +24,7 @@ B_MIN, B_MAX = 1.0, 2.5
 
 def coriolis(lat_deg: float) -> float:
     """Coriolis parameter f = 2*omega*sin(lat). Always non-negative here."""
-    return abs(2.0 * OMEGA * np.sin(np.radians(lat_deg)))
+    return float(abs(2.0 * OMEGA * np.sin(np.radians(lat_deg))))
 
 
 def holland_b(vmax_ms: float, pressure_deficit_pa: float) -> float:
@@ -48,7 +48,7 @@ def gradient_wind(
     ratio = (rmw_m / r) ** b
     term = b * pressure_deficit_pa * ratio * np.exp(-ratio) / RHO_AIR
     coriolis_term = (r * f / 2.0) ** 2
-    return np.sqrt(np.maximum(term + coriolis_term, 0.0)) - (r * f / 2.0)
+    return np.asarray(np.sqrt(np.maximum(term + coriolis_term, 0.0)) - (r * f / 2.0), dtype=float)
 
 
 def haversine_m(
@@ -63,7 +63,7 @@ def haversine_m(
     dphi = p2 - p1
     dlmb = np.radians(lon2 - lon1)
     a = np.sin(dphi / 2) ** 2 + np.cos(p1) * np.cos(p2) * np.sin(dlmb / 2) ** 2
-    return 2 * r_earth * np.arcsin(np.sqrt(np.clip(a, 0.0, 1.0)))
+    return np.asarray(2 * r_earth * np.arcsin(np.sqrt(np.clip(a, 0.0, 1.0))), dtype=float)
 
 
 def wind_field(
@@ -86,13 +86,13 @@ def wind_field(
     b = holland_b(vmax_ms, dp_pa)
     r_m = haversine_m(lats, lons, centre_lat, centre_lon)
     v = gradient_wind(r_m, rmw_m, dp_pa, b, centre_lat)
-    return np.maximum(v, 0.0)
+    return np.asarray(np.maximum(v, 0.0), dtype=float)
 
 
 def track_max_wind_field(
     lats: np.ndarray,
     lons: np.ndarray,
-    positions: list[dict],
+    positions: list[dict[str, float]],
 ) -> np.ndarray:
     """Envelope of maximum wind across every track position.
 
