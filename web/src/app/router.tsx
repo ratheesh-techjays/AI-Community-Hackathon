@@ -12,9 +12,10 @@ import { AppShell } from "./AppShell";
  * bookmarked, and swapped for another storm without touching a screen.
  *
  *   /                              storm selector
- *   /scenarios/:runId              → orders
- *   /scenarios/:runId/orders       the queue (home for a run)
- *   /scenarios/:runId/map
+ *   /scenarios/:runId              → overview
+ *   /scenarios/:runId/overview     what will happen: summary, map, next step (home for a run)
+ *   /scenarios/:runId/orders       the queue: what to order, who, by when
+ *   /scenarios/:runId/map          → overview (old links)
  *   /scenarios/:runId/shelters
  *   /scenarios/:runId/evidence
  *
@@ -59,9 +60,10 @@ export const router = createBrowserRouter([
         path: "scenarios/:runId",
         element: <ScenarioLayout />,
         children: [
-          { index: true, element: <Navigate to="orders" replace /> },
+          { index: true, element: <Navigate to="overview" replace /> },
+          { path: "overview", element: screen(SituationScreen) },
+          { path: "map", element: <Navigate to="../overview" replace /> },
           { path: "orders", element: screen(ActionQueueScreen) },
-          { path: "map", element: screen(SituationScreen) },
           { path: "shelters", element: screen(SheltersScreen) },
           { path: "evidence", element: screen(ValidationScreen) },
           { path: "*", element: <NotFound /> },

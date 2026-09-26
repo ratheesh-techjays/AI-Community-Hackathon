@@ -24,18 +24,17 @@ from prahari.api.errors import (
     InvalidTrackSourceError,
     PrahariError,
     QuotaExceededError,
+    TrackKindUnsupportedError,
     TruthUnavailableError,
 )
+from prahari.config.regions import AUTO_AOI, NO_SAR_TRUTH
 from prahari.config.settings import get_settings
 from prahari.ingestion.layers import EarthEngineLayers, LayerSource
 from prahari.models.scenario import RunStatus, ScenarioRequest, TrackSource
 from prahari.models.track import CycloneTrack
 from prahari.storage.runs import RunMeta, RunStore
-from prahari.workers.scenario import PipelineInputs, load_track, run_pipeline
+from prahari.workers.scenario import PipelineInputs, check_modellable, load_track, run_pipeline
 
-# Storms with no usable post-landfall Sentinel-1 imagery. Requesting
-# validation for these returns 424 rather than a fabricated skill score.
-NO_SAR_TRUTH = {"MICHAUNG", "REMAL", "BIPARJOY"}
 ESTIMATED_SECONDS = 150  # measured: ~70 s pipeline + ~55 s Gemini narration
 # Each run is ~90 s of Earth Engine work; cap it so request floods cannot
 # drain the EE quota. Beyond the cap the API answers 429 + Retry-After.
@@ -71,8 +70,9 @@ class ScenarioService:
     @staticmethod
     def check(req: ScenarioRequest) -> None:
         if req.track.kind != "ibtracs":
-            raise InvalidTrackSourceError(
-                f"track kind {req.track.kind!r} is not supported yet; use 'ibtracs'."
+            raise TrackKindUnsupportedError(
+                f"track kind {req.track.kind!r} is not ingested yet (GDACS feeds and IMD "
+                "bulletins are the next ingestion step); use 'ibtracs'."
             )
         if not req.track.storm_name:
             raise InvalidTrackSourceError("track.storm_name is required for an IBTrACS track.")
@@ -82,9 +82,18 @@ class ScenarioService:
                 "imagery. A validation score cannot be fabricated."
             )
 
+    def check_track(self, req: ScenarioRequest) -> None:
+        """A landfall-derived AOI needs a modellable track: refuse it with the exact
+        problem (no landfall, outside coverage, too short) before queueing compute."""
+        if req.aoi_preset != AUTO_AOI:
+            return
+        track = self.track_loader(req.track.storm_name or "", req.track.season)
+        check_modellable(track)
+
     def create(self, req: ScenarioRequest) -> tuple[RunMeta, bool]:
         """Return (run, cache_hit). Starts a background run on a miss."""
         self.check(req)
+        self.check_track(req)
         phash = params_hash(req)
         done = self.store.find_complete(phash)
         if done is not None:
@@ -115,6 +124,7 @@ class ScenarioService:
             label=alias,
         )
         self.check(req)
+        self.check_track(req)
         meta = self._new_meta(req, params_hash(req), alias)
         self._execute(meta.run_id)
         return self.store.meta(meta.run_id) or meta

@@ -55,6 +55,8 @@ interface DataTableProps<T extends TableRow> {
   /** Stage the ledger attributes an order to. */
   stage: StageId;
   emptyMessage?: string;
+  /** Re-word the status tag where "Usable"/"Watch" would mislead (e.g. trigger zones). */
+  statusTags?: Partial<Record<RowStatus, { word: string; glyph: IconName }>>;
 }
 
 export function DataTable<T extends TableRow>({
@@ -63,6 +65,7 @@ export function DataTable<T extends TableRow>({
   rows,
   stage,
   emptyMessage = "No rows match this filter.",
+  statusTags,
 }: DataTableProps<T>): JSX.Element {
   const ledger = useOrderLedger();
   const showOrders = rows.some((r) => r.orderAction);
@@ -118,7 +121,7 @@ export function DataTable<T extends TableRow>({
               </tr>
             ) : (
               rows.map((row) => {
-                const tag = STATUS_TAG[row.status];
+                const tag = statusTags?.[row.status] ?? STATUS_TAG[row.status];
                 const entry = ledger.get(row.id);
                 return (
                   <tr key={row.id} className={`${rowHover} ${styles.row[row.status]}`}>

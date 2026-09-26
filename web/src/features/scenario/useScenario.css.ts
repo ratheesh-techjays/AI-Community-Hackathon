@@ -40,3 +40,18 @@ export const loadingRow = style({
   gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
   gap: vars.space[4],
 });
+
+export const steps = style({
+  listStyle: "none",
+  margin: vars.space[0],
+  padding: vars.space[0],
+  display: "flex",
+  flexDirection: "column",
+  gap: vars.space[2],
+});
+
+const stepBase = style({ display: "flex", alignItems: "center", gap: vars.space[2] });
+export const stepDone = style([stepBase, { color: vars.color.intent.success }]);
+export const stepNow = style([stepBase, { color: vars.color.text.primary, fontWeight: vars.weight.semibold }]);
+export const stepTodo = style([stepBase, { color: vars.color.text.muted }]);
+export const stepNote = style({ color: vars.color.text.muted });

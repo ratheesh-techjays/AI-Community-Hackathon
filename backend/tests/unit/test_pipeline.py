@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import struct
 import zlib
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -204,3 +205,21 @@ def test_nothing_to_score_is_unavailable_not_a_zero_csi() -> None:
     assert result.summary.csi is None
     assert "Nothing to score" in (result.validation.reason_unavailable or "")
     assert "validation" not in layers
+
+
+def test_store_sees_a_run_finished_by_another_process(tmp_path: Path) -> None:
+    """The API must not serve a stale RUNNING status for a run the CLI completed."""
+    from datetime import UTC, datetime
+
+    from prahari.storage.runs import RunMeta, RunStore
+
+    writer, reader = RunStore(tmp_path), RunStore(tmp_path)
+    meta = RunMeta(
+        run_id="abc-1", status="RUNNING", params_hash="h", request={}, code_version="0",
+        config_version="v1", created_at=datetime.now(UTC),
+    )  # fmt: skip
+    writer.save_meta(meta)
+    assert (reader.meta("abc-1") or meta).status == "RUNNING"
+    writer.save_meta(meta.model_copy(update={"status": "COMPLETE"}))
+    assert (reader.meta("abc-1") or meta).status == "COMPLETE"
+    assert [m.status for m in reader.metas()] == ["COMPLETE"]

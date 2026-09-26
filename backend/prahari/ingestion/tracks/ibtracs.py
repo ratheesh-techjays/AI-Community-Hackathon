@@ -26,16 +26,6 @@ from prahari.models.track import CycloneTrack, TrackPoint
 
 SOURCE_ID = "ibtracs.ni.v04r01"
 
-# Storms of interest. Fani is the BUILD storm: it is the only Indian cyclone
-# with an official Copernicus EMS activation (EMSR357) for cross-checking.
-KNOWN_STORMS: dict[str, str] = {
-    "FANI": "2019",
-    "AMPHAN": "2020",
-    "YAAS": "2021",
-    "PHAILIN": "2013",
-    "HUDHUD": "2014",
-}
-
 
 def _f(row: dict[str, str], key: str) -> float | None:
     """Parse a possibly-blank IBTrACS numeric cell."""
@@ -75,7 +65,7 @@ def parse(csv_text: str, storm_name: str, season: int | None = None) -> CycloneT
         if len(raw_row) < len(header):
             continue
         row = {name: raw_row[i] for name, i in idx.items()}
-        if row["NAME"].strip().upper() != wanted:
+        if display_name(row["NAME"]) != wanted and row["NAME"].strip().upper() != wanted:
             continue
         if season is not None and int(row["SEASON"]) != season:
             continue
@@ -83,7 +73,20 @@ def parse(csv_text: str, storm_name: str, season: int | None = None) -> CycloneT
 
     if not rows:
         raise ValueError(f"storm {storm_name!r} not found in IBTrACS NI basin")
+    if len({r["SID"].strip() for r in rows}) > 1:
+        # Two storms share a name without a season (KIM, HERBERT); take the latest.
+        latest = max(rows, key=lambda r: r["ISO_TIME"])["SID"].strip()
+        rows = [r for r in rows if r["SID"].strip() == latest]
+    return parse_rows(rows, hashlib.sha256(csv_text.encode()).hexdigest())
 
+
+def display_name(raw: str) -> str:
+    """IBTrACS joins names from several agencies ("BULBUL:MATMO"); the first is IMD's."""
+    return raw.strip().upper().split(":")[0]
+
+
+def parse_rows(rows: list[dict[str, str]], content_sha256: str | None = None) -> CycloneTrack:
+    """One storm's rows (already filtered from the CSV) to a track."""
     points = [
         TrackPoint(
             iso_time=datetime.strptime(r["ISO_TIME"].strip(), "%Y-%m-%d %H:%M:%S"),
@@ -102,7 +105,7 @@ def parse(csv_text: str, storm_name: str, season: int | None = None) -> CycloneT
 
     return CycloneTrack(
         sid=rows[0]["SID"].strip(),
-        name=rows[0]["NAME"].strip(),
+        name=display_name(rows[0]["NAME"]),
         season=int(rows[0]["SEASON"]),
         points=points,
         provenance=Provenance(
@@ -111,7 +114,7 @@ def parse(csv_text: str, storm_name: str, season: int | None = None) -> CycloneT
             url=IBTRACS_NI_URL,
             licence="public domain",
             retrieved_at=datetime.now(UTC),
-            content_sha256=hashlib.sha256(csv_text.encode()).hexdigest(),
+            content_sha256=content_sha256,
             confidence=Confidence.HIGH,
             caveats=[
                 "RMW is Dvorak satellite-derived; no aircraft reconnaissance "

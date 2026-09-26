@@ -1,4 +1,4 @@
-import type { JSX } from "react";
+import { useState, type JSX } from "react";
 
 import { flood, swatch, validation, wind } from "@/design/patterns.css";
 import { text } from "@/design/typography.css";
@@ -44,12 +44,32 @@ const VALIDATION = [
   { key: "observedTruth", cls: validation.observedTruth, label: "Observed", note: "dashed outline" },
 ] as const;
 
+/** On a phone the key would cover most of the map, so it starts folded there. */
+const WIDE = "(min-width: 721px)";
+const startsOpen = (): boolean =>
+  typeof window === "undefined" || typeof window.matchMedia !== "function" || window.matchMedia(WIDE).matches;
+
 export function HazardLegend({ sections, floating = false }: HazardLegendProps): JSX.Element {
+  const [open, setOpen] = useState(startsOpen);
   return (
     <aside
-      className={`${styles.legend}${floating ? ` ${styles.floating}` : ""}`}
+      className={`${styles.legend}${floating ? ` ${styles.floating}` : ""}${floating && !open ? ` ${styles.folded}` : ""}`}
       aria-label="Map legend"
     >
+      {floating ? (
+        <button
+          type="button"
+          className={`${text.label} ${styles.toggle}`}
+          aria-expanded={open}
+          onClick={() => {
+            setOpen((prev) => !prev);
+          }}
+        >
+          {open ? "HIDE KEY" : "MAP KEY"}
+        </button>
+      ) : null}
+      {floating && !open ? null : (
+        <>
       {sections.includes("flood") ? (
         <section className={styles.group}>
           <h3 className={`${text.label} ${styles.groupTitle}`}>SURGE INDEX</h3>
@@ -110,6 +130,8 @@ export function HazardLegend({ sections, floating = false }: HazardLegendProps):
       <p className={`${text.caption} ${styles.footnote}`}>
         Every class carries a hue, a pattern or stroke, and a word — readable in greyscale.
       </p>
+        </>
+      )}
     </aside>
   );
 }

@@ -84,10 +84,17 @@ export function ScenarioLayout(): JSX.Element {
   const bundle = query.data;
   const status = bundle.detail.status;
   if (status === "QUEUED" || status === "RUNNING") {
-    return <Computing stages={bundle.detail.stages_complete} />;
+    const t = bundle.detail.request.track;
+    return (
+      <Computing
+        storm={t.storm_name ? `${t.storm_name.charAt(0)}${t.storm_name.slice(1).toLowerCase()} ${t.season ?? ""}` : "this storm"}
+        stages={bundle.detail.stages_complete}
+        steps={bundle.detail.request.generate_advisories ? STEPS : STEPS.filter((s) => s.id !== "ai.advisories")}
+      />
+    );
   }
   if (status === "FAILED") {
-    return <LoadFailed runId={runId} message={bundle.detail.error ?? "The run failed."} />;
+    return <RunFailed error={bundle.detail.error ?? "The run failed."} />;
   }
 
   if (!data) return <Loading />;
@@ -112,15 +119,51 @@ function Loading(): JSX.Element {
   );
 }
 
-function Computing({ stages }: { stages: string[] }): JSX.Element {
+/** Pipeline stages in run order, named for a reader rather than a log. */
+const STEPS: { id: string; label: string }[] = [
+  { id: "hazard.wind_field", label: "Wind field from the best track" },
+  { id: "hazard.inundation", label: "Surge and flood on the elevation model" },
+  { id: "exposure", label: "People and buildings in the flood" },
+  { id: "decision.assignment", label: "Shelter check and assignment" },
+  { id: "decision.parametric_and_packets", label: "Orders and parametric trigger" },
+  { id: "validation.sar", label: "Satellite check" },
+  { id: "ai.advisories", label: "Stage briefings" },
+];
+
+function Computing({
+  storm,
+  stages,
+  steps,
+}: {
+  storm: string;
+  stages: string[];
+  steps: { id: string; label: string }[];
+}): JSX.Element {
+  const done = new Set(stages);
+  const current = steps.find((s) => !done.has(s.id))?.id;
   return (
-    <div className={styles.empty} aria-live="polite">
+    <div className={styles.empty} aria-live="polite" aria-busy="true">
       <Icon name="clock" size={24} />
-      <h2 className={text.screenTitle}>Computing this scenario</h2>
+      <h2 className={text.screenTitle}>Modelling Cyclone {storm}</h2>
       <p className={`${text.body} ${styles.emptyBody}`}>
-        Track, wind field, inundation, exposure and decisions run on Earth Engine data. This takes
-        one to three minutes. Stages done: {stages.length ? stages.join(", ") : "starting"}.
+        Every step runs on real Earth Engine data, so this takes one to three minutes. This page
+        opens the run by itself when it is done.
       </p>
+      <ol className={styles.steps}>
+        {steps.map((s) => (
+          <li
+            key={s.id}
+            className={done.has(s.id) ? styles.stepDone : s.id === current ? styles.stepNow : styles.stepTodo}
+          >
+            <Icon name={done.has(s.id) ? "check" : "clock"} size={12} />
+            <span className={text.body}>{s.label}</span>
+            {s.id === current ? <span className={`${text.caption} ${styles.stepNote}`}>running…</span> : null}
+          </li>
+        ))}
+      </ol>
+      <Link to="/" className={styles.emptyLink}>
+        Back to storms
+      </Link>
     </div>
   );
 }
@@ -133,6 +176,30 @@ function LoadFailed({ runId, message }: { runId: string; message: string }): JSX
       <p className={`${text.body} ${styles.emptyBody}`}>
         {message} The backend may be offline; start it with <code>make dev</code> in{" "}
         <code>backend/</code>.
+      </p>
+      <Link to="/" className={styles.emptyLink}>
+        Back to storms
+      </Link>
+    </div>
+  );
+}
+
+/** A run that failed on the backend: the problem slug in plain words, never a stack trace. */
+function RunFailed({ error }: { error: string }): JSX.Element {
+  const [slug, ...rest] = error.split(": ");
+  const detail = rest.join(": ");
+  const plain = new ApiError({
+    status: 500,
+    type: `https://prahari.dev/problems/${slug ?? ""}`,
+    title: "The run failed",
+    requestId: "",
+  }).plain;
+  return (
+    <div className={styles.empty} role="alert">
+      <Icon name="missed" size={24} />
+      <h2 className={text.screenTitle}>This run could not be completed</h2>
+      <p className={`${text.body} ${styles.emptyBody}`}>
+        {plain === "The run failed" ? error : `${plain} ${detail}`}
       </p>
       <Link to="/" className={styles.emptyLink}>
         Back to storms

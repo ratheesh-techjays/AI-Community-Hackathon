@@ -50,6 +50,24 @@ class InvalidTrackSourceError(PrahariError):
     slug, title, status = "invalid-track-source", "No resolvable track", 400
 
 
+class TrackKindUnsupportedError(PrahariError):
+    """GDACS feeds and IMD bulletins are not ingested yet; never faked."""
+
+    slug, title, status = "track-kind-unsupported", "Track source not supported yet", 400
+
+
+class NoLandfallError(PrahariError):
+    slug, title, status = "no-landfall", "Storm made no coastal landfall", 422
+
+
+class OutsideCoverageError(PrahariError):
+    slug, title, status = "outside-coverage", "Landfall outside the covered coasts", 422
+
+
+class TrackTooShortError(PrahariError):
+    slug, title, status = "track-too-short", "Track too short to model", 422
+
+
 class UnauthorizedError(PrahariError):
     slug, title, status = "unauthorized", "Missing or invalid API key", 401
 

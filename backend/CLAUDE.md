@@ -69,6 +69,10 @@ The package is organized by pipeline stage. Keep that direction: `api` imports f
 - **Errors:** raise a `PrahariError` subclass from `api/errors.py`. Each subclass defines `slug`, `title` and `status`, and the handler renders problem+json.
   - Validation errors become 422 with a per-field `errors` list.
   - `QuotaExceededError` adds `Retry-After: 30`.
+- **Unmodellable storms:** for `aoi_preset: "auto"`, `service.check_track` runs `workers.scenario.check_modellable` before queueing anything. It returns 422:
+  - `no-landfall`: the storm never made landfall, or formed over land;
+  - `outside-coverage`: the landfall is off the configured coasts or outside the layers;
+  - `track-too-short`: too few points with JTWC wind and pressure.
 - **The failure asymmetry is deliberate:**
   - An AI or Gemini failure falls back to a template and returns 200.
   - `HazardModelError` returns 500 and must never be swallowed or degraded.
@@ -93,7 +97,8 @@ The package is organized by pipeline stage. Keep that direction: `api` imports f
 - The Gemini models are Flash-tier only.
 - `enable_ai=False` is the kill switch that forces full template fallback.
 - `config/paths.py` resolves `data/` at the repo root (`parents[3]`). Override it with `PRAHARI_REPO_ROOT`, for example in Docker.
-- Scaling to a new region is a config change in `config/regions.py`, not a code change.
+- Scaling to a new region is a config change in `config/regions.py`, not a code change. `LANDFALL_COASTS` names the coast and funnel for a landfall; boxes are checked in order, first match wins.
+- A landfall AOI names a flood cluster only from a register shelter within `ZONE_MAX_KM`. Beyond that it is located by coordinates, never named from a far shelter.
 
 ## Tests
 - Tests are in `tests/unit/`.

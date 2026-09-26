@@ -427,6 +427,43 @@ export interface components {
          * @enum {string}
          */
         Confidence: "HIGH" | "MEDIUM" | "LOW" | "DERIVED";
+        /**
+         * Coverage
+         * @description What a run covers, so the UI shows an honest gap instead of a broken panel.
+         */
+        Coverage: {
+            /**
+             * Aoi Source
+             * @enum {string}
+             */
+            aoi_source: "preset" | "landfall";
+            /** Landfall Coast */
+            landfall_coast: string | null;
+            /**
+             * Hazard
+             * @default true
+             */
+            hazard: boolean;
+            /**
+             * Exposure
+             * @default true
+             */
+            exposure: boolean;
+            /**
+             * Shelters
+             * @enum {string}
+             */
+            shelters: "register" | "partial" | "none";
+            /** Shelter Note */
+            shelter_note: string;
+            /**
+             * Validation
+             * @enum {string}
+             */
+            validation: "scored" | "not_scorable" | "not_requested";
+            /** Validation Note */
+            validation_note?: string | null;
+        };
         /** CycloneTrack */
         CycloneTrack: {
             /** Sid */
@@ -690,7 +727,7 @@ export interface components {
              * Status
              * @enum {string}
              */
-            status: "OPTIMAL" | "FEASIBLE" | "INFEASIBLE";
+            status: "OPTIMAL" | "FEASIBLE" | "INFEASIBLE" | "NOT_RUN";
             /** Arcs Considered */
             arcs_considered: number;
             /** Arcs Filtered */
@@ -837,6 +874,7 @@ export interface components {
             /** Csi */
             csi: number | null;
             disclosure: components["schemas"]["ModelDisclosure"];
+            coverage?: components["schemas"]["Coverage"] | null;
         };
         /** ScenarioAccepted */
         ScenarioAccepted: {
@@ -1083,21 +1121,47 @@ export interface components {
         };
         /** StormSummary */
         StormSummary: {
+            /** Sid */
+            sid: string;
             /** Name */
             name: string;
             /** Season */
             season: number;
-            /** Has Sar Truth */
-            has_sar_truth: boolean;
+            /** Peak Wind Kt */
+            peak_wind_kt: number | null;
+            /** Landfall At */
+            landfall_at: string | null;
+            /** Landfall Lat */
+            landfall_lat: number | null;
+            /** Landfall Lon */
+            landfall_lon: number | null;
+            /** Landfall Coast */
+            landfall_coast: string | null;
+            /** Landfall Country */
+            landfall_country: string | null;
+            /** Landfall Wind Kt */
+            landfall_wind_kt: number | null;
+            /** Modellable */
+            modellable: boolean;
+            /** Not Modellable Reason */
+            not_modellable_reason: string | null;
+            /** Sar Possible */
+            sar_possible: boolean;
+            /** No Sar Reason */
+            no_sar_reason: string | null;
             /** Has Ems Activation */
             has_ems_activation: boolean;
             /** Note */
-            note: string;
+            note: string | null;
+            /** Precomputed Run */
+            precomputed_run: string | null;
         };
         /** StormsResponse */
         StormsResponse: {
             /** Storms */
             storms: components["schemas"]["StormSummary"][];
+            /** Total */
+            total: number;
         };
         /** SurgeEstimateOut */
         SurgeEstimateOut: {
@@ -1349,7 +1413,12 @@ export interface operations {
     };
     list_storms_api_v1_storms_get: {
         parameters: {
-            query?: never;
+            query?: {
+                q?: string | null;
+                season?: number | null;
+                coast?: string | null;
+                modellable?: boolean | null;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -1363,6 +1432,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StormsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -1807,9 +1885,7 @@ export interface operations {
     query_api_v1_query_post: {
         parameters: {
             query?: never;
-            header?: {
-                "X-Prahari-Key"?: string | null;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };

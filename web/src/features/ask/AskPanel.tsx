@@ -15,13 +15,24 @@ import * as styles from "./AskPanel.css";
  * a confident paragraph. A failed check shows the raw engine output instead.
  */
 
-const EXAMPLES = [
-  "Which shelters in Kanas block are inside the surge zone?",
-  "How reliable is the flood extent?",
-  "Which blocks have the most people without a shelter place?",
-];
+/**
+ * Example questions drawn from this run, so they never name a block the run
+ * does not contain: the hardest-hit block when there is a register, generic
+ * questions when there is not.
+ */
+function examplesFor(topBlock: string | null): string[] {
+  const reliability = "How reliable is the flood extent?";
+  if (!topBlock) return [reliability, "How many people are in the modelled flood?", "What does this model not capture?"];
+  const block = topBlock.charAt(0) + topBlock.slice(1).toLowerCase();
+  return [
+    `Which shelters in ${block} block are inside the surge zone?`,
+    reliability,
+    "Which blocks have the most people without a shelter place?",
+  ];
+}
 
-export function AskPanel({ runId }: { runId: string }): JSX.Element {
+export function AskPanel({ runId, topBlock = null }: { runId: string; topBlock?: string | null }): JSX.Element {
+  const EXAMPLES = examplesFor(topBlock);
   const inputId = useId();
   const [question, setQuestion] = useState("");
   const ask = useMutation<QueryResponse, Error, string>({

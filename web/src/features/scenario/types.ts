@@ -1,4 +1,4 @@
-import type { LayerRef } from "@/api/endpoints";
+import type { Coverage, LayerRef } from "@/api/endpoints";
 import type { DisclosureLimitations, DisclosureState } from "@/components/DisclosureBadge";
 import type { RowStatus, TableRow } from "@/components/DataTable";
 import type { StageId, StageSpec } from "@/components/StageTimeline";
@@ -25,6 +25,8 @@ export interface ScenarioMeta {
   validated: boolean;
   warnings: string[];
   provenance: Record<string, string>;
+  /** What this run covers: shelters (register/partial/none) and whether it was scored. */
+  coverage: Coverage;
 }
 
 export type ActionKind = "evacuate" | "reassign" | "staging" | "logistics" | "verify" | "finance";
@@ -196,20 +198,4 @@ export interface ScenarioData {
     track: { lat: number; lon: number }[];
     shelters: MapShelter[];
   };
-}
-
-/** A storm the selector can offer, whether or not a run exists for it yet. */
-export interface StormOption {
-  name: string;
-  season: number;
-  district: string;
-  state: string;
-  landfallLabel: string;
-  hasSarTruth: boolean;
-  hasEmsActivation: boolean;
-  note: string;
-  /** Run id when a precomputed scenario exists for this storm. */
-  runId?: string;
-  /** Backend AOI preset covering the landfall. Absent: no area is configured yet. */
-  aoiPreset?: string;
 }

@@ -5,6 +5,7 @@ import { DataTable, type Column } from "@/components/DataTable";
 import { HazardLegend } from "@/components/HazardLegend";
 import { Section } from "@/components/Section";
 import { text } from "@/design/typography.css";
+import { CoverageList } from "@/features/scenario/CoverageList";
 import { useScenario } from "@/features/scenario/useScenario";
 import { ImpactMap } from "@/map/ImpactMap";
 
@@ -36,27 +37,31 @@ const SENSITIVITY_COLUMNS: Column<SensitivityRow>[] = [
 const fmtDates = (dates: string[]): string => (dates.length ? dates.join(", ") : "—");
 
 export function ValidationScreen(): JSX.Element {
-  const { meta, validation, validationUnavailableReason, map } = useScenario();
+  const scenario = useScenario();
+  const { meta, validation, validationUnavailableReason, map } = scenario;
 
   if (!validation) {
     return (
-      <Callout intent="limit" title="This run was not validated">
-        {validationUnavailableReason ??
-          "No usable post-landfall Sentinel-1 pair exists for this storm."}{" "}
-        Impact figures for this run stay <strong>modelled</strong> and <strong>heuristic</strong>;
-        none carries the validated badge. The backend refuses to fabricate a score (HTTP 424 for
-        storms with no satellite truth).
-      </Callout>
+      <>
+        <Callout intent="limit" title="Satellite check: not scorable">
+          {validationUnavailableReason ??
+            "No usable same-orbit Sentinel-1 pair exists for this storm."}{" "}
+          So no overlap score exists, and none is made up. Every flood figure in this run stays{" "}
+          <strong>heuristic</strong> and every exposure figure <strong>modelled</strong>; none carries
+          a validated badge.
+        </Callout>
+        <CoverageList data={scenario} />
+      </>
     );
   }
 
   const v = validation;
   const [lo, hi] = v.expectedRange;
   const metrics = [
-    { key: "csi", label: "CSI", value: v.csi.toFixed(3), definition: "H / (H + M + F)", note: `expected ${lo.toFixed(2)}–${hi.toFixed(2)} for a parametric model` },
-    { key: "pod", label: "POD", value: v.pod.toFixed(3), definition: "H / (H + M)", note: "probability of detection" },
-    { key: "far", label: "FAR", value: v.far.toFixed(3), definition: "F / (H + F)", note: "false alarm ratio" },
-    { key: "bias", label: "BIAS", value: v.bias.toFixed(2), definition: "(H + F) / (H + M)", note: "> 1 over-predicts extent" },
+    { key: "csi", label: "CSI · overlap", value: v.csi.toFixed(3), definition: "H / (H + M + F)", note: `1 = perfect match. Expected ${lo.toFixed(2)}–${hi.toFixed(2)} for this kind of model` },
+    { key: "pod", label: "POD · caught", value: v.pod.toFixed(3), definition: "H / (H + M)", note: "share of the observed flood the model also flooded" },
+    { key: "far", label: "FAR · false alarms", value: v.far.toFixed(3), definition: "F / (H + F)", note: "share of the modelled flood the satellite saw dry" },
+    { key: "bias", label: "BIAS · size", value: v.bias.toFixed(2), definition: "(H + F) / (H + M)", note: "above 1: the model floods more area than was observed" },
   ];
   const sensitivity: SensitivityRow[] = v.sensitivity.map((p) => ({
     id: String(p.surgeLevelM),
@@ -138,10 +143,14 @@ export function ValidationScreen(): JSX.Element {
         <section className={styles.panel}>
           <h2 className={text.sectionTitle}>Sensitivity to the surge level</h2>
           <DataTable
-            caption="CSI if the surge index were higher or lower (row in use highlighted)"
+            caption="Would a higher or lower surge index match better? CSI at each level"
             columns={SENSITIVITY_COLUMNS}
             rows={sensitivity}
             stage={meta.stage}
+            statusTags={{
+              watch: { word: "In use", glyph: "modelled" },
+              safe: { word: "Tested", glyph: "heuristic" },
+            }}
           />
         </section>
       </div>

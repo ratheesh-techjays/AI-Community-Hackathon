@@ -23,11 +23,27 @@ import numpy as np
 
 from prahari.ai.advisories import build_advisories
 from prahari.ai.client import AIClient
-from prahari.api.errors import HazardModelError, StormNotFoundError
+from prahari.api.errors import (
+    HazardModelError,
+    NoLandfallError,
+    OutsideCoverageError,
+    PrahariError,
+    StormNotFoundError,
+    TrackTooShortError,
+)
 from prahari.config import assets
 from prahari.config.paths import IBTRACS_CSV
-from prahari.config.regions import AOI_PARAMS, AOI_PRESETS, SAR_WINDOWS
-from prahari.decision.assignment import assign
+from prahari.config.regions import (
+    AOI_PARAMS,
+    AOI_PRESETS,
+    AUTO_AOI,
+    EMS_ACTIVATIONS,
+    SAR_WINDOWS,
+    AOIParams,
+    coast_of,
+    derive_aoi,
+)
+from prahari.decision.assignment import assign, not_run
 from prahari.decision.packets import build_actions, mark_reassignments
 from prahari.decision.parametric import ZONE_LIMIT_INR, zone_triggers
 from prahari.evals import validation as val
@@ -56,17 +72,19 @@ from prahari.ingestion.layers import (
     SarWindow,
 )
 from prahari.ingestion.shelters import in_bbox, load_register
-from prahari.ingestion.tracks import ibtracs
+from prahari.ingestion.tracks import catalogue, ibtracs
 from prahari.models.disclosure import ModelDisclosure
 from prahari.models.hazard import GridSpec
 from prahari.models.results import (
     AssetsResponse,
+    Coverage,
     DecisionsResponse,
     ExposureResponse,
     HazardResponse,
     InundationOut,
     LayerRef,
     ParametricResponse,
+    PopulationCluster,
     RunResult,
     RunSummary,
     SurgeEstimateOut,
@@ -80,6 +98,7 @@ GRID_RESOLUTION_DEG = 0.0025  # ~275 m at Puri
 DEM_VERTICAL_ERROR_M = 4.0
 TRACK_RADIUS_DEG = 6.0  # track points further than this cannot move wind in the AOI
 ZONE_MAX_KM = 15.0  # cells further than this from any shelter get no block zone
+REGISTER_NOTE = "OSDMA cyclone-shelter register (Odisha)"
 
 # Class names are the design-token names (web/src/design/tokens/source.ts), so
 # the browser colours each class from the theme, never from the backend.
@@ -91,11 +110,6 @@ LAYER_CLASSES: dict[str, list[str]] = {
 FLOOD_BANDS_M = (0.5, 1.5)  # shallow < 0.5 <= moderate < 1.5 <= deep
 # IMD categories in m/s: gale 62-87, storm 88-117, severe 118-221, extreme 222+ km/h.
 WIND_BANDS_MS = (17.2, 24.4, 32.8, 61.7)
-
-# Independent references that exist but are not ingested yet.
-EMS_ACTIVATIONS: dict[str, str] = {
-    "FANI": "Copernicus EMS EMSR357 exists as an independent reference; not yet ingested.",
-}
 
 
 @dataclass(frozen=True)
@@ -162,6 +176,59 @@ def _wind_classes(wind: np.ndarray) -> np.ndarray:
     return out
 
 
+_UNMODELLABLE: dict[str, type[PrahariError]] = {
+    "no_landfall": NoLandfallError,
+    "formed_over_land": NoLandfallError,
+    "outside_coverage": OutsideCoverageError,
+    "no_coast": OutsideCoverageError,
+    "track_too_short": TrackTooShortError,
+}
+
+
+def check_modellable(track: CycloneTrack) -> None:
+    """Raise the problem a landfall-derived AOI cannot get past, before any compute."""
+    code, reason = catalogue.assess(track)
+    if code is not None:
+        raise _UNMODELLABLE[code](f"{track.name.title()} {track.season}: {reason}")
+
+
+@dataclass(frozen=True)
+class ResolvedAOI:
+    bbox: tuple[float, float, float, float]
+    params: AOIParams
+    source: Literal["preset", "landfall"]
+    coast: str | None
+
+
+def resolve_aoi(key: str, track: CycloneTrack) -> ResolvedAOI:
+    if key in AOI_PRESETS:
+        return ResolvedAOI(AOI_PRESETS[key], AOI_PARAMS[key], "preset", AOI_PARAMS[key].state)
+    if key != AUTO_AOI:
+        raise HazardModelError(f"unknown AOI {key!r}")
+    check_modellable(track)
+    landfall = track.landfall or detect_landfall(track.points)
+    coast = coast_of(landfall.lat, landfall.lon) if landfall else None
+    if landfall is None or coast is None:  # check_modellable already refused these
+        raise OutsideCoverageError(f"{track.name.title()}: no configured landfall coast")
+    params = AOIParams(
+        label=f"{coast.name} landfall coast",
+        district_label="",
+        funnel_key=coast.funnel_key,
+        state=coast.name,
+        country=coast.country,
+    )
+    return ResolvedAOI(derive_aoi(landfall.lat, landfall.lon), params, "landfall", coast.name)
+
+
+def relief_office(aoi: AOIParams) -> str:
+    """The office that owns relief logistics, named by role, never a person."""
+    if aoi.state == "Odisha":
+        return "Special Relief Commissioner, Odisha"
+    if aoi.country == "India":
+        return f"State relief commissioner, {aoi.state}"
+    return f"National disaster management office, {aoi.country}"
+
+
 def run_pipeline(
     inputs: PipelineInputs,
     layers: LayerSource,
@@ -171,11 +238,9 @@ def run_pipeline(
 ) -> tuple[RunResult, dict[str, bytes]]:
     progress = Progress(on_stage=on_stage)
     warnings: list[str] = []
-    if inputs.aoi not in AOI_PRESETS:
-        raise HazardModelError(f"unknown AOI {inputs.aoi!r}")
-    bbox = AOI_PRESETS[inputs.aoi]
-    aoi = AOI_PARAMS[inputs.aoi]
     track = inputs.track
+    resolved = resolve_aoi(inputs.aoi, track)
+    bbox, aoi = resolved.bbox, resolved.params
     grid = make_grid(bbox, inputs.resolution_deg)
     lats, lons = cell_centres(grid)
     cell_km2 = cell_area_km2(grid.bbox, grid.width, grid.height)
@@ -252,28 +317,58 @@ def run_pipeline(
         s if s.block else s.model_copy(update={"block": s.district})
         for s in in_bbox(load_register(), bbox)
     ]
-    index = ShelterIndex(shelters_in, mid_lat)
+    # Outside Odisha there is no register: no shelter is ever borrowed or invented.
+    index = ShelterIndex(shelters_in, mid_lat) if shelters_in else None
+    if index is None:
+        warnings.append("NO_SHELTER_REGISTER: no shelter register covers this area")
     drafts = draft_clusters(grid, flooded, depth, population)
     counts = layers.building_counts([d.zone for d in drafts])
-    clusters = finalise_clusters(drafts, counts, index, cell_km2)
+    # Preset AOIs keep their stored behaviour; a derived AOI names a cluster
+    # only from a register shelter within the zone radius.
+    reach = ZONE_MAX_KM if resolved.source == "landfall" else None
+    clusters = finalise_clusters(drafts, counts, index, cell_km2, reach)
     shelter_rows = shelter_states(grid, shelters_in, flooded, depth, wind)
     progress.done("exposure")
 
     # --- L4 decision ------------------------------------------------------------
-    result = assign(clusters, shelter_rows, index)
-    mark_reassignments(shelter_rows, clusters, result, index)
-    rows, totals = block_rollup(clusters, shelter_rows)
+    if index is not None:
+        result = assign(clusters, shelter_rows, index)
+        mark_reassignments(shelter_rows, clusters, result, index)
+    else:
+        result = not_run()
+    unzoned = aoi.label if index is None else f"Outside register blocks ({aoi.state})"
+    rows, totals = block_rollup(clusters, shelter_rows, unzoned)
     progress.done("decision.assignment")
 
     # --- L5 parametric -----------------------------------------------------------
     block_names = sorted({s.block for s in shelters_in if s.block})
-    near_idx, near_km = index.nearest(lats, lons)
-    block_ids = {name: i for i, name in enumerate(block_names)}
-    block_of_cell = np.vectorize(lambda i: block_ids[shelters_in[i].block or ""])(near_idx)
-    block_of_cell = np.where((near_km <= ZONE_MAX_KM) & ~ocean, block_of_cell, -1).astype(int)
+    if index is not None:
+        near_idx, near_km = index.nearest(lats, lons)
+        block_ids = {name: i for i, name in enumerate(block_names)}
+        block_of_cell = np.vectorize(lambda i: block_ids[shelters_in[i].block or ""])(near_idx)
+        in_reach = near_km <= ZONE_MAX_KM
+        block_of_cell = np.where(in_reach & ~ocean, block_of_cell, -1).astype(int)
+        if resolved.source == "landfall" and (~in_reach & land).any():
+            # Land beyond every register block is its own zone, not dropped.
+            block_names = [*block_names, unzoned]
+            block_of_cell = np.where(~in_reach & land, len(block_names) - 1, block_of_cell)
+    else:
+        # No register blocks: the whole land area is one zone.
+        block_names = [unzoned]
+        block_of_cell = np.where(land, 0, -1).astype(int)
     zones = zone_triggers(block_of_cell, block_names, wind, population, flooded)
     landfall_at = (landfall.iso_time if landfall else ref.iso_time).replace(tzinfo=UTC)
-    actions = build_actions(landfall_at, aoi.district_label, shelter_rows, result, zones, clusters)
+    actions = build_actions(
+        landfall_at,
+        aoi.district_label,
+        shelter_rows,
+        result,
+        zones,
+        clusters,
+        relief_office=relief_office(aoi),
+        area_label=aoi.label,
+        has_register=index is not None,
+    )
     progress.done("decision.parametric_and_packets")
 
     # --- L6 validation -------------------------------------------------------
@@ -282,15 +377,22 @@ def run_pipeline(
         "wind": encode_classes(_wind_classes(wind)),
     }
     hazard_disclosure = ModelDisclosure.surge()
-    window = SAR_WINDOWS.get((track.name.upper(), track.season))
-    unavailable_reason = (
-        "No verified same-orbit Sentinel-1 pair is configured for this storm."
-        if window is None
-        else "Validation was not requested for this run."
-    )
+    pinned = SAR_WINDOWS.get((track.name.upper(), track.season))
+    window: SarWindow | None = SarWindow(**pinned.model_dump()) if pinned else None
+    unavailable_reason = "Validation was not requested for this run."
+    if inputs.run_validation and window is None:
+        # No pinned pair: search for one, or say exactly why none can exist.
+        if landfall is None:
+            unavailable_reason = "No landfall, so there is no flood to score."
+        elif landfall.iso_time.date() < catalogue.SENTINEL1_START:
+            unavailable_reason = (
+                "Before Sentinel-1 (October 2014): no radar imagery to score against."
+            )
+        else:
+            window, unavailable_reason = layers.find_sar_window(grid, landfall.iso_time)
     validation: ValidationResponse | None = None
     if inputs.run_validation and window is not None:
-        truth = layers.sar_truth(grid, SarWindow(**window.model_dump()))
+        truth = layers.sar_truth(grid, window)
         skill, cmap = val.score(
             flooded,
             truth,
@@ -407,6 +509,19 @@ def run_pipeline(
         total_payout_inr=total_payout,
         csi=validation.skill.csi if validation.skill else None,
         disclosure=hazard_disclosure,
+        coverage=Coverage(
+            aoi_source=resolved.source,
+            landfall_coast=resolved.coast,
+            **_shelter_coverage(index is not None, clusters),
+            validation=(
+                "scored"
+                if validation.available
+                else "not_scorable"
+                if inputs.run_validation
+                else "not_requested"
+            ),
+            validation_note=None if validation.available else validation.reason_unavailable,
+        ),
     )
     run = RunResult(
         summary=summary,
@@ -444,7 +559,11 @@ def run_pipeline(
             "surface_water": assets.SURFACE_WATER,
             "population": f"{assets.POPULATION_WORLDPOP} (2019)",
             "buildings": assets.BUILDINGS_OPEN_BUILDINGS,
-            "shelters": "osdma.shelters (data/raw/osdma_shelters.csv)",
+            "shelters": (
+                "osdma.shelters (data/raw/osdma_shelters.csv)"
+                if index is not None
+                else "none: no shelter register for this region"
+            ),
             "sar_truth": assets.SENTINEL1_GRD if validation.available else "not used",
         },
     )
@@ -457,6 +576,45 @@ def run_pipeline(
         if {a.generated_by for a in run.advisories.advisories} == {"TEMPLATE_FALLBACK"}:
             run.warnings.append("AI_TEMPLATE_ONLY: every advisory used the deterministic template")
     return run, layer_png
+
+
+def _shelter_coverage(has_register: bool, clusters: list[PopulationCluster]) -> dict[str, str]:
+    if not has_register:
+        return {
+            "shelters": "none",
+            "shelter_note": (
+                "No shelter register for this region. PRAHARI holds the OSDMA register for "
+                "Odisha only, so shelter checks and assignment are skipped here."
+            ),
+        }
+    far = sum(c.block is None for c in clusters)
+    if far:
+        return {
+            "shelters": "partial",
+            "shelter_note": (
+                f"The {REGISTER_NOTE} covers only part of this area: {far} of {len(clusters)} "
+                f"flood clusters are more than {ZONE_MAX_KM:g} km from a register shelter."
+            ),
+        }
+    return {"shelters": "register", "shelter_note": REGISTER_NOTE}
+
+
+def stored_coverage(result: RunResult, aoi_preset: str, run_validation: bool) -> Coverage:
+    """Coverage for a run stored before the field existed, from what it holds."""
+    validation = result.validation
+    return Coverage(
+        aoi_source="landfall" if aoi_preset == AUTO_AOI else "preset",
+        landfall_coast=AOI_PARAMS[aoi_preset].state if aoi_preset in AOI_PARAMS else None,
+        **_shelter_coverage(result.summary.shelters_total > 0, result.exposure.clusters),
+        validation=(
+            "scored"
+            if validation.available
+            else "not_scorable"
+            if run_validation
+            else "not_requested"
+        ),
+        validation_note=None if validation.available else validation.reason_unavailable,
+    )
 
 
 def main() -> None:

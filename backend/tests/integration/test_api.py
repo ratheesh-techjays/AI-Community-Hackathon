@@ -105,7 +105,7 @@ def test_unknown_aoi_is_a_422_field_error(client: TestClient) -> None:
 def test_unsupported_track_kind_is_400(client: TestClient) -> None:
     res = client.post("/api/v1/scenarios", json={**BODY, "track": {"kind": "gdacs"}})
     assert res.status_code == 400
-    assert res.json()["type"].endswith("/invalid-track-source")
+    assert res.json()["type"].endswith("/track-kind-unsupported")
 
 
 def test_writes_require_the_key_when_configured(

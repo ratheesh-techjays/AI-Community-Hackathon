@@ -31,7 +31,9 @@ export const overlay = style({
   right: vars.space[3],
   bottom: vars.space[6],
   zIndex: vars.z.float,
-  maxWidth: "min(280px, 60%)",
+  maxWidth: "calc(100% - 24px)",
+  // MapLibre's attribution wraps to two lines on a phone; sit above it.
+  "@media": { "screen and (max-width: 720px)": { bottom: vars.space[12] } },
 });
 
 export const caption = style({

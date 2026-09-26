@@ -1,4 +1,4 @@
-import { useEffect, useState, type JSX } from "react";
+import { useEffect, useRef, useState, type JSX } from "react";
 import { NavLink, Outlet, useMatch } from "react-router-dom";
 
 import { Icon, type IconName } from "@/components/Icon";
@@ -27,10 +27,10 @@ interface NavSpec {
 }
 
 const SECTION_TITLES: Record<string, { title: string; subtitle: string }> = {
+  overview: { title: "Overview", subtitle: "What the model expects, where, and what to do next" },
   orders: { title: "Orders", subtitle: "What to order, who carries it out, and by when" },
-  map: { title: "Impact map", subtitle: "Modelled surge, wind and exposure" },
-  shelters: { title: "Shelters", subtitle: "Register, compromised shelters, and unreached settlements" },
-  evidence: { title: "Evidence", subtitle: "How far to trust the model, against satellite truth" },
+  shelters: { title: "Shelters", subtitle: "Which shelters are unsafe, and who has no shelter place" },
+  evidence: { title: "Can I trust it?", subtitle: "What was measured, what is heuristic, and the satellite check" },
 };
 
 export function AppShell(): JSX.Element {
@@ -39,12 +39,22 @@ export function AppShell(): JSX.Element {
 
   const match = useMatch("/scenarios/:runId/:section");
   const runId = match?.params.runId ?? null;
-  const section = match?.params.section ?? "orders";
+  const section = match?.params.section ?? "overview";
   const { data: scenario } = useRunData(runId);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
   }, [dark]);
+
+  // On a phone the sections are one scrolling row: keep the current one in view.
+  const navRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const active = navRef.current?.querySelector<HTMLElement>('[aria-current="page"]');
+    const row = navRef.current;
+    if (active && row && row.scrollWidth > row.clientWidth) {
+      row.scrollLeft = active.offsetLeft - row.offsetLeft - 8;
+    }
+  }, [section, runId]);
 
   const openOrders = scenario
     ? scenario.actions.filter((a) => !ledger.isOrdered(a.id)).length
@@ -52,32 +62,32 @@ export function AppShell(): JSX.Element {
 
   const nav: NavSpec[] = scenario
     ? [
+        { to: `/scenarios/${runId}/overview`, label: "Overview", icon: "clock", end: true },
         { to: `/scenarios/${runId}/orders`, label: "Orders", icon: "check", end: true, count: openOrders },
-        { to: `/scenarios/${runId}/map`, label: "Map", icon: "clock", end: true },
         {
           to: `/scenarios/${runId}/shelters`,
           label: "Shelters",
           icon: "shelter",
           end: true,
-          count: scenario.headline.sheltersCompromised,
+          ...(scenario.meta.coverage.shelters === "none" ? {} : { count: scenario.headline.sheltersCompromised }),
         },
-        { to: `/scenarios/${runId}/evidence`, label: "Evidence", icon: "satellite", end: true },
+        { to: `/scenarios/${runId}/evidence`, label: "Trust", icon: "satellite", end: true },
       ]
     : [];
 
   const page = scenario
-    ? SECTION_TITLES[section] ?? SECTION_TITLES["orders"]
-    : { title: "Storms", subtitle: "Open a precomputed run, or model a storm on demand" };
+    ? SECTION_TITLES[section] ?? SECTION_TITLES["overview"]
+    : { title: "Cyclones", subtitle: "Pick a storm to see its flood, the orders it calls for, and the shelters at risk" };
 
   return (
     <div className={styles.shell}>
       <aside className={styles.sidebar}>
-        <NavLink to="/" className={styles.brand}>
+        <NavLink to="/" className={styles.brand} aria-label="PRAHARI, all storms">
           <span className={styles.brandMark} aria-hidden="true" />
-          <span className={text.sectionTitle}>PRAHARI</span>
+          <span className={`${text.sectionTitle} ${styles.brandWord}`}>PRAHARI</span>
         </NavLink>
 
-        <nav className={styles.nav} aria-label="Sections">
+        <nav ref={navRef} className={styles.nav} aria-label="Sections">
           <NavLink to="/" end className={({ isActive }) => (isActive ? styles.navItemActive : styles.navItem)}>
             <Icon name="satellite" size={16} />
             <span className={text.body}>Storms</span>
@@ -141,7 +151,14 @@ export function AppShell(): JSX.Element {
         <header className={styles.pageHeader}>
           <div className={styles.pageTitleGroup}>
             <h1 className={text.screenTitle}>{page?.title}</h1>
-            <p className={`${text.caption} ${styles.pageSubtitle}`}>{page?.subtitle}</p>
+            {scenario ? (
+              <p className={`${text.caption} ${styles.mobileContext}`}>
+                Cyclone {scenario.meta.storm} {scenario.meta.season} · {scenario.meta.area}
+              </p>
+            ) : null}
+            <p className={`${text.caption} ${styles.pageSubtitle} ${scenario ? styles.wideOnly : ""}`}>
+              {page?.subtitle}
+            </p>
           </div>
           {scenario ? (
             <span className={`${text.clock} ${styles.headerClock}`}>

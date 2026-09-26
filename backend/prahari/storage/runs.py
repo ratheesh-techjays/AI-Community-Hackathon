@@ -23,6 +23,7 @@ from prahari.config.paths import DATA_DIR
 from prahari.models.results import RunResult
 
 RUNS_DIR = DATA_DIR / "runs"
+_TERMINAL = {"COMPLETE", "FAILED"}
 
 
 class RunMeta(BaseModel):
@@ -46,6 +47,7 @@ class RunStore:
         self._lock = threading.RLock()
         self._results: dict[str, RunResult] = {}
         self._metas: dict[str, RunMeta] = {}
+        self._own: set[str] = set()  # runs this process writes, so its cache is current
 
     def _dir(self, run_id: str) -> Path:
         if not run_id.replace("-", "").isalnum():
@@ -55,6 +57,7 @@ class RunStore:
     def save_meta(self, meta: RunMeta) -> None:
         with self._lock:
             self._metas[meta.run_id] = meta.model_copy(deep=True)
+            self._own.add(meta.run_id)
             d = self._dir(meta.run_id)
             d.mkdir(parents=True, exist_ok=True)
             _atomic_write(d / "meta.json", meta.model_dump_json(indent=2))
@@ -71,8 +74,15 @@ class RunStore:
     def metas(self) -> list[RunMeta]:
         """Every run on disk, including ones written by another process (the CLI)."""
         if self.root.exists():
+            on_disk = {f.parent.name for f in self.root.glob("*/meta.json")}
+            with self._lock:
+                # A run deleted by another process must not keep answering its alias.
+                for gone in set(self._metas) - on_disk:
+                    self._metas.pop(gone, None)
+                    self._results.pop(gone, None)
             for f in self.root.glob("*/meta.json"):
-                if f.parent.name not in self._metas:
+                cached = self._metas.get(f.parent.name)
+                if cached is None or cached.status not in _TERMINAL:
                     self.meta(f.parent.name)
         with self._lock:
             return [m.model_copy(deep=True) for m in self._metas.values()]
@@ -80,7 +90,9 @@ class RunStore:
     def meta(self, run_id: str) -> RunMeta | None:
         with self._lock:
             cached = self._metas.get(run_id)
-            if cached is not None:
+            # A finished run is immutable. An unfinished one may be advancing in
+            # another process (the CLI), so it is re-read from disk.
+            if cached is not None and (cached.status in _TERMINAL or run_id in self._own):
                 return cached.model_copy(deep=True)
             try:
                 f = self._dir(run_id) / "meta.json"

@@ -21,6 +21,18 @@ const SOURCE_LABEL: Record<BriefingData["generatedBy"], string> = {
   TEMPLATE_FALLBACK: "Template · AI unavailable or failed the number check",
 };
 
+
+/**
+ * Indian digit grouping for bare counts of five or more digits ("470801" to
+ * "4,70,801"), matching the figures elsewhere on screen. Display only: the
+ * stored text, and the grounding check that ran on it, are unchanged. Digits
+ * glued to a letter, a hyphen or a decimal point (ids, years, decimals) are
+ * left alone.
+ */
+export function groupDigits(text: string): string {
+  return text.replace(/(?<![\w.,-])\d{5,}(?![\w.,])/g, (n) => Number(n).toLocaleString("en-IN"));
+}
+
 export function Briefing({
   stage,
   briefings,
@@ -57,10 +69,10 @@ export function Briefing({
         ) : null}
       </div>
       <p className={language === "or" ? text.bodyStrongOd : text.bodyStrong} lang={briefing.language}>
-        {briefing.headline}
+        {groupDigits(briefing.headline)}
       </p>
       <p className={language === "or" ? text.bodyOd : text.body} lang={briefing.language}>
-        {briefing.situation}
+        {groupDigits(briefing.situation)}
       </p>
       {briefing.notice ? <p className={`${text.caption} ${styles.notice}`}>{briefing.notice}</p> : null}
       <p className={`${text.caption} ${styles.source}`}>

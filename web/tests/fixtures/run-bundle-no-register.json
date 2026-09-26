@@ -1,0 +1,889 @@
+{
+ "detail": {
+  "run_id": "dc8c9fe4-7244-49c3-99be-10f6b273fcbf",
+  "alias": "hudhud-2014-andhra",
+  "status": "COMPLETE",
+  "request": {
+   "track": {
+    "kind": "ibtracs",
+    "storm_name": "HUDHUD",
+    "season": 2014
+   },
+   "aoi_preset": "auto",
+   "hazard": {
+    "surge_level_m": null,
+    "funnel_amplification": null,
+    "holland_b_override": null,
+    "dem_offset_m": 0
+   },
+   "generate_advisories": true,
+   "languages": [
+    "en",
+    "or"
+   ],
+   "run_validation": true,
+   "label": "hudhud-2014-andhra"
+  },
+  "params_hash": "abaddc63b63aef1291f87e4707b88a870c69632edbdc6219e2ca28619f6fd0b1",
+  "code_version": "0.2.0",
+  "config_version": "v1",
+  "stages_complete": [
+   "hazard.wind_field",
+   "hazard.inundation",
+   "exposure",
+   "decision.assignment",
+   "decision.parametric_and_packets",
+   "ai.advisories"
+  ],
+  "stage_timings_ms": {
+   "hazard.wind_field": 500,
+   "hazard.inundation": 11838,
+   "exposure": 8285,
+   "decision.assignment": 1,
+   "decision.parametric_and_packets": 3,
+   "ai.advisories": 52252
+  },
+  "warnings": [
+   "RMW_IMPUTED: 7 of 66 track points smoothed or filled",
+   "LAGOON_BARRIER: 51 enclosed-lagoon cells neither seed nor carry surge",
+   "NO_SHELTER_REGISTER: no shelter register covers this area"
+  ],
+  "error": null,
+  "provenance": {
+   "track": "ibtracs.ni.v04r01",
+   "dem": "COPERNICUS/DEM/GLO30_2024_1",
+   "surface_water": "JRC/GSW1_4/GlobalSurfaceWater",
+   "population": "WorldPop/GP/100m/pop (2019)",
+   "buildings": "GOOGLE/Research/open-buildings/v3/polygons",
+   "shelters": "none: no shelter register for this region",
+   "sar_truth": "not used"
+  },
+  "summary": {
+   "storm_name": "HUDHUD",
+   "season": 2014,
+   "aoi": "Andhra Pradesh landfall coast",
+   "landfall_at": "2014-10-12T09:00:00Z",
+   "landfall_lat": 17.8,
+   "landfall_lon": 83.1,
+   "compressed_timeline": false,
+   "peak_surge_m": 2.4,
+   "max_wind_ms": 58.6,
+   "area_flooded_km2": 23.2,
+   "population_at_risk": 13433,
+   "buildings_at_risk": 531,
+   "shelters_total": 0,
+   "shelters_compromised": 0,
+   "unassigned_population": 0,
+   "total_payout_inr": 500000000,
+   "csi": null,
+   "disclosure": {
+    "model_class": "heuristic_index",
+    "limitations": [
+     "Static bathtub inundation; no storm dynamics, tide phase, or timing.",
+     "No wave setup or runup, which can add more than 1 m.",
+     "DEM vertical error (several metres) is comparable to the surge signal itself in low-relief floodplains.",
+     "No river discharge coupling; compound flooding at deltas is unmodelled.",
+     "30 m DEM does not resolve embankment crests.",
+     "Surge height is a calibrated heuristic index, NOT a validated forecast model. No published Bay-of-Bengal wind-to-surge formula exists."
+    ],
+    "validated_against": null,
+    "skill_metric": null
+   },
+   "coverage": {
+    "aoi_source": "landfall",
+    "landfall_coast": "Andhra Pradesh",
+    "hazard": true,
+    "exposure": true,
+    "shelters": "none",
+    "shelter_note": "No shelter register for this region. PRAHARI holds the OSDMA register for Odisha only, so shelter checks and assignment are skipped here.",
+    "validation": "not_scorable",
+    "validation_note": "No Sentinel-1 pass over this area in the 4 days after landfall, so there is no observed flood to score against."
+   }
+  },
+  "created_at": "2026-09-25T18:22:29.418249Z",
+  "completed_at": "2026-09-25T18:23:43.936610Z"
+ },
+ "hazard": {
+  "storm": "HUDHUD",
+  "track": [
+   {
+    "iso_time": "2014-10-06T06:00:00Z",
+    "lat": 10.7,
+    "lon": 96.1,
+    "max_wind_kt": 15
+   },
+   {
+    "iso_time": "2014-10-07T00:00:00Z",
+    "lat": 11,
+    "lon": 95.2,
+    "max_wind_kt": 25
+   },
+   {
+    "iso_time": "2014-10-07T18:00:00Z",
+    "lat": 11.9,
+    "lon": 93.5,
+    "max_wind_kt": 30
+   },
+   {
+    "iso_time": "2014-10-08T12:00:00Z",
+    "lat": 12.9,
+    "lon": 90.9,
+    "max_wind_kt": 45
+   },
+   {
+    "iso_time": "2014-10-09T06:00:00Z",
+    "lat": 13.8,
+    "lon": 88.9,
+    "max_wind_kt": 60
+   },
+   {
+    "iso_time": "2014-10-10T00:00:00Z",
+    "lat": 14.6,
+    "lon": 87.6,
+    "max_wind_kt": 65
+   },
+   {
+    "iso_time": "2014-10-10T18:00:00Z",
+    "lat": 15.6,
+    "lon": 86.3,
+    "max_wind_kt": 85
+   },
+   {
+    "iso_time": "2014-10-11T12:00:00Z",
+    "lat": 16.2,
+    "lon": 84.9,
+    "max_wind_kt": 115
+   },
+   {
+    "iso_time": "2014-10-12T06:00:00Z",
+    "lat": 17.6,
+    "lon": 83.4,
+    "max_wind_kt": 115
+   },
+   {
+    "iso_time": "2014-10-13T00:00:00Z",
+    "lat": 19.7,
+    "lon": 81.6,
+    "max_wind_kt": 55
+   },
+   {
+    "iso_time": "2014-10-13T18:00:00Z",
+    "lat": 22.3,
+    "lon": 81.5,
+    "max_wind_kt": null
+   }
+  ],
+  "landfall_at": "2014-10-12T09:00:00Z",
+  "holland_b": 1.641,
+  "max_wind_ms": 58.6,
+  "surge": {
+   "peak_surge_m": 2.4,
+   "funnel_amplification": 1,
+   "coefficient": 0.00075,
+   "model_class": "heuristic_index",
+   "imd_forecast_surge_m": null,
+   "limitations": [
+    "Static bathtub inundation; no storm dynamics, tide phase, or timing.",
+    "No wave setup or runup, which can add more than 1 m.",
+    "DEM vertical error (several metres) is comparable to the surge signal itself in low-relief floodplains.",
+    "No river discharge coupling; compound flooding at deltas is unmodelled.",
+    "30 m DEM does not resolve embankment crests.",
+    "Surge height is a calibrated heuristic index, NOT a validated forecast model. No published Bay-of-Bengal wind-to-surge formula exists."
+   ],
+   "calibration": null
+  },
+  "inundation": {
+   "surge_level_m": 2.4,
+   "area_flooded_km2": 23.2,
+   "connectivity_enforced": true,
+   "dem_asset": "COPERNICUS/DEM/GLO30_2024_1",
+   "dem_vertical_error_m": 4,
+   "naive_threshold_area_km2": 33.8
+  },
+  "layers": [
+   {
+    "layer": "flood_depth",
+    "url": "/api/v1/scenarios/dc8c9fe4-7244-49c3-99be-10f6b273fcbf/layers/flood_depth",
+    "bbox": [
+     82.55,
+     17.4,
+     83.65,
+     18.2
+    ],
+    "width": 440,
+    "height": 320,
+    "classes": [
+     "none",
+     "floodShallow",
+     "floodModerate",
+     "floodDeep"
+    ]
+   },
+   {
+    "layer": "wind",
+    "url": "/api/v1/scenarios/dc8c9fe4-7244-49c3-99be-10f6b273fcbf/layers/wind",
+    "bbox": [
+     82.55,
+     17.4,
+     83.65,
+     18.2
+    ],
+    "width": 440,
+    "height": 320,
+    "classes": [
+     "none",
+     "windLow",
+     "windModerate",
+     "windSevere",
+     "windExtreme"
+    ]
+   }
+  ],
+  "disclosure": {
+   "model_class": "heuristic_index",
+   "limitations": [
+    "Static bathtub inundation; no storm dynamics, tide phase, or timing.",
+    "No wave setup or runup, which can add more than 1 m.",
+    "DEM vertical error (several metres) is comparable to the surge signal itself in low-relief floodplains.",
+    "No river discharge coupling; compound flooding at deltas is unmodelled.",
+    "30 m DEM does not resolve embankment crests.",
+    "Surge height is a calibrated heuristic index, NOT a validated forecast model. No published Bay-of-Bengal wind-to-surge formula exists."
+   ],
+   "validated_against": null,
+   "skill_metric": null
+  }
+ },
+ "exposure": {
+  "rows": [
+   {
+    "block": "Andhra Pradesh landfall coast",
+    "district": null,
+    "population_at_risk": 13433,
+    "buildings_at_risk": 531,
+    "area_flooded_km2": 23.21,
+    "max_depth_m": 2.36,
+    "shelters_total": 0,
+    "shelters_compromised": 0
+   }
+  ],
+  "totals": {
+   "block": "ALL",
+   "district": null,
+   "population_at_risk": 13433,
+   "buildings_at_risk": 531,
+   "area_flooded_km2": 23.21,
+   "max_depth_m": 2.36,
+   "shelters_total": 0,
+   "shelters_compromised": 0
+  },
+  "clusters": [
+   {
+    "cluster_id": "C007-052",
+    "block": null,
+    "near": null,
+    "lat": 18.04125,
+    "lon": 83.60875,
+    "people_at_risk": 28,
+    "buildings_at_risk": 7,
+    "area_flooded_km2": 0.07,
+    "max_depth_m": 0.41
+   },
+   {
+    "cluster_id": "C008-050",
+    "block": null,
+    "near": null,
+    "lat": 18.02246,
+    "lon": 83.55375,
+    "people_at_risk": 66,
+    "buildings_at_risk": 0,
+    "area_flooded_km2": 0.15,
+    "max_depth_m": 0.41
+   },
+   {
+    "cluster_id": "C009-050",
+    "block": null,
+    "near": null,
+    "lat": 18.01544,
+    "lon": 83.55502,
+    "people_at_risk": 334,
+    "buildings_at_risk": 2,
+    "area_flooded_km2": 0.37,
+    "max_depth_m": 1.78
+   },
+   {
+    "cluster_id": "C009-051",
+    "block": null,
+    "near": null,
+    "lat": 18.01625,
+    "lon": 83.57625,
+    "people_at_risk": 34,
+    "buildings_at_risk": 0,
+    "area_flooded_km2": 0.07,
+    "max_depth_m": 0.46
+   },
+   {
+    "cluster_id": "C013-044",
+    "block": null,
+    "near": null,
+    "lat": 17.92704,
+    "lon": 83.44431,
+    "people_at_risk": 216,
+    "buildings_at_risk": 55,
+    "area_flooded_km2": 0.37,
+    "max_depth_m": 1.41
+   },
+   {
+    "cluster_id": "C013-047",
+    "block": null,
+    "near": null,
+    "lat": 17.92875,
+    "lon": 83.49375,
+    "people_at_risk": 57,
+    "buildings_at_risk": 11,
+    "area_flooded_km2": 0.07,
+    "max_depth_m": 1.24
+   },
+   {
+    "cluster_id": "C014-044",
+    "block": null,
+    "near": null,
+    "lat": 17.90464,
+    "lon": 83.44875,
+    "people_at_risk": 305,
+    "buildings_at_risk": 22,
+    "area_flooded_km2": 0.29,
+    "max_depth_m": 0.81
+   },
+   {
+    "cluster_id": "C014-045",
+    "block": null,
+    "near": null,
+    "lat": 17.90599,
+    "lon": 83.45264,
+    "people_at_risk": 626,
+    "buildings_at_risk": 6,
+    "area_flooded_km2": 0.73,
+    "max_depth_m": 1.74
+   },
+   {
+    "cluster_id": "C015-044",
+    "block": null,
+    "near": null,
+    "lat": 17.89875,
+    "lon": 83.44875,
+    "people_at_risk": 181,
+    "buildings_at_risk": 0,
+    "area_flooded_km2": 0.07,
+    "max_depth_m": 0.96
+   },
+   {
+    "cluster_id": "C015-045",
+    "block": null,
+    "near": null,
+    "lat": 17.89875,
+    "lon": 83.45125,
+    "people_at_risk": 165,
+    "buildings_at_risk": 0,
+    "area_flooded_km2": 0.07,
+    "max_depth_m": 2.36
+   },
+   {
+    "cluster_id": "C016-044",
+    "block": null,
+    "near": null,
+    "lat": 17.86625,
+    "lon": 83.43125,
+    "people_at_risk": 78,
+    "buildings_at_risk": 1,
+    "area_flooded_km2": 0.07,
+    "max_depth_m": 1.54
+   },
+   {
+    "cluster_id": "C017-042",
+    "block": null,
+    "near": null,
+    "lat": 17.84245,
+    "lon": 83.40875,
+    "people_at_risk": 244,
+    "buildings_at_risk": 25,
+    "area_flooded_km2": 0.15,
+    "max_depth_m": 1.68
+   }
+  ],
+  "disclosure": {
+   "model_class": "heuristic_index",
+   "limitations": [
+    "Static bathtub inundation; no storm dynamics, tide phase, or timing.",
+    "No wave setup or runup, which can add more than 1 m.",
+    "DEM vertical error (several metres) is comparable to the surge signal itself in low-relief floodplains.",
+    "No river discharge coupling; compound flooding at deltas is unmodelled.",
+    "30 m DEM does not resolve embankment crests.",
+    "Surge height is a calibrated heuristic index, NOT a validated forecast model. No published Bay-of-Bengal wind-to-surge formula exists.",
+    "Population is WorldPop 2019 (100 m, modelled), not a census count.",
+    "Buildings are Open Buildings v3 footprints at confidence >= 0.7; rural thatch roofs are under-detected.",
+    "Hospitals, roads and power assets are not yet ingested."
+   ],
+   "validated_against": null,
+   "skill_metric": null
+  }
+ },
+ "assets": {
+  "shelters": [],
+  "count": 0,
+  "compromised": 0,
+  "disclosure": {
+   "model_class": "heuristic_index",
+   "limitations": [
+    "Static bathtub inundation; no storm dynamics, tide phase, or timing.",
+    "No wave setup or runup, which can add more than 1 m.",
+    "DEM vertical error (several metres) is comparable to the surge signal itself in low-relief floodplains.",
+    "No river discharge coupling; compound flooding at deltas is unmodelled.",
+    "30 m DEM does not resolve embankment crests.",
+    "Surge height is a calibrated heuristic index, NOT a validated forecast model. No published Bay-of-Bengal wind-to-surge formula exists.",
+    "Population is WorldPop 2019 (100 m, modelled), not a census count.",
+    "Buildings are Open Buildings v3 footprints at confidence >= 0.7; rural thatch roofs are under-detected.",
+    "Hospitals, roads and power assets are not yet ingested."
+   ],
+   "validated_against": null,
+   "skill_metric": null
+  }
+ },
+ "decisions": {
+  "assignments": [],
+  "unassigned": [],
+  "optimiser": {
+   "solver": "ortools_min_cost_flow",
+   "status": "NOT_RUN",
+   "arcs_considered": 0,
+   "arcs_filtered": 0,
+   "total_person_km": 0,
+   "greedy_person_km": 0,
+   "assigned_people": 0,
+   "greedy_assigned_people": 0,
+   "solve_ms": 0
+  },
+  "actions": [
+   {
+    "sequence": 1,
+    "subject_id": "watch-no-shelter-register",
+    "kind": "verify",
+    "role": "RELIEF_COMMISSIONER",
+    "stage": "PRE_CYCLONE_WATCH",
+    "office": "State relief commissioner, Andhra Pradesh",
+    "title": "Supply the cyclone-shelter list for this coast",
+    "summary": "PRAHARI has no shelter register for Andhra Pradesh landfall coast, so it cannot check which shelters sit in the flood or assign people to them. With a register, shelter orders appear here like they do for Odisha.",
+    "people": 0,
+    "related": [],
+    "focus_lat": null,
+    "focus_lon": null,
+    "focus_label": null,
+    "deadline": "2014-10-09T09:00:00Z",
+    "hours_before_landfall": 72,
+    "evidence": [
+     {
+      "label": "Shelter register",
+      "value": "none for this region",
+      "state": "modelled"
+     }
+    ]
+   },
+   {
+    "sequence": 2,
+    "subject_id": "warning-evacuate-flood-zone",
+    "kind": "evacuate",
+    "role": "DISTRICT_COLLECTOR",
+    "stage": "CYCLONE_WARNING",
+    "office": "District Collector, landfall district",
+    "title": "Evacuate 13,433 people from the modelled flood zone",
+    "summary": "13,433 people live in 33 flood clusters of Andhra Pradesh landfall coast. With no shelter register, choose safe buildings outside the flood locally.",
+    "people": 13433,
+    "related": [
+     "C007-052",
+     "C008-050",
+     "C009-050",
+     "C009-051",
+     "C013-044",
+     "C013-047",
+     "C014-044",
+     "C014-045",
+     "C015-044",
+     "C015-045",
+     "C016-044",
+     "C017-042",
+     "C028-034",
+     "C030-032",
+     "C032-027",
+     "C033-025",
+     "C033-027",
+     "C034-022",
+     "C035-016",
+     "C035-021",
+     "C035-022",
+     "C036-014",
+     "C036-015",
+     "C036-016",
+     "C036-021",
+     "C036-022",
+     "C037-014",
+     "C037-015",
+     "C037-016",
+     "C037-019",
+     "C038-014",
+     "C038-015",
+     "C038-016"
+    ],
+    "focus_lat": 17.45133,
+    "focus_lon": 82.8591,
+    "focus_label": "Largest flood cluster",
+    "deadline": "2014-10-11T09:00:00Z",
+    "hours_before_landfall": 24,
+    "evidence": [
+     {
+      "label": "People in the flood",
+      "value": "13,433",
+      "state": "modelled"
+     },
+     {
+      "label": "Depth, largest cluster",
+      "value": "1.19 m",
+      "state": "heuristic"
+     }
+    ]
+   },
+   {
+    "sequence": 3,
+    "subject_id": "post-parametric-release",
+    "kind": "finance",
+    "role": "FINANCE_DRF",
+    "stage": "POST_LANDFALL",
+    "office": "State finance / DRF desk",
+    "title": "Release INR 50.0 crore under the parametric trigger (illustrative)",
+    "summary": "The dual trigger is crossed in 1 block zones. Each pays the larger of its wind and flooded-population fractions of an illustrative limit.",
+    "people": 0,
+    "related": [
+     "Z-Andhra Pradesh landfall coast"
+    ],
+    "focus_lat": null,
+    "focus_lon": null,
+    "focus_label": null,
+    "deadline": "2014-10-11T21:00:00Z",
+    "hours_before_landfall": 12,
+    "evidence": [
+     {
+      "label": "Zones triggered",
+      "value": "1 of 1",
+      "state": "modelled"
+     },
+     {
+      "label": "Payout (illustrative)",
+      "value": "INR 50.0 crore",
+      "state": "modelled"
+     }
+    ]
+   }
+  ],
+  "disclosure": {
+   "model_class": "optimisation",
+   "limitations": [
+    "Shelter capacity is imputed from shelter type; OSDMA publishes none.",
+    "Travel distance is straight-line x 1.3 detour; no road network, so road flooding before evacuation is not modelled.",
+    "Evacuation demand is the population of modelled flood cells only; wind and rain exposure are not added to demand."
+   ],
+   "validated_against": null,
+   "skill_metric": null
+  }
+ },
+ "parametric": {
+  "zones": [
+   {
+    "zone_id": "Z-Andhra Pradesh landfall coast",
+    "zone_name": "Andhra Pradesh landfall coast",
+    "trigger_a_wind": {
+     "metric": "peak_wind_ms",
+     "value": 58.6,
+     "threshold_hit": "wind >= 50 m/s",
+     "payout_fraction": 1
+    },
+    "trigger_b_population_index": {
+     "metric": "flooded_population_share",
+     "value": 0.003,
+     "threshold_hit": null,
+     "payout_fraction": 0
+    },
+    "payout_inr": 500000000,
+    "triggered": true,
+    "reference_agency": "IMD_RSMC_NEW_DELHI",
+    "basis": "illustrative_not_actuarial"
+   }
+  ],
+  "total_payout_inr": 500000000,
+  "zone_limit_inr": 500000000,
+  "disclosure": {
+   "model_class": "heuristic_index",
+   "limitations": [
+    "Parametric zones are illustrative, not actuarially derived.",
+    "Payout matrices are demonstrative of the mechanism only."
+   ],
+   "validated_against": null,
+   "skill_metric": null
+  }
+ },
+ "validation": {
+  "available": false,
+  "storm": "Hudhud 2014",
+  "aoi": "Andhra Pradesh landfall coast",
+  "skill": null,
+  "sensitivity": [],
+  "ems_crosscheck": null,
+  "layers": [],
+  "reason_unavailable": "No Sentinel-1 pass over this area in the 4 days after landfall, so there is no observed flood to score against."
+ },
+ "advisories": {
+  "advisories": [
+   {
+    "role": "DISTRICT_COLLECTOR",
+    "stage": "PRE_CYCLONE_WATCH",
+    "language": "en",
+    "headline": "Pre-Cyclone Watch for Cyclone Hudhud 2014 along Andhra Pradesh landfall coast at 72.0 hours before landfall.",
+    "situation": "In view of the Pre-Cyclone Watch for Cyclone Hudhud 2014 at 72.0 hours before landfall along the Andhra Pradesh landfall coast, heuristic modelling indicates a potential peak surge of 2.4 m and flood extent of 23.2 km2. The heuristic assessment projects 13433 population at risk and 531 buildings at risk in the impact zone. It is recommended for the Collector to call upon State relief commissioner, Andhra Pradesh to supply the cyclone-shelter list for this coast, as no shelter figures exist in the register.",
+    "action_ids": [
+     "watch-no-shelter-register"
+    ],
+    "caveats": [
+     "Static bathtub inundation; no storm dynamics, tide phase, or timing.",
+     "No wave setup or runup, which can add more than 1 m.",
+     "DEM vertical error (several metres) is comparable to the surge signal itself in low-relief floodplains."
+    ],
+    "generated_by": "GEMINI",
+    "grounding": {
+     "ok": true,
+     "found": [
+      2.4,
+      23.2,
+      13433,
+      531
+     ],
+     "ungrounded": [],
+     "banned": []
+    },
+    "model_id": "gemini-3.8-flash",
+    "prompt_version": "narrate_advisory.v2",
+    "notice": null
+   },
+   {
+    "role": "DISTRICT_COLLECTOR",
+    "stage": "PRE_CYCLONE_WATCH",
+    "language": "or",
+    "headline": "ସ୍ଥଳଭାଗ ଛୁଇଁବାର 72.0 ଘଣ୍ଟା ପୂର୍ବରୁ ଆନ୍ଧ୍ରପ୍ରଦେଶ ଉପକୂଳରେ Cyclone Hudhud 2014 ପାଇଁ Pre-Cyclone Watch।",
+    "situation": "ଆନ୍ଧ୍ରପ୍ରଦେଶ ଉପକୂଳରେ landfall ର 72.0 ଘଣ୍ଟା ପୂର୍ବରୁ Cyclone Hudhud 2014 ର Pre-Cyclone Watch କୁ ଦୃଷ୍ଟିରେ ରଖି, ଅନୁମାନିକ ମଡେଲିଂ ସର୍ବାଧିକ 2.4 m ଜୁଆର ଏବଂ 23.2 km2 ପର୍ଯ୍ୟନ୍ତ ବନ୍ୟା ବ୍ୟାପ୍ତିର ସମ୍ଭାବନା ଦର୍ଶାଉଛି। ପ୍ରଭାବିତ ଅଞ୍ଚଳରେ 13433 ଜନସଂଖ୍ୟା ଏବଂ 531 ଟି କୋଠା ବିପଦରେ ଥିବା ଆକଳନ କରାଯାଇଛି। ରେଜିଷ୍ଟରରେ କୌଣସି ଆଶ୍ରୟସ୍ଥଳୀର ତଥ୍ୟ ନ ଥିବାରୁ, ଏହି ଉପକୂଳ ପାଇଁ ବାତ୍ୟା ଆଶ୍ରୟସ୍ଥଳୀ ତାଲିକା ଯୋଗାଇବା ନିମନ୍ତେ ଜିଲ୍ଲାପାଳ State relief commissioner, Andhra Pradesh ଙ୍କୁ ଅନୁରୋଧ କରିବା ପାଇଁ ସୁପାରିଶ କରାଯାଉଛି।",
+    "action_ids": [
+     "watch-no-shelter-register"
+    ],
+    "caveats": [
+     "Static bathtub inundation; no storm dynamics, tide phase, or timing.",
+     "No wave setup or runup, which can add more than 1 m.",
+     "DEM vertical error (several metres) is comparable to the surge signal itself in low-relief floodplains."
+    ],
+    "generated_by": "GEMINI",
+    "grounding": {
+     "ok": true,
+     "found": [
+      2.4,
+      23.2,
+      13433,
+      531
+     ],
+     "ungrounded": [],
+     "banned": []
+    },
+    "model_id": "gemini-3.8-flash",
+    "prompt_version": "narrate_advisory.v2",
+    "notice": null
+   },
+   {
+    "role": "DISTRICT_COLLECTOR",
+    "stage": "CYCLONE_ALERT",
+    "language": "en",
+    "headline": "Cyclone Alert: 48.0 hours before landfall for Hudhud 2014 along Andhra Pradesh landfall coast",
+    "situation": "Cyclone Hudhud 2014 is currently at the Cyclone Alert stage, estimated at 48.0 hours before landfall along the Andhra Pradesh landfall coast. Heuristic modeling indicates a potential peak surge index of 2.4 m with 23.2 km2 area flooded, placing 13433 population and 531 buildings at risk. There are 0 orders recommended for the Collector at this stage, and the shelter register notes none for this region: no shelter figures exist.",
+    "action_ids": [],
+    "caveats": [
+     "Static bathtub inundation; no storm dynamics, tide phase, or timing.",
+     "No wave setup or runup, which can add more than 1 m.",
+     "DEM vertical error (several metres) is comparable to the surge signal itself in low-relief floodplains."
+    ],
+    "generated_by": "GEMINI",
+    "grounding": {
+     "ok": true,
+     "found": [
+      2.4,
+      23.2,
+      13433,
+      531,
+      0
+     ],
+     "ungrounded": [],
+     "banned": []
+    },
+    "model_id": "gemini-3.8-flash",
+    "prompt_version": "narrate_advisory.v2",
+    "notice": null
+   },
+   {
+    "role": "DISTRICT_COLLECTOR",
+    "stage": "CYCLONE_ALERT",
+    "language": "or",
+    "headline": "ବାତ୍ୟା ସତର୍କତା: Andhra Pradesh ଉପକୂଳରେ landfall ର 48.0 ଘଣ୍ଟା ପୂର୍ବରୁ Hudhud 2014",
+    "situation": "ବାତ୍ୟା Hudhud 2014 ବର୍ତ୍ତମାନ Cyclone Alert ପର୍ଯ୍ୟାୟରେ ରହିଛି, ଯାହା Andhra Pradesh ଉପକୂଳରେ landfall କରିବାର ଆନୁମାନିକ 48.0 ଘଣ୍ଟା ପୂର୍ବରୁ ଅଛି। ହିଉରିଷ୍ଟିକ୍ ମଡେଲିଂ ଅନୁସାରେ ସର୍ବାଧିକ 2.4 m ଜୁଆର ତରଙ୍ଗ ସୂଚକାଙ୍କ (peak surge index) ସହିତ 23.2 km2 ଅଞ୍ଚଳ ଜଳମଗ୍ନ ହେବାର ସମ୍ଭାବନା ରହିଛି, ଯାହା 13433 ଜନସଂଖ୍ୟା ଏବଂ 531 ଟି କୋଠାକୁ ବିପଦରେ ପକାଉଛି। ଏହି ପର୍ଯ୍ୟାୟରେ Collector ଙ୍କ ପାଇଁ 0 ଟି ନିର୍ଦ୍ଦେଶ ସୁପାରିଶ କରାଯାଇଛି, ଏବଂ shelter register ରେ ଏହି ଅଞ୍ଚଳ ପାଇଁ କିଛି ଉଲ୍ଲେଖ ନାହିଁ: କୌଣସି ଆଶ୍ରୟସ୍ଥଳର ତଥ୍ୟ ଉପଲବ୍ଧ ନାହିଁ।",
+    "action_ids": [],
+    "caveats": [
+     "Static bathtub inundation; no storm dynamics, tide phase, or timing.",
+     "No wave setup or runup, which can add more than 1 m.",
+     "DEM vertical error (several metres) is comparable to the surge signal itself in low-relief floodplains."
+    ],
+    "generated_by": "GEMINI",
+    "grounding": {
+     "ok": true,
+     "found": [
+      2.4,
+      23.2,
+      13433,
+      531,
+      0
+     ],
+     "ungrounded": [],
+     "banned": []
+    },
+    "model_id": "gemini-3.8-flash",
+    "prompt_version": "narrate_advisory.v2",
+    "notice": null
+   },
+   {
+    "role": "DISTRICT_COLLECTOR",
+    "stage": "CYCLONE_WARNING",
+    "language": "en",
+    "headline": "Cyclone Warning: Storm Hudhud 2014 at 24.0 hours before landfall along Andhra Pradesh landfall coast",
+    "situation": "Under the Cyclone Warning stage at 24.0 hours before landfall for storm Hudhud 2014, heuristic outputs project a peak surge index of 2.4 m and an inundation extent of 23.2 km2 along the Andhra Pradesh landfall coast. Asset exposure models identify 531 buildings at risk and 13433 population at risk, with no shelter register figures existing for this region. A recommendation is submitted for the District Collector, landfall district to consider issuing an order to evacuate 13433 people from the modelled flood zone.",
+    "action_ids": [
+     "warning-evacuate-flood-zone"
+    ],
+    "caveats": [
+     "Static bathtub inundation; no storm dynamics, tide phase, or timing.",
+     "No wave setup or runup, which can add more than 1 m.",
+     "DEM vertical error (several metres) is comparable to the surge signal itself in low-relief floodplains."
+    ],
+    "generated_by": "GEMINI",
+    "grounding": {
+     "ok": true,
+     "found": [
+      2.4,
+      23.2,
+      531,
+      13433,
+      13433
+     ],
+     "ungrounded": [],
+     "banned": []
+    },
+    "model_id": "gemini-3.8-flash",
+    "prompt_version": "narrate_advisory.v2",
+    "notice": null
+   },
+   {
+    "role": "DISTRICT_COLLECTOR",
+    "stage": "CYCLONE_WARNING",
+    "language": "or",
+    "headline": "ବାତ୍ୟା ସତର୍କତା: Andhra Pradesh ଉପକୂଳରେ ସ୍ଥଳଭାଗ ଛୁଇଁବାର 24.0 ଘଣ୍ଟା ପୂର୍ବରୁ ଝଡ଼ Hudhud 2014",
+    "situation": "ଝଡ଼ Hudhud 2014 ସ୍ଥଳଭାଗ ଛୁଇଁବାର 24.0 ଘଣ୍ଟା ପୂର୍ବରୁ Cyclone Warning ପର୍ଯ୍ୟାୟ ଅଧୀନରେ, ଆକଳନ ଅନୁଯାୟୀ Andhra Pradesh ଉପକୂଳରେ ସର୍ବାଧିକ 2.4 m ର ଜଳସ୍ତର ବୃଦ୍ଧି ଏବଂ 23.2 km2 ଅଞ୍ଚଳ ଜଳମଗ୍ନ ହେବାର ପୂର୍ବାନୁମାନ କରାଯାଇଛି। ସମ୍ପତ୍ତି ବିପଦ ମଡେଲ ଅନୁଯାୟୀ 531 ଟି କୋଠା ଏବଂ 13433 ଜନସଂଖ୍ୟା ବିପଦରେ ରହିଛନ୍ତି, ଏବଂ ଏହି ଅଞ୍ଚଳ ପାଇଁ କୌଣସି shelter register ତଥ୍ୟ ଉପଲବ୍ଧ ନାହିଁ। ମଡେଲ କରାଯାଇଥିବା ବନ୍ୟା ପ୍ରଭାବିତ ଅଞ୍ଚଳରୁ 13433 ଜଣ ଲୋକଙ୍କୁ ସ୍ଥାନାନ୍ତର କରିବା ପାଇଁ ନିର୍ଦ୍ଦେଶ ଜାରି କରିବାକୁ ବିଚାର କରିବା ନିମନ୍ତେ landfall ଜିଲ୍ଲାର District Collector ଙ୍କ ନିକଟରେ ଏକ ସୁପାରିଶ ଦାଖଲ କରାଯାଇଛି।",
+    "action_ids": [
+     "warning-evacuate-flood-zone"
+    ],
+    "caveats": [
+     "Static bathtub inundation; no storm dynamics, tide phase, or timing.",
+     "No wave setup or runup, which can add more than 1 m.",
+     "DEM vertical error (several metres) is comparable to the surge signal itself in low-relief floodplains."
+    ],
+    "generated_by": "GEMINI",
+    "grounding": {
+     "ok": true,
+     "found": [
+      2.4,
+      23.2,
+      531,
+      13433,
+      13433
+     ],
+     "ungrounded": [],
+     "banned": []
+    },
+    "model_id": "gemini-3.8-flash",
+    "prompt_version": "narrate_advisory.v2",
+    "notice": null
+   },
+   {
+    "role": "DISTRICT_COLLECTOR",
+    "stage": "POST_LANDFALL",
+    "language": "en",
+    "headline": "Cyclone Hudhud 2014: Post-Landfall Outlook for Andhra Pradesh Landfall Coast",
+    "situation": "Heuristic modeling indicates an estimated peak surge index of 2.4 m and an inundation extent of 23.2 km2 along the Andhra Pradesh landfall coast. Asset impact models project 13433 population at risk and 531 buildings at risk across the tract, with no shelter figures existing on the regional register. For the Collector's consideration, 1 administrative action is recommended for the State finance / DRF desk to Release INR 50.0 crore under the parametric trigger (illustrative).",
+    "action_ids": [
+     "post-parametric-release"
+    ],
+    "caveats": [
+     "Static bathtub inundation; no storm dynamics, tide phase, or timing.",
+     "No wave setup or runup, which can add more than 1 m.",
+     "DEM vertical error (several metres) is comparable to the surge signal itself in low-relief floodplains."
+    ],
+    "generated_by": "GEMINI",
+    "grounding": {
+     "ok": true,
+     "found": [
+      2.4,
+      23.2,
+      13433,
+      531,
+      1,
+      500000000
+     ],
+     "ungrounded": [],
+     "banned": []
+    },
+    "model_id": "gemini-3.8-flash",
+    "prompt_version": "narrate_advisory.v2",
+    "notice": null
+   },
+   {
+    "role": "DISTRICT_COLLECTOR",
+    "stage": "POST_LANDFALL",
+    "language": "or",
+    "headline": "Cyclone Hudhud 2014: Post-Landfall Outlook for Andhra Pradesh Landfall Coast",
+    "situation": "Heuristic modeling indicates an estimated peak surge index of 2.4 m and an inundation extent of 23.2 km2 along the Andhra Pradesh landfall coast. Asset impact models project 13433 population at risk and 531 buildings at risk across the tract, with no shelter figures existing on the regional register. For the Collector's consideration, 1 administrative action is recommended for the State finance / DRF desk to Release INR 50.0 crore under the parametric trigger (illustrative).",
+    "action_ids": [
+     "post-parametric-release"
+    ],
+    "caveats": [
+     "Static bathtub inundation; no storm dynamics, tide phase, or timing.",
+     "No wave setup or runup, which can add more than 1 m.",
+     "DEM vertical error (several metres) is comparable to the surge signal itself in low-relief floodplains."
+    ],
+    "generated_by": "GEMINI",
+    "grounding": {
+     "ok": true,
+     "found": [
+      2.4,
+      23.2,
+      13433,
+      531,
+      1,
+      500000000
+     ],
+     "ungrounded": [],
+     "banned": []
+    },
+    "model_id": null,
+    "prompt_version": "narrate_advisory.v2",
+    "notice": "Odia translation unavailable or failed number checks; showing English."
+   }
+  ]
+ }
+}

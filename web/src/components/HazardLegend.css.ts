@@ -26,11 +26,11 @@ export const legend = style({
 export const floating = style([
   glassPanel,
   {
-    position: "absolute",
-    insetBlockEnd: vars.space[3],
-    insetInlineEnd: vars.space[3],
-    zIndex: vars.z.float,
-    maxWidth: "17rem",
+    // ImpactMap's overlay positions it; this only sizes it.
+    width: "16rem",
+    maxWidth: "100%",
+    maxHeight: "22rem",
+    overflowY: "auto",
   },
 ]);
 
@@ -53,7 +53,12 @@ export const item = style({
 
 export const odia = style({ color: vars.color.text.muted });
 
-export const threshold = style({ marginInlineStart: "auto", color: vars.color.text.muted });
+export const threshold = style({
+  marginInlineStart: "auto",
+  color: vars.color.text.muted,
+  whiteSpace: "nowrap",
+  textAlign: "end",
+});
 
 export const footnote = style({
   margin: vars.space[0],
@@ -91,3 +96,15 @@ export const pinWatch = style([
   pinBase,
   { background: vars.color.intent.warning, borderColor: vars.color.text.primary },
 ]);
+
+export const folded = style({ width: "max-content", padding: vars.space[1] });
+
+export const toggle = style({
+  alignSelf: "flex-end",
+  padding: vars.space[1],
+  border: "none",
+  background: "transparent",
+  color: vars.color.intent.info,
+  cursor: "pointer",
+  whiteSpace: "nowrap",
+});

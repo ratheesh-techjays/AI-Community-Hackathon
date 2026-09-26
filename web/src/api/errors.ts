@@ -21,7 +21,7 @@ export interface ApiErrorInit {
   retryAfter?: number | undefined;
 }
 
-const PROBLEM_I18N: Record<string, string> = {
+export const PROBLEM_I18N: Record<string, string> = {
   "https://prahari.dev/problems/storm-not-found": "errors.stormNotFound",
   "https://prahari.dev/problems/run-not-found": "errors.runNotFound",
   "https://prahari.dev/problems/aoi-too-large": "errors.aoiTooLarge",
@@ -30,6 +30,30 @@ const PROBLEM_I18N: Record<string, string> = {
   "https://prahari.dev/problems/quota-exceeded": "errors.quotaExceeded",
   "https://prahari.dev/problems/validation-error": "errors.validation",
   "https://prahari.dev/problems/ingestion-error": "errors.ingestion",
+  "https://prahari.dev/problems/invalid-track-source": "errors.invalidTrackSource",
+  "https://prahari.dev/problems/track-kind-unsupported": "errors.trackKindUnsupported",
+  "https://prahari.dev/problems/no-landfall": "errors.noLandfall",
+  "https://prahari.dev/problems/outside-coverage": "errors.outsideCoverage",
+  "https://prahari.dev/problems/track-too-short": "errors.trackTooShort",
+  "https://prahari.dev/problems/unauthorized": "errors.unauthorized",
+};
+
+/**
+ * English copy per i18n key until i18next is initialised. Plain words for an
+ * official; the server's `detail` adds the storm-specific reason.
+ */
+const PLAIN_EN: Record<string, string> = {
+  "errors.stormNotFound": "That storm is not in the IBTrACS best-track file.",
+  "errors.runNotFound": "No computed run with that name.",
+  "errors.truthUnavailable": "No satellite truth exists for this storm, so its flood cannot be scored.",
+  "errors.hazardModelError": "The hazard model failed on this storm. Nothing was shown rather than a wrong number.",
+  "errors.quotaExceeded": "Another scenario is computing. Try again in a minute.",
+  "errors.ingestion": "An upstream data source did not answer. Try again shortly.",
+  "errors.trackKindUnsupported": "Live GDACS feeds and IMD bulletins are not ingested yet.",
+  "errors.noLandfall": "This storm never made a coastal landfall, so there is no surge to model.",
+  "errors.outsideCoverage": "This storm made landfall outside the coasts PRAHARI covers.",
+  "errors.trackTooShort": "The best track is too short or too sparse to model.",
+  "errors.unauthorized": "Modelling a new storm is operator-only on this deployment.",
 };
 
 export class ApiError extends Error {
@@ -66,6 +90,11 @@ export class ApiError extends Error {
   /** No ground truth exists for this storm; a score must never be fabricated. */
   get isTruthUnavailable(): boolean {
     return this.type.endsWith("/truth-unavailable");
+  }
+
+  /** One plain sentence for the screen, in English until i18n is initialised. */
+  get plain(): string {
+    return PLAIN_EN[this.i18nKey] ?? this.title;
   }
 
   get isRetriable(): boolean {

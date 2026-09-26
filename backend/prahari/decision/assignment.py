@@ -172,6 +172,22 @@ def assign(
     return AssignmentResult(assignments, unassigned, report, load)
 
 
+def not_run() -> AssignmentResult:
+    """No shelter register covers the area: nothing is assigned, and nothing is
+    reported as unassigned either, because no shelter was ever a candidate."""
+    report = OptimiserReport(
+        status="NOT_RUN",
+        arcs_considered=0,
+        arcs_filtered=0,
+        total_person_km=0.0,
+        greedy_person_km=0.0,
+        assigned_people=0,
+        greedy_assigned_people=0,
+        solve_ms=0,
+    )
+    return AssignmentResult([], [], report, {})
+
+
 def _explain(
     cluster: PopulationCluster,
     people: int,

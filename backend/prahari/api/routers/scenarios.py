@@ -35,6 +35,7 @@ from prahari.models.scenario import (
     ScenarioRequest,
 )
 from prahari.storage.runs import RunMeta
+from prahari.workers.scenario import stored_coverage
 
 router = APIRouter(tags=["scenarios"])
 Service = Annotated[ScenarioService, Depends(get_scenario_service)]
@@ -47,12 +48,22 @@ def _meta(svc: ScenarioService, key: str) -> RunMeta:
     return meta
 
 
+def _with_coverage(result: RunResult, meta: RunMeta) -> RunResult:
+    """Runs stored before coverage existed get it derived from what they hold."""
+    if result.summary.coverage is not None:
+        return result
+    req = ScenarioRequest.model_validate(meta.request)
+    coverage = stored_coverage(result, req.aoi_preset, req.run_validation)
+    summary = result.summary.model_copy(update={"coverage": coverage})
+    return result.model_copy(update={"summary": summary})
+
+
 def _result(svc: ScenarioService, key: str) -> RunResult:
     meta = _meta(svc, key)
     result = svc.store.result(meta.run_id) if meta.status == RunStatus.COMPLETE else None
     if result is None:
         raise RunNotFoundError(f"run {key!r} is {meta.status}; results are not available")
-    return result
+    return _with_coverage(result, meta)
 
 
 def _accepted(meta: RunMeta, cache_hit: bool) -> ScenarioAccepted:
@@ -105,6 +116,8 @@ async def list_scenarios(svc: Service) -> ScenarioList:
 async def get_scenario(run_id: str, svc: Service) -> ScenarioDetail:
     meta = _meta(svc, run_id)
     result = svc.store.result(meta.run_id) if meta.status == RunStatus.COMPLETE else None
+    if result is not None:
+        result = _with_coverage(result, meta)
     return ScenarioDetail(
         run_id=meta.run_id,
         alias=meta.alias,

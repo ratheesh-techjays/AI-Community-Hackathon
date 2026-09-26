@@ -160,7 +160,8 @@ class UnassignedCluster(BaseModel):
 
 class OptimiserReport(BaseModel):
     solver: Literal["ortools_min_cost_flow"] = "ortools_min_cost_flow"
-    status: Literal["OPTIMAL", "FEASIBLE", "INFEASIBLE"]
+    # NOT_RUN: no shelter register covers the area, so nothing was assigned.
+    status: Literal["OPTIMAL", "FEASIBLE", "INFEASIBLE", "NOT_RUN"]
     arcs_considered: int
     arcs_filtered: int
     total_person_km: float
@@ -300,6 +301,21 @@ class AdvisoriesResponse(BaseModel):
     advisories: list[Advisory]
 
 
+class Coverage(BaseModel):
+    """What a run covers, so the UI shows an honest gap instead of a broken panel."""
+
+    aoi_source: Literal["preset", "landfall"]
+    landfall_coast: str | None
+    hazard: bool = True
+    exposure: bool = True
+    # register: every flood cluster is within reach of a register shelter;
+    # partial: some are; none: no register covers this area.
+    shelters: Literal["register", "partial", "none"]
+    shelter_note: str
+    validation: Literal["scored", "not_scorable", "not_requested"]
+    validation_note: str | None = None
+
+
 class RunSummary(BaseModel):
     storm_name: str
     season: int
@@ -319,6 +335,8 @@ class RunSummary(BaseModel):
     total_payout_inr: float
     csi: float | None
     disclosure: ModelDisclosure
+    # Absent on runs stored before coverage existed; the API derives it then.
+    coverage: Coverage | None = None
 
 
 class RunResult(BaseModel):
