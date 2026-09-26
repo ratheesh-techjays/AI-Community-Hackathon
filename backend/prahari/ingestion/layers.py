@@ -8,6 +8,7 @@ runs offline in CI.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import UTC, datetime, timedelta
 from typing import Any, Protocol
 
 import numpy as np
@@ -41,6 +42,15 @@ class SarWindow:
     pre_end: str
     post_start: str
     post_end: str
+    # Pinned when the window was found by search; otherwise the first post orbit.
+    relative_orbit: int | None = None
+
+
+# Window searched for a storm with no pinned pair: the first post-landfall pass
+# within POST_DAYS, and a pre-event pass on the SAME relative orbit (so the same
+# pass direction and look angle) within PRE_DAYS before landfall.
+SAR_SEARCH_POST_DAYS = 4
+SAR_SEARCH_PRE_DAYS = 24
 
 
 @dataclass(frozen=True)
@@ -63,6 +73,10 @@ class LayerSource(Protocol):
     def building_counts(self, zones: list[list[Rect]]) -> list[int]: ...
 
     def sar_truth(self, grid: GridSpec, window: SarWindow) -> SarTruth: ...
+
+    def find_sar_window(
+        self, grid: GridSpec, landfall: datetime
+    ) -> tuple[SarWindow | None, str]: ...
 
 
 class EarthEngineLayers:
@@ -91,9 +105,11 @@ class EarthEngineLayers:
 
     def population(self, grid: GridSpec) -> np.ndarray:
         ee = ensure_initialised()
+        # Every country's tile that touches the grid: a Bangladesh or Myanmar
+        # landfall must not read as zero people.
         col = (
             ee.ImageCollection(assets.POPULATION_WORLDPOP)
-            .filter(ee.Filter.eq("country", "IND"))
+            .filterBounds(self._region(grid))
             .filter(ee.Filter.eq("year", self.population_year))
         )
         proj = col.first().projection()
@@ -144,10 +160,13 @@ class EarthEngineLayers:
         # Same relative orbit pre and post: same look angle, so a backscatter
         # drop is water, not geometry. Mixing orbits even within one pass
         # direction paints swath edges as "flood".
-        orbits = get_info(post_all.aggregate_array("relativeOrbitNumber_start").distinct())
-        if not orbits:
-            raise IngestionError("no post-event Sentinel-1 scene in the configured window")
-        orbit = int(orbits[0])
+        if window.relative_orbit is not None:
+            orbit = window.relative_orbit
+        else:
+            orbits = get_info(post_all.aggregate_array("relativeOrbitNumber_start").distinct())
+            if not orbits:
+                raise IngestionError("no post-event Sentinel-1 scene in the configured window")
+            orbit = int(orbits[0])
         same_orbit = ee.Filter.eq("relativeOrbitNumber_start", orbit)
         pre_col = base.filterDate(window.pre_start, window.pre_end).filter(same_orbit)
         post_col = post_all.filter(same_orbit)
@@ -192,4 +211,55 @@ class EarthEngineLayers:
             post_dates=post_dates,
             orbit_pass=window.orbit_pass,
             truth_source=f"sentinel1_vv_change_-3db_relorbit_{orbit}",
+        )
+
+    def find_sar_window(self, grid: GridSpec, landfall: datetime) -> tuple[SarWindow | None, str]:
+        """The first same-orbit pre/post Sentinel-1 pair around landfall, or why none exists."""
+        ee = ensure_initialised()
+        base = (
+            ee.ImageCollection(assets.SENTINEL1_GRD)
+            .filterBounds(self._region(grid))
+            .filter(ee.Filter.eq("instrumentMode", "IW"))
+            .filter(ee.Filter.listContains("transmitterReceiverPolarisation", "VV"))
+        )
+        day = landfall.date()
+        post_end = day + timedelta(days=SAR_SEARCH_POST_DAYS)
+        pre_start = day - timedelta(days=SAR_SEARCH_PRE_DAYS)
+        columns = ["system:time_start", "orbitProperties_pass", "relativeOrbitNumber_start"]
+        post = get_info(
+            base.filterDate(landfall.isoformat(), post_end.isoformat())
+            .reduceColumns(ee.Reducer.toList(3), columns)
+            .get("list")
+        )
+        if not post:
+            return None, (
+                f"No Sentinel-1 pass over this area in the {SAR_SEARCH_POST_DAYS} days after "
+                "landfall, so there is no observed flood to score against."
+            )
+        pre = get_info(
+            base.filterDate(pre_start.isoformat(), day.isoformat())
+            .reduceColumns(ee.Reducer.toList(3), columns)
+            .get("list")
+        )
+        pre_orbits = {(p, int(o)) for _, p, o in pre}
+        for stamp, orbit_pass, orbit in sorted(post, key=lambda r: r[0]):
+            if (orbit_pass, int(orbit)) not in pre_orbits:
+                continue
+            taken = datetime.fromtimestamp(stamp / 1000, UTC).date()
+            return (
+                SarWindow(
+                    orbit_pass=str(orbit_pass),
+                    pre_start=pre_start.isoformat(),
+                    pre_end=day.isoformat(),
+                    post_start=taken.isoformat(),
+                    post_end=(taken + timedelta(days=1)).isoformat(),
+                    relative_orbit=int(orbit),
+                ),
+                f"Found by search: relative orbit {int(orbit)}, {str(orbit_pass).lower()} "
+                "pass before and after landfall.",
+            )
+        return None, (
+            "Sentinel-1 passed after landfall, but no pre-event pass shares its orbit within "
+            f"{SAR_SEARCH_PRE_DAYS} days; pairing different orbits would paint look-angle "
+            "differences as flood."
         )

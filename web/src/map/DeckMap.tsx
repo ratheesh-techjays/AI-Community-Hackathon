@@ -57,25 +57,47 @@ export default function DeckMap({
   const [images, setImages] = useState<Record<string, HTMLCanvasElement>>({});
   const [failed, setFailed] = useState(false);
 
-  // Map instance: created once per mount.
+  const [ready, setReady] = useState(false);
+
+  // Map instance: created once per mount. Creation and teardown are pushed off
+  // the click that changed the route: React flushes effects of a click before
+  // paint, and building or removing a WebGL map there made navigation feel
+  // stuck (about 0.5-0.9 s). The frame keeps its size, so nothing shifts.
   useEffect(() => {
-    if (!container.current) return;
-    const map = new MapLibreMap({
-      container: container.current,
-      style: BASEMAP,
-      bounds: [bbox[0], bbox[1], bbox[2], bbox[3]],
-      fitBoundsOptions: { padding: 12 },
-      attributionControl: { compact: true },
+    let map: MapLibreMap | null = null;
+    let start = 0;
+    // After the next paint (a frame, then a task): the new screen shows first,
+    // and the map fills its reserved frame a moment later.
+    const frame = requestAnimationFrame(() => {
+      start = window.setTimeout(create, 0);
     });
-    map.addControl(new NavigationControl({ showCompass: false }), "top-right");
-    const deck = new MapboxOverlay({ interleaved: false, layers: [] });
-    map.addControl(deck);
-    mapRef.current = map;
-    overlayRef.current = deck;
+    function create(): void {
+      if (!container.current) return;
+      map = new MapLibreMap({
+        container: container.current,
+        style: BASEMAP,
+        bounds: [bbox[0], bbox[1], bbox[2], bbox[3]],
+        fitBoundsOptions: { padding: 12 },
+        attributionControl: { compact: true },
+      });
+      map.addControl(new NavigationControl({ showCompass: false }), "top-right");
+      const deck = new MapboxOverlay({ interleaved: false, layers: [] });
+      map.addControl(deck);
+      mapRef.current = map;
+      overlayRef.current = deck;
+      setReady(true);
+    }
     return () => {
-      map.remove();
+      cancelAnimationFrame(frame);
+      window.clearTimeout(start);
+      const doomed = map;
       mapRef.current = null;
       overlayRef.current = null;
+      if (doomed) {
+        window.setTimeout(() => {
+          doomed.remove();
+        }, 0);
+      }
     };
     // bbox is fixed per run; re-creating the map on every render would flicker.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -99,7 +121,7 @@ export default function DeckMap({
 
   useEffect(() => {
     if (focus) mapRef.current?.flyTo({ center: [focus.lon, focus.lat], zoom: 11, duration: 600 });
-  }, [focus]);
+  }, [focus, ready]);
 
   const layers = useMemo(() => {
     const bounds: [number, number, number, number] = [bbox[0], bbox[1], bbox[2], bbox[3]];
@@ -167,7 +189,7 @@ export default function DeckMap({
 
   useEffect(() => {
     overlayRef.current?.setProps({ layers });
-  }, [layers]);
+  }, [layers, ready]);
 
   return (
     <div className={styles.canvasWrap}>

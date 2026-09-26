@@ -75,6 +75,16 @@ def _block(name: str | None) -> str:
     return (name or "unknown").title()
 
 
+def _place(near: str | None, block: str | None, c: PopulationCluster | None) -> str:
+    """'near X (Block)' from the register, else the cluster's coordinates: a
+    place the register does not name is located, never named."""
+    if near:
+        return f"near {near} ({_block(block)})"
+    if c is not None:
+        return f"at {c.lat:.2f}°N, {c.lon:.2f}°E"
+    return "at an unnamed flood cluster"
+
+
 def build_actions(
     landfall_at: datetime,
     district_label: str,
@@ -82,6 +92,9 @@ def build_actions(
     result: AssignmentResult,
     zones: list[ZoneTrigger],
     clusters: list[PopulationCluster],
+    relief_office: str = "Special Relief Commissioner, Odisha",
+    area_label: str = "",
+    has_register: bool = True,
 ) -> list[ActionItem]:
     items: list[ActionItem] = []
     cluster_by_id = {c.cluster_id: c for c in clusters}
@@ -125,7 +138,12 @@ def build_actions(
     watch = [s for s in shelters if s.status == "watch"]
 
     def collector(district: str | None) -> str:
-        return f"District Collector, {(district or district_label).title()}"
+        place = district or district_label
+        return (
+            f"District Collector, {place.title()}"
+            if place
+            else "District Collector, landfall district"
+        )
 
     def by_district(rows: list[ShelterStatus]) -> list[tuple[str, list[ShelterStatus]]]:
         groups: dict[str, list[ShelterStatus]] = defaultdict(list)
@@ -169,7 +187,7 @@ def build_actions(
             "PRE_CYCLONE_WATCH",
             "RELIEF_COMMISSIONER",
             "logistics",
-            "Special Relief Commissioner, Odisha",
+            relief_office,
             f"Open temporary shelter for {_fmt(gap)} people beyond cyclone-shelter capacity",
             f"After optimal assignment, {_fmt(gap)} of {_fmt(at_risk)} people at risk have no "
             "cyclone-shelter place within 10 km. Schools and public buildings outside the "
@@ -217,13 +235,14 @@ def build_actions(
     for u in result.unassigned[:TOP_UNASSIGNED]:
         c = cluster_by_id.get(u.population_cluster_id)
         depth = f"{c.max_depth_m} m" if c else "unknown"
+        where = _place(u.near, u.block, c)
         add(
             "CYCLONE_ALERT",
             "NDRF_STAGING",
             "staging",
             "NDRF team commander",
-            f"Pre-position a team near {u.near} ({_block(u.block)})",
-            f"{_fmt(u.people)} people near {u.near} have no shelter place. {u.why_infeasible}",
+            f"Pre-position a team {where}",
+            f"{_fmt(u.people)} people {where} have no shelter place. {u.why_infeasible}",
             f"alert-ndrf-{u.population_cluster_id}",
             [
                 Evidence(label="People without a place", value=_fmt(u.people), state="modelled"),
@@ -233,6 +252,46 @@ def build_actions(
             people=u.people,
             related=[u.population_cluster_id],
             focus=(c.lat, c.lon, u.near or u.population_cluster_id) if c else None,
+        )
+
+    if not has_register and clusters:
+        # No shelter register covers this coast: say so, and still order the
+        # evacuation of the people the flood model puts at risk. Never borrow
+        # another state's shelters.
+        biggest = max(clusters, key=lambda c: c.people_at_risk)
+        add(
+            "PRE_CYCLONE_WATCH",
+            "RELIEF_COMMISSIONER",
+            "verify",
+            relief_office,
+            "Supply the cyclone-shelter list for this coast",
+            f"PRAHARI has no shelter register for {area_label or 'this area'}, so it cannot "
+            "check which shelters sit in the flood or assign people to them. With a register, "
+            "shelter orders appear here like they do for Odisha.",
+            "watch-no-shelter-register",
+            [Evidence(label="Shelter register", value="none for this region", state="modelled")],
+        )
+        add(
+            "CYCLONE_WARNING",
+            "DISTRICT_COLLECTOR",
+            "evacuate",
+            collector(None),
+            f"Evacuate {_fmt(at_risk)} people from the modelled flood zone",
+            f"{_fmt(at_risk)} people live in {len(clusters)} flood clusters of "
+            f"{area_label or 'the area'}. With no shelter register, choose safe buildings "
+            "outside the flood locally.",
+            "warning-evacuate-flood-zone",
+            [
+                Evidence(label="People in the flood", value=_fmt(at_risk), state="modelled"),
+                Evidence(
+                    label="Depth, largest cluster",
+                    value=f"{biggest.max_depth_m} m",
+                    state="heuristic",
+                ),
+            ],
+            people=at_risk,
+            related=[c.cluster_id for c in clusters],
+            focus=(biggest.lat, biggest.lon, "Largest flood cluster"),
         )
 
     # T-24h: evacuation orders by block, to optimiser-assigned shelters.

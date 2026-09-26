@@ -20,7 +20,8 @@ export const shell = style({
   minHeight: "100vh",
   background: vars.color.surface.base,
   "@media": {
-    "screen and (max-width: 900px)": { gridTemplateColumns: "1fr" },
+    // minmax(0, …): a wide child (the phone nav row scrolls) must not widen the page.
+    "screen and (max-width: 900px)": { gridTemplateColumns: "minmax(0, 1fr)" },
   },
 });
 
@@ -44,6 +45,15 @@ export const sidebar = style({
       borderInlineEnd: "none",
       borderBlockEnd: `${vars.stroke.hair} solid ${vars.color.border.default}`,
     },
+    // Phones: brand and sections share one row, so the run starts above the fold.
+    "screen and (max-width: 720px)": {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: vars.space[2],
+      paddingBlock: vars.space[2],
+      paddingInline: vars.space[3],
+      minWidth: 0,
+    },
   },
 });
 
@@ -65,6 +75,11 @@ export const brandMark = style({
   flexShrink: 0,
 });
 
+/** The wordmark folds to the square on a phone, leaving the row to the sections. */
+export const brandWord = style({
+  "@media": { "screen and (max-width: 720px)": { display: "none" } },
+});
+
 export const brandSub = style({
   color: vars.color.text.muted,
   paddingInline: vars.space[2],
@@ -77,7 +92,13 @@ export const nav = style({
   gap: vars.space[1],
   // Phones: the rail becomes one scrolling row, so content starts above the fold.
   "@media": {
-    "screen and (max-width: 720px)": { flexDirection: "row", flexWrap: "wrap" },
+    "screen and (max-width: 720px)": {
+      flexDirection: "row",
+      flexWrap: "nowrap",
+      overflowX: "auto",
+      minWidth: 0,
+      scrollbarWidth: "none",
+    },
   },
 });
 
@@ -85,7 +106,8 @@ export const navLabel = style({
   color: vars.color.text.muted,
   paddingInline: vars.space[2],
   paddingBlockEnd: vars.space[1],
-  "@media": { "screen and (max-width: 720px)": { flexBasis: "100%" } },
+  // The storm context moves into the page header on a phone.
+  "@media": { "screen and (max-width: 720px)": { display: "none" } },
 });
 
 const navItemBase = style({
@@ -105,6 +127,12 @@ const navItemBase = style({
   },
   "@media": {
     "(prefers-reduced-motion: reduce)": { transitionDuration: vars.duration.instant },
+    "screen and (max-width: 720px)": {
+      gap: vars.space[1],
+      paddingInline: vars.space[2],
+      whiteSpace: "nowrap",
+      flexShrink: 0,
+    },
   },
 });
 
@@ -135,7 +163,23 @@ export const navCountAlert = style({
 
 export const stormClock = style({ color: vars.color.text.primary });
 
-export const headerClock = style({ marginInlineStart: "auto", color: vars.color.text.secondary });
+export const headerClock = style({
+  marginInlineStart: "auto",
+  color: vars.color.text.secondary,
+  "@media": { "screen and (max-width: 720px)": { display: "none" } },
+});
+
+/** Which storm and area, shown in the header only where the rail label is hidden. */
+export const mobileContext = style({
+  display: "none",
+  color: vars.color.text.secondary,
+  "@media": { "screen and (max-width: 720px)": { display: "block" } },
+});
+
+/** Hidden on a phone, where the header must stay short. */
+export const wideOnly = style({
+  "@media": { "screen and (max-width: 720px)": { display: "none" } },
+});
 
 /** Pushes the storm context and controls to the bottom of the rail. */
 export const sidebarFoot = style({
@@ -203,7 +247,14 @@ export const pageHeader = style({
   paddingBlock: vars.space[4],
   background: vars.color.surface.base,
   borderBlockEnd: `${vars.stroke.hair} solid ${vars.color.border.default}`,
-  "@media": { "screen and (max-width: 720px)": { paddingInline: vars.space[4] } },
+  // On a phone a sticky header would cover the map as it scrolls under.
+  "@media": {
+    "screen and (max-width: 720px)": {
+      position: "static",
+      paddingInline: vars.space[4],
+      paddingBlock: vars.space[3],
+    },
+  },
 });
 
 export const pageTitleGroup = style({

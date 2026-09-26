@@ -47,3 +47,7 @@ out/
 
 # Playwright MCP screenshots and logs
 .playwright-mcp/
+
+# Fine-tune loop artefacts: review screenshots and the pass log (kept local)
+docs/loop-shots/
+docs/loop-log.md

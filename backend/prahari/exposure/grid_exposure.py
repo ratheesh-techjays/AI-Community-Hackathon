@@ -151,20 +151,27 @@ def draft_clusters(
 def finalise_clusters(
     drafts: list[ClusterDraft],
     building_counts: list[int],
-    index: ShelterIndex,
+    index: ShelterIndex | None,
     cell_km2: float,
+    reach_km: float | None = None,
 ) -> list[PopulationCluster]:
+    """A cluster takes the block and name of its nearest register shelter. With
+    no register, or a nearest shelter beyond `reach_km`, it keeps no place name:
+    a shelter 40 km away would name the wrong village."""
     if len(drafts) != len(building_counts):
         raise ValueError("building_counts must align with drafts")
     clusters = []
     for d, buildings in zip(drafts, building_counts, strict=True):
-        nearest, _ = index.nearest(np.array([d.lat]), np.array([d.lon]))
-        shelter = index.shelters[int(nearest[0])]
+        shelter: ShelterRecord | None = None
+        if index is not None:
+            nearest, km = index.nearest(np.array([d.lat]), np.array([d.lon]))
+            if reach_km is None or float(km[0]) <= reach_km:
+                shelter = index.shelters[int(nearest[0])]
         clusters.append(
             PopulationCluster(
                 cluster_id=d.cluster_id,
-                block=shelter.block,
-                near=shelter.name,
+                block=shelter.block if shelter else None,
+                near=shelter.name if shelter else None,
                 lat=round(d.lat, 5),
                 lon=round(d.lon, 5),
                 people_at_risk=round(d.people),
@@ -220,17 +227,20 @@ def shelter_states(
 
 
 def block_rollup(
-    clusters: list[PopulationCluster], shelters: list[ShelterStatus]
+    clusters: list[PopulationCluster],
+    shelters: list[ShelterStatus],
+    unzoned: str = "UNKNOWN",
 ) -> tuple[list[BlockExposure], BlockExposure]:
+    """Per-block totals. Clusters with no register block roll up under `unzoned`."""
     acc: dict[str, dict[str, float]] = defaultdict(lambda: defaultdict(float))
     district_of: dict[str, str] = {}
     for s in shelters:
-        key = s.block or "UNKNOWN"
+        key = s.block or unzoned
         district_of.setdefault(key, s.district)
         acc[key]["shelters_total"] += 1
         acc[key]["shelters_compromised"] += s.status == "compromised"
     for c in clusters:
-        key = c.block or "UNKNOWN"
+        key = c.block or unzoned
         a = acc[key]
         a["population_at_risk"] += c.people_at_risk
         a["buildings_at_risk"] += c.buildings_at_risk

@@ -1,5 +1,5 @@
 import { assignInlineVars } from "@vanilla-extract/dynamic";
-import { useCallback, useEffect, useMemo, useState, type JSX } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type JSX, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import { Link } from "react-router-dom";
 
 import { Callout } from "@/components/Callout";
@@ -23,8 +23,12 @@ import * as styles from "./ActionQueueScreen.css";
  * control is the tick that records an order. Everything else is the evidence
  * for the selected item, kept beside it.
  *
- * Keyboard: j / k move, o records. Officers who use this for the length of a
- * landfall should not need the mouse.
+ * Keyboard: j / k move, o records, anywhere on the page. The arrow keys move
+ * only while focus is in the queue, so they still scroll the page elsewhere.
+ * Officers who use this for the length of a landfall should not need the mouse.
+ *
+ * The queue is grouped by IMD stage. Stages up to the current one are open;
+ * later stages are folded to a count, so the list reads as "what now".
  */
 
 const HOUR = 3_600_000;
@@ -111,12 +115,13 @@ export function ActionQueueScreen(): JSX.Element {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.target instanceof HTMLSelectElement || e.metaKey || e.ctrlKey || e.altKey) return;
       const idx = sorted.findIndex((a) => a.id === selectedId);
-      if (e.key === "j" || e.key === "ArrowDown") {
+      if (e.key === "j") {
         const next = sorted[Math.min(idx + 1, sorted.length - 1)];
         if (next) setSelectedId(next.id);
         e.preventDefault();
-      } else if (e.key === "k" || e.key === "ArrowUp") {
+      } else if (e.key === "k") {
         const prev = sorted[Math.max(idx - 1, 0)];
         if (prev) setSelectedId(prev.id);
         e.preventDefault();
@@ -130,6 +135,28 @@ export function ActionQueueScreen(): JSX.Element {
       window.removeEventListener("keydown", onKey);
     };
   }, [sorted, selectedId, selected, toggleOrder]);
+
+  const onListKey = (e: ReactKeyboardEvent<HTMLElement>): void => {
+    if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+    const idx = sorted.findIndex((a) => a.id === selectedId);
+    const next = sorted[e.key === "ArrowDown" ? Math.min(idx + 1, sorted.length - 1) : Math.max(idx - 1, 0)];
+    if (next) setSelectedId(next.id);
+    e.preventDefault();
+  };
+
+  const stageIndex = (id: string): number => scenario.stages.findIndex((st) => st.id === id);
+  const current = stageIndex(meta.stage);
+  const [unfolded, setUnfolded] = useState<Set<string>>(() => new Set());
+  const isOpen = (stage: string): boolean => stageIndex(stage) <= current || unfolded.has(stage);
+
+  // On a phone the detail sits under the list: bring it into view on select.
+  const detailRef = useRef<HTMLDivElement>(null);
+  const select = (id: string): void => {
+    setSelectedId(id);
+    if (window.matchMedia("(max-width: 1000px)").matches) {
+      requestAnimationFrame(() => detailRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
+    }
+  };
 
   const groups = useMemo(() => {
     const open = sorted.filter((a) => !ledger.isOrdered(a.id));
@@ -159,7 +186,7 @@ export function ActionQueueScreen(): JSX.Element {
       </Callout>
     ) : null}
     <div className={styles.screen}>
-      <aside className={styles.list} aria-label="Order queue">
+      <aside className={styles.list} aria-label="Order queue" onKeyDown={onListKey}>
         <div className={styles.listHead}>
           <span className={`${text.label} ${styles.kind}`}>THIS STAGE · {meta.stageName.toUpperCase()}</span>
           <div
@@ -186,13 +213,34 @@ export function ActionQueueScreen(): JSX.Element {
           </p>
         ) : null}
 
-        {groups.byDeadline.map(([when, items]) => (
+        {groups.byDeadline.map(([when, items]) => {
+          const stage = items[0]?.stage ?? meta.stage;
+          const stageName = scenario.stages.find((st) => st.id === stage)?.name ?? "";
+          const open = isOpen(stage);
+          return (
           <div key={when} className={styles.group}>
-            <div className={`${text.label} ${styles.groupTitle}`}>
+            <button
+              type="button"
+              className={`${text.label} ${styles.groupTitle}`}
+              aria-expanded={open}
+              onClick={() => {
+                setUnfolded((prev) => {
+                  const next = new Set(prev);
+                  if (next.has(stage)) next.delete(stage);
+                  else next.add(stage);
+                  return next;
+                });
+              }}
+              disabled={stageIndex(stage) <= current}
+            >
+              <span className={styles.groupStage}>{stageName.toUpperCase()}</span>
               <span>BY {when.toUpperCase()}</span>
-              <span className={styles.groupCount}>{items.length}</span>
-            </div>
-            {items.map((a) => (
+              <span className={styles.groupCount}>
+                {items.length}
+                {stageIndex(stage) > current ? (open ? " · hide" : " · show") : ""}
+              </span>
+            </button>
+            {open ? items.map((a) => (
               <QueueItem
                 key={a.id}
                 action={a}
@@ -200,15 +248,16 @@ export function ActionQueueScreen(): JSX.Element {
                 selected={a.id === selectedId}
                 ordered={false}
                 onSelect={() => {
-                  setSelectedId(a.id);
+                  select(a.id);
                 }}
                 onToggle={() => {
                   toggleOrder(a);
                 }}
               />
-            ))}
+            )) : null}
           </div>
-        ))}
+          );
+        })}
 
         {groups.done.length > 0 ? (
           <div className={styles.group}>
@@ -224,7 +273,7 @@ export function ActionQueueScreen(): JSX.Element {
                 selected={a.id === selectedId}
                 ordered
                 onSelect={() => {
-                  setSelectedId(a.id);
+                  select(a.id);
                 }}
                 onToggle={() => {
                   toggleOrder(a);
@@ -235,6 +284,7 @@ export function ActionQueueScreen(): JSX.Element {
         ) : null}
       </aside>
 
+      <div ref={detailRef} className={styles.detailAnchor}>
       {selected ? (
         <ActionDetail
           action={selected}
@@ -253,6 +303,7 @@ export function ActionQueueScreen(): JSX.Element {
           <span className={text.body}>Next: Cyclone Warning stage opens at T-24h.</span>
         </div>
       )}
+      </div>
     </div>
     </>
   );
@@ -334,7 +385,7 @@ function ActionDetail({
     <article className={styles.detail} aria-live="polite">
       <header className={styles.detailHead}>
         <span className={`${text.label} ${styles.kind}`}>
-          {KIND_LABEL[action.kind].toUpperCase()} · {action.id}
+          {KIND_LABEL[action.kind].toUpperCase()} · {scenario.stages.find((st) => st.id === action.stage)?.name.toUpperCase()}
         </span>
         <h2 className={styles.detailTitle}>{action.title}</h2>
         <div className={`${text.body} ${styles.detailMeta}`}>

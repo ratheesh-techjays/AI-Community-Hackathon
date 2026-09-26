@@ -62,6 +62,9 @@ class SyntheticLayers:
             truth_source="synthetic",
         )
 
+    def find_sar_window(self, grid: GridSpec, landfall: datetime) -> tuple[SarWindow | None, str]:
+        return None, "Synthetic layers have no Sentinel-1 archive to search."
+
 
 def synthetic_track(name: str = "FANI", season: int = 2019) -> CycloneTrack:
     """A storm moving north-north-east to landfall at Puri."""

@@ -26,6 +26,7 @@ export type ScenarioRequest = Schemas["ScenarioRequest"];
 export type ScenarioAccepted = Schemas["ScenarioAccepted"];
 export type ScenarioDetail = Schemas["ScenarioDetail"];
 export type RunSummary = Schemas["RunSummary"];
+export type Coverage = Schemas["Coverage"];
 export type ModelDisclosure = Schemas["ModelDisclosure"];
 export type HazardResponse = Schemas["HazardResponse"];
 export type LayerRef = Schemas["LayerRef"];

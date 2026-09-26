@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import numpy as np
 
+from prahari.config.regions import coast_of
 from prahari.models.track import CycloneTrack, LandfallEvent, TrackPoint
 
 RMW_MIN_NMI = 8.0
@@ -60,16 +61,26 @@ def smooth_rmw(points: list[TrackPoint], window: int = 3) -> list[TrackPoint]:
 
 
 def detect_landfall(points: list[TrackPoint]) -> LandfallEvent | None:
-    """First point where DIST2LAND reaches zero (IBTrACS semantics)."""
-    for point in points:
-        if point.dist2land_km is not None and point.dist2land_km <= 0:
-            return LandfallEvent(
-                iso_time=point.iso_time,
-                lat=point.lat,
-                lon=point.lon,
-                max_wind_kt=point.max_wind_kt,
-            )
-    return None
+    """First point where DIST2LAND reaches zero (IBTrACS semantics).
+
+    Crossing an island (the Andamans, Sri Lanka) also reads zero, and a storm
+    that crossed over from the Pacific carries its first landfall from there.
+    So the first mainland landfall on a configured coast wins, then an island
+    one, then any.
+    """
+    land = [p for p in points if p.dist2land_km is not None and p.dist2land_km <= 0]
+    if not land:
+        return None
+    coasts = [(p, coast_of(p.lat, p.lon)) for p in land]
+    mainland = [p for p, c in coasts if c is not None and not c.island]
+    island = [p for p, c in coasts if c is not None]
+    point = (mainland or island or land)[0]
+    return LandfallEvent(
+        iso_time=point.iso_time,
+        lat=point.lat,
+        lon=point.lon,
+        max_wind_kt=point.max_wind_kt,
+    )
 
 
 def peak_intensity(track: CycloneTrack) -> TrackPoint:

@@ -1,4 +1,5 @@
 import { useMemo, useState, type JSX } from "react";
+import { Link } from "react-router-dom";
 
 import { Callout } from "@/components/Callout";
 import { DataTable, type Column } from "@/components/DataTable";
@@ -90,7 +91,7 @@ function unreachedColumns(limits: ScenarioData["limitations"]): Column<Unreached
         <>
           <span className={text.bodyStrong}>{row.near}</span>
           <span className={`${text.metric} ${styles.subLine}`}>
-            {row.id} · {row.block.toLowerCase()}
+            {row.block === "—" ? row.id : `${row.id} · ${row.block.toLowerCase()}`}
           </span>
         </>
       ),
@@ -120,6 +121,35 @@ function unreachedColumns(limits: ScenarioData["limitations"]): Column<Unreached
 
 export function SheltersScreen(): JSX.Element {
   const scenario = useScenario();
+  if (scenario.meta.coverage.shelters === "none") return <NoRegister />;
+  return <Shelters />;
+}
+
+/** Outside Odisha: say so plainly, show the flood anyway, and point to the orders. */
+function NoRegister(): JSX.Element {
+  const { meta, map } = useScenario();
+  return (
+    <>
+      <Callout intent="info" title="No shelter register for this region">
+        {meta.coverage.shelter_note} No shelter is borrowed from another state or invented. The flood
+        map, the people counted in it and the evacuation orders still apply;{" "}
+        <Link to={`/scenarios/${meta.runId}/orders`}>see the orders</Link>.
+      </Callout>
+      <Section title="Where the flood is" note="Choose safe buildings outside it locally">
+        <ImpactMap
+          bbox={map.bbox}
+          flood={map.flood}
+          label={`Map of ${meta.area}: modelled flood depth. No shelter register covers this region.`}
+        >
+          <HazardLegend sections={["flood"]} floating />
+        </ImpactMap>
+      </Section>
+    </>
+  );
+}
+
+function Shelters(): JSX.Element {
+  const scenario = useScenario();
   const { meta, shelters, unreached, headline, limitations, map } = scenario;
   const [filter, setFilter] = useState<Filter>("compromised");
   const [allUnreached, setAllUnreached] = useState(false);
@@ -140,7 +170,7 @@ export function SheltersScreen(): JSX.Element {
       denominator: `of ${headline.sheltersTotal}`,
       badge: { state: "heuristic", limitations: limitations.extent },
       compare: "OSDMA register, modelled area",
-      flag: true,
+      flag: headline.sheltersCompromised > 0,
     },
     {
       key: "unreached",
@@ -148,12 +178,19 @@ export function SheltersScreen(): JSX.Element {
       value: fmt(headline.unassignedPopulation),
       badge: { state: "modelled", limitations: limitations.reachability },
       compare: `of ${fmt(headline.assignedPopulation + headline.unassignedPopulation)} at risk`,
-      flag: true,
+      flag: headline.unassignedPopulation > 0,
     },
   ];
 
   return (
     <>
+      {meta.coverage.shelters === "partial" ? (
+        <Callout intent="info" title="The register covers part of this area">
+          {meta.coverage.shelter_note} People in the rest of the flood are counted on the Overview
+          and in the orders, but no shelter is assigned to them.
+        </Callout>
+      ) : null}
+
       <MetricStrip metrics={metrics} />
 
       <Callout intent="limit" title="The three places this finding can be wrong">

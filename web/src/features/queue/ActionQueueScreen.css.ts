@@ -68,11 +68,23 @@ export const group = style({
 export const groupTitle = style({
   display: "flex",
   alignItems: "baseline",
+  flexWrap: "wrap",
   gap: vars.space[2],
+  width: "100%",
   paddingInline: vars.space[3],
-  paddingBlockEnd: vars.space[1],
+  paddingBlock: vars.space[1],
+  border: "none",
+  background: "transparent",
+  textAlign: "start",
   color: vars.color.text.muted,
+  cursor: "pointer",
+  selectors: { "&:disabled": { cursor: "default" } },
 });
+
+export const groupStage = style({ color: vars.color.text.primary });
+
+/** Wraps the detail pane so a phone can scroll it into view. */
+export const detailAnchor = style({ minWidth: 0, scrollMarginTop: vars.space[4] });
 
 export const groupCount = style({ marginInlineStart: "auto" });
 

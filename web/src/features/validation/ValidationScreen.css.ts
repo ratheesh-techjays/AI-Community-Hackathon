@@ -113,7 +113,7 @@ export const twoUp = style({
   gridTemplateColumns: "1fr minmax(15rem, 0.7fr)",
   gap: vars.space[3],
   alignItems: "start",
-  "@media": { "screen and (max-width: 900px)": { gridTemplateColumns: "1fr" } },
+  "@media": { "screen and (max-width: 900px)": { gridTemplateColumns: "minmax(0, 1fr)" } },
 });
 
 /** No box: a heading and its table, like every other section. */
@@ -121,6 +121,7 @@ export const panel = style({
   display: "flex",
   flexDirection: "column",
   gap: vars.space[3],
+  minWidth: 0,
 });
 
 export const confusion = style({ borderCollapse: "collapse", width: "100%" });
@@ -138,6 +139,7 @@ export const confusionCell = style({
   paddingBlock: vars.space[2],
   borderBlockEnd: `${vars.stroke.hair} solid ${vars.color.border.default}`,
   fontVariantNumeric: "tabular-nums",
+  paddingInlineStart: vars.space[2],
 });
 
 /** A failure of the satellite truth, not of the model. */

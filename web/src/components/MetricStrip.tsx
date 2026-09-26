@@ -8,6 +8,7 @@ import {
   type DisclosureState,
 } from "./DisclosureBadge";
 import { Icon } from "./Icon";
+import { Term, type TermId } from "./Term";
 import * as styles from "./MetricStrip.css";
 
 /**
@@ -21,6 +22,8 @@ import * as styles from "./MetricStrip.css";
 export interface Metric {
   key: string;
   label: string;
+  /** Jargon in the label: the label gets the glossary definition. */
+  term?: TermId;
   value: string;
   unit?: string;
   denominator?: string;
@@ -39,7 +42,9 @@ export function MetricStrip({ metrics }: { metrics: Metric[] }): JSX.Element {
           key={m.key}
           className={`${styles.item}${m.flag ? ` ${styles.itemFlagged}` : ""}`}
         >
-          <span className={`${text.label} ${styles.label}`}>{m.label.toUpperCase()}</span>
+          <span className={`${text.label} ${styles.label}`}>
+            {m.term ? <Term id={m.term}>{m.label.toUpperCase()}</Term> : m.label.toUpperCase()}
+          </span>
 
           <span className={styles.valueRow}>
             <span className={`${styles.value}${m.flag ? ` ${styles.valueFlagged}` : ""}`}>

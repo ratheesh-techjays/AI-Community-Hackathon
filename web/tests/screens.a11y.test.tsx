@@ -42,7 +42,7 @@ function renderScreen(screen: ReactNode) {
 describe("screens render real engine output accessibly", () => {
   it.each([
     ["orders", <ActionQueueScreen key="q" />],
-    ["map", <SituationScreen key="s" />],
+    ["overview", <SituationScreen key="s" />],
     ["shelters", <SheltersScreen key="h" />],
     ["evidence", <ValidationScreen key="v" />],
   ])("%s has no axe violations", async (_name, screen) => {

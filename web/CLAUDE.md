@@ -29,8 +29,8 @@ Tests run under jsdom with vitest globals (`tests/setup.ts` loads jest-dom). The
   - `Providers` supplies the QueryClient and the `OrderLedgerProvider`.
   - It also prefetches the runs listed in `VITE_DEMO_RUN_IDS`.
 - **Routes** (`app/router.tsx`):
-  - `/` is the storm selector.
-  - `/scenarios/:runId/{orders,map,shelters,evidence}` sits under `ScenarioLayout`. The index route redirects to `orders`.
+  - `/` is the landing page: what PRAHARI is, the computed runs, and the IBTrACS storm catalogue (`GET /storms`) with search and filters.
+  - `/scenarios/:runId/{overview,orders,shelters,evidence}` sits under `ScenarioLayout`. The index route redirects to `overview`, the home of a run; the old `map` path redirects there too.
 - **Feature slices** live in `features/<name>/`:
   - `scenario`, `queue`, `situation`, `shelters`, `validation` and `orders` are the feature slices.
   - Shared presentational components live in `components/`.
@@ -39,7 +39,7 @@ Tests run under jsdom with vitest globals (`tests/setup.ts` loads jest-dom). The
   - The query polls while a run is QUEUED or RUNNING.
   - `adapter.ts` (`toScenarioData`) maps the responses to `ScenarioData`. It only renames and joins fields: no number is created there.
   - Disclosure badges get the server's own `limitations`.
-  - `registry.ts` holds only the storm catalogue (`STORM_OPTIONS`, including each storm's `aoiPreset` and `runId`).
+  - There is no client-side storm list: the catalogue, landfall coasts and the stored run for each storm come from `GET /storms`.
   - The API types come from `api/generated/schema.d.ts` (`npm run api:types`).
 - **Order ledger** (`features/orders/orderLedger.tsx`):
   - A ticked checkbox is an auditable order: `subjectId`, `action`, IMD `stage`, `orderedAt` and `byRole`.
@@ -101,6 +101,10 @@ Tests run under jsdom with vitest globals (`tests/setup.ts` loads jest-dom). The
   - `text.onDark` stays white.
   - Flood bands are stable across themes, except the deep band.
   - Odia (`*Od`) styles have more leading than their English pairs and no letter-spacing.
+
+## Plain language
+- Jargon (CSI, surge index, parametric trigger, IMD stage) is wrapped in `components/Term.tsx`, whose `GLOSSARY` holds the one-line definitions. Add a term there, not inline.
+- `DataTable`'s `statusTags` re-words (and re-glyphs) the status tag where "Usable"/"Watch" would mislead (trigger zones, the sensitivity sweep).
 
 ## Disclosure in the UI
 - Every modelled number must render with a `DisclosureBadge` (`components/DisclosureBadge.tsx`). `StatCard`, `MetricStrip` and `DataTable` accept disclosure props for this.

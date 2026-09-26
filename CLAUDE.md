@@ -21,12 +21,20 @@ The dev shell is PowerShell 5.1, so chain commands with `;` and not `&&`.
   - Gemini briefings behind the grounding validator (`ai/`).
 - **Storage and API:** runs are stored as files under `data/runs/<run_id>/` (`storage/runs.py`) and served by `/scenarios/{id}/...`.
 - **Frontend:** reads only the API. There are no fixtures. The map is deck.gl + MapLibre, lazily loaded.
+- **Any cyclone:**
+  - `GET /storms` lists every named storm in IBTrACS NI (`ingestion/tracks/catalogue.py`). For each it gives the landfall coast, whether it can be modelled and whether a Sentinel-1 score can exist, each with a reason.
+  - `aoi_preset: "auto"` draws the AOI around the landfall point (`config/regions.py`: `LANDFALL_COASTS`, `derive_aoi`).
+  - Every run carries `summary.coverage`: shelters `register`, `partial` or `none`, and validation `scored`, `not_scorable` or `not_requested`, with notes.
+  - Outside the OSDMA register there is no shelter assignment (`optimiser.status = "NOT_RUN"`), and orders say so.
+  - With no pinned `SAR_WINDOWS` entry, a same-orbit Sentinel-1 pair is searched for (`LayerSource.find_sar_window`).
 - **Precomputed runs:**
-  - `fani-2019-puri` and `yaas-2021-balasore` are stored in `data/runs/`.
+  - `fani-2019-puri` and `yaas-2021-balasore` are stored in `data/runs/`. Never overwrite or recompute them.
+  - Landfall-AOI runs are stored too: `hudhud-2014-andhra`, `phailin-2013-odisha`, `titli-2018-andhra`, `amphan-2020-westbengal`, `gaja-2018-tamilnadu` and `sitrang-2022-bangladesh`.
   - Opening them needs no Earth Engine or Gemini key.
-  - Recompute with `python -m prahari.workers.scenario --storm FANI --season 2019 --aoi puri_khordha --validate --alias fani-2019-puri`.
+  - Recompute with `python -m prahari.workers.scenario --storm FANI --season 2019 --aoi puri_khordha --validate --alias fani-2019-puri`, or `--aoi auto` for a landfall AOI.
 - **Not built:**
-  - GDACS and IMD-bulletin track kinds (the API returns 400).
+  - GDACS and IMD-bulletin track kinds (the API returns 400 `track-kind-unsupported`).
+  - Shelter registers outside Odisha.
   - Road routing (straight line x 1.3).
   - Hospital and power assets.
   - Postgres/GCS storage.

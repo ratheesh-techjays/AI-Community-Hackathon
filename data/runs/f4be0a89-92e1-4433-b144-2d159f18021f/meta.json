@@ -1,0 +1,44 @@
+{
+  "run_id": "f4be0a89-92e1-4433-b144-2d159f18021f",
+  "status": "COMPLETE",
+  "params_hash": "2365c35710ca3411fe97c3feb6f5696975b139e19ff30b68e723c72949d5c0fe",
+  "request": {
+    "track": {
+      "kind": "ibtracs",
+      "storm_name": "PHAILIN",
+      "season": 2013
+    },
+    "aoi_preset": "auto",
+    "hazard": {
+      "surge_level_m": null,
+      "funnel_amplification": null,
+      "holland_b_override": null,
+      "dem_offset_m": 0.0
+    },
+    "generate_advisories": true,
+    "languages": [
+      "en",
+      "or"
+    ],
+    "run_validation": true,
+    "label": "phailin-2013-odisha"
+  },
+  "code_version": "0.2.0",
+  "config_version": "v1",
+  "created_at": "2026-09-25T18:28:36.717660Z",
+  "completed_at": "2026-09-25T18:30:04.024710Z",
+  "stages_complete": [
+    "hazard.wind_field",
+    "hazard.inundation",
+    "exposure",
+    "decision.assignment",
+    "decision.parametric_and_packets",
+    "ai.advisories"
+  ],
+  "warnings": [
+    "RMW_IMPUTED: 8 of 55 track points smoothed or filled",
+    "LAGOON_BARRIER: 7428 enclosed-lagoon cells neither seed nor carry surge"
+  ],
+  "error": null,
+  "alias": "phailin-2013-odisha"
+}

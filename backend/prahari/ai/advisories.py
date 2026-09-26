@@ -71,7 +71,7 @@ class AdvisoryDraft(BaseModel):
 def _facts_for_prompt(run: RunResult, stage: IMDStage) -> dict[str, object]:
     s = run.summary
     orders = [a for a in run.decisions.actions if a.stage == stage]
-    return {
+    facts: dict[str, object] = {
         "storm": f"{s.storm_name.title()} {s.season}",
         "season": s.season,
         "area": s.aoi,
@@ -81,10 +81,17 @@ def _facts_for_prompt(run: RunResult, stage: IMDStage) -> dict[str, object]:
         "area_flooded_km2": s.area_flooded_km2,
         "population_at_risk": s.population_at_risk,
         "buildings_at_risk": s.buildings_at_risk,
-        "shelters_compromised": s.shelters_compromised,
-        "shelters_total": s.shelters_total,
-        "people_without_a_shelter_place": s.unassigned_population,
-        "max_estimated_road_distance_km (straight line x 1.3, no road network)": 10,
+    }
+    if _has_register(run):
+        facts |= {
+            "shelters_compromised": s.shelters_compromised,
+            "shelters_total": s.shelters_total,
+            "people_without_a_shelter_place": s.unassigned_population,
+            "max_estimated_road_distance_km (straight line x 1.3, no road network)": 10,
+        }
+    else:
+        facts["shelter_register"] = "none for this region: no shelter figures exist"
+    return facts | {
         "orders_this_stage_count": len(orders),
         "orders_this_stage": [
             {"office": a.office, "order": a.title, "people": a.people} for a in orders[:8]
@@ -146,9 +153,24 @@ def _run_times(run: RunResult) -> list[str]:
     return sorted({f"{(m + d):%H:%M}" for m in moments for d in (IST_OFFSET, timedelta(0))})
 
 
+def _has_register(run: RunResult) -> bool:
+    coverage = run.summary.coverage
+    return coverage is None or coverage.shelters != "none"
+
+
 def template(run: RunResult, stage: IMDStage) -> AdvisoryDraft:
     s = run.summary
     n = sum(1 for a in run.decisions.actions if a.stage == stage)
+    if not _has_register(run):
+        return AdvisoryDraft(
+            headline=f"{STAGE_NAMES[stage]}: {s.population_at_risk:,} people in the modelled flood",
+            situation=(
+                f"The model floods {s.area_flooded_km2} km2 of {s.aoi} with "
+                f"{s.population_at_risk:,} people and {s.buildings_at_risk:,} buildings inside "
+                "it. No shelter register covers this region, so no shelter figures exist. "
+                f"{n} orders are due at this stage."
+            ),
+        )
     return AdvisoryDraft(
         headline=(
             f"{STAGE_NAMES[stage]}: {s.shelters_compromised} shelters in the modelled surge zone"

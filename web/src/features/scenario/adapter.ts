@@ -129,6 +129,7 @@ export function toScenarioData(b: RunBundle): ScenarioData {
   const skill = validation.skill ?? null;
   const passed = Boolean(summary.disclosure.validated_against);
   const actions = decisions.actions.map(toAction);
+  const clusterAt = new Map(exposure.clusters.map((c) => [c.cluster_id, c] as const));
   const shelters = assets.shelters.map(toShelter);
   const labelled = new Set(
     shelters
@@ -158,6 +159,19 @@ export function toScenarioData(b: RunBundle): ScenarioData {
       validated: passed,
       warnings: detail.warnings,
       provenance: detail.provenance ?? {},
+      // The API always sends coverage now; a bundle saved before it existed
+      // gets the same derivation the backend uses for stored runs.
+      coverage: summary.coverage ?? {
+        aoi_source: "preset",
+        landfall_coast: null,
+        hazard: true,
+        exposure: true,
+        shelters: summary.shelters_total > 0 ? "register" : "none",
+        shelter_note:
+          summary.shelters_total > 0 ? "OSDMA cyclone-shelter register (Odisha)" : "No shelter register for this region.",
+        validation: validation.available ? "scored" : "not_scorable",
+        validation_note: validation.available ? null : (validation.reason_unavailable ?? null),
+      },
     },
     stages: stages(actions),
     actions,
@@ -165,7 +179,12 @@ export function toScenarioData(b: RunBundle): ScenarioData {
     unreached: decisions.unassigned.map((u) => ({
       id: u.population_cluster_id,
       status: "unreached" as const,
-      near: u.near ? `Near ${u.near}` : u.population_cluster_id,
+      // A place the register does not name is located, never named.
+      near: u.near
+        ? `Near ${u.near}`
+        : clusterAt.has(u.population_cluster_id)
+          ? `Unnamed place at ${clusterAt.get(u.population_cluster_id)?.lat.toFixed(2) ?? ""}°N, ${clusterAt.get(u.population_cluster_id)?.lon.toFixed(2) ?? ""}°E`
+          : "Unnamed place",
       block: u.block ?? "—",
       population: u.people,
       nearestShelter: u.nearest_infeasible_shelter ?? "—",

@@ -8,7 +8,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
 
-from prahari.config.regions import AOI_PRESETS
+from prahari.config.regions import AOI_PRESETS, AUTO_AOI
 from prahari.models.results import RunSummary
 
 Language = Literal["en", "or"]
@@ -40,6 +40,7 @@ class HazardParams(BaseModel):
 
 class ScenarioRequest(BaseModel):
     track: TrackSource
+    # A named preset, or "auto": an area derived from the track's landfall.
     aoi_preset: str = "puri_khordha"
     hazard: HazardParams = HazardParams()
     generate_advisories: bool = True
@@ -50,8 +51,9 @@ class ScenarioRequest(BaseModel):
     @field_validator("aoi_preset")
     @classmethod
     def _known_aoi(cls, value: str) -> str:
-        if value not in AOI_PRESETS:
-            raise ValueError(f"unknown AOI preset; choose one of {sorted(AOI_PRESETS)}")
+        if value != AUTO_AOI and value not in AOI_PRESETS:
+            choices = [AUTO_AOI, *sorted(AOI_PRESETS)]
+            raise ValueError(f"unknown AOI preset; choose one of {choices}")
         return value
 
 
