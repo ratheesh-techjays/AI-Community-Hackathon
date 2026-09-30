@@ -1,0 +1,16 @@
+# Render Blueprint: one Docker web service serving the API and the web app
+# from the same origin. See Dockerfile.render.
+services:
+  - type: web
+    name: prahari
+    runtime: docker
+    dockerfilePath: ./Dockerfile.render
+    dockerContext: .
+    plan: free
+    region: singapore
+    healthCheckPath: /api/v1/openapi.json
+    envVars:
+      - key: PRAHARI_ENV
+        value: prod
+      - key: GEE_PROJECT
+        value: prahari-24399

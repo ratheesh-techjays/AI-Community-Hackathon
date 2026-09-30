@@ -1,0 +1,31 @@
+# PRAHARI single-service image for Render: the API plus the built web app on
+# one origin (FastAPI serves web/dist when PRAHARI_WEB_DIST is set), so there
+# is still no CORS. The Cloud Run image is ./Dockerfile; Firebase serves the
+# web app there.
+
+FROM node:22-slim AS web
+WORKDIR /web
+COPY web/package.json web/package-lock.json ./
+RUN npm ci
+COPY web ./
+RUN npx vite build
+
+FROM python:3.11-slim
+
+ENV PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1 PRAHARI_REPO_ROOT=/app \
+    PRAHARI_WEB_DIST=/app/web/dist
+WORKDIR /app
+
+COPY backend/pyproject.toml backend/
+COPY backend/prahari backend/prahari
+RUN pip install --no-cache-dir ./backend
+
+COPY data data
+COPY --from=web /web/dist web/dist
+
+RUN useradd --create-home --uid 10001 prahari && chown -R prahari /app/data
+USER prahari
+
+# Render injects PORT. prod refuses writes without PRAHARI_API_KEY.
+ENV PORT=10000 PRAHARI_ENV=prod
+CMD exec uvicorn prahari.api.main:app --host 0.0.0.0 --port ${PORT}
