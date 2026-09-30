@@ -23,6 +23,10 @@ RUN pip install --no-cache-dir ./backend
 COPY data data
 COPY --from=web /web/dist web/dist
 
+# data/raw/ibtracs_NI.csv is gitignored, so Render's git checkout lacks it;
+# without it /storms returns 404. Fetch it at build time (same as `make data`).
+RUN python -c "from prahari.config.paths import IBTRACS_CSV; from prahari.ingestion.tracks.ibtracs import download; p = download(IBTRACS_CSV); print(p, p.stat().st_size)"
+
 RUN useradd --create-home --uid 10001 prahari && chown -R prahari /app/data
 USER prahari
 
